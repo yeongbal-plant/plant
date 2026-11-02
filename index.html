@@ -392,12 +392,24 @@ h2{font-weight:800}
 #gate #gateGo{background:#1B2440;color:#fff;border:0}
 #gate .g-or{margin:22px 0 8px;font-size:12px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:14px}
 #gate #gateBtn.g-small{min-height:38px;font-size:13px;background:#fff;color:#1B2440;border:1px solid #c9ced8}
+#gate #gateTabs{display:flex;background:#EEF1F6;border-radius:10px;padding:4px;margin-bottom:18px}
+#gate #gateTabs button{flex:1;min-height:40px;border:0;background:transparent;font-size:15px;border-radius:8px;color:#4a5160}
+#gate #gateTabs button.on{background:#fff;color:#1B2440;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+#gate #stuId,#gate #stuPw{width:100%;box-sizing:border-box;min-height:48px;border:1px solid #c9ced8;border-radius:10px;padding:0 14px;font-size:16px;margin-bottom:10px}
+#gate #stuGo{background:#1B2440;color:#fff;border:0}
 #gate .g-foot{margin-top:18px;font-size:12px;color:#6b7280;line-height:1.5}
 #cloudbar{position:fixed;right:10px;bottom:10px;z-index:9000;background:rgba(27,36,64,.92);color:#fff;border-radius:999px;padding:5px 6px 5px 12px;font-size:12px;display:flex;gap:8px;align-items:center;max-width:calc(100vw - 20px)}
 #cloudbar .cb-u{opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
 #cloudbar button{background:#fff;color:#1B2440;border:0;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer}
 body.stumode #cloudbar,body.locked #cbMem{display:none}
-@media print{#cloudbar{display:none}}
+@media print{#cloudbar,#rpBar{display:none!important}}
+body.phone #stuExit,body.phone #stuExitPw{display:none!important}
+body.rpview #print{display:block!important;position:fixed;inset:0;z-index:9500;overflow:auto;background:#E9ECF2;padding:64px 8px 24px}
+body.rpview #print .rp-page{background:#fff;margin:0 auto 14px;max-width:820px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+#rpBar{position:fixed;top:0;left:0;right:0;z-index:9600;display:flex;gap:8px;justify-content:space-between;padding:10px 12px;background:#1B2440}
+#ikOv{position:fixed;inset:0;z-index:9500;background:#fff;display:flex;flex-direction:column}
+#ikOv .ik-top{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #e5e7eb}
+#ikOv iframe{flex:1;border:0;width:100%}
 #memBox{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:16px}
 #memBox .m-card{background:#fff;border-radius:12px;padding:20px;max-width:480px;width:100%;max-height:85vh;overflow:auto}
 #memBox h3{margin:0 0 6px}#memBox .m-n{color:#6b7280;font-size:13px}
@@ -405,12 +417,15 @@ body.stumode #cloudbar,body.locked #cbMem{display:none}
 #memBox input{border:1px solid #c9ced8;border-radius:8px;padding:8px;font-size:14px;width:100%;margin-top:6px;box-sizing:border-box}
 #memBox button{border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer;background:#EEF1F6}#memBox #memAdd{background:#1B2440;color:#fff;margin-top:8px;width:100%}
 </style>
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="PLAN·T"><meta name="theme-color" content="#1B2440">
 </head>
 <body>
 <div id="gate"><div class="g-card"><h1>PLAN·T</h1><div class="g-sub">영어발전소</div>
-<div id="gateStaff" style="display:none"><div class="g-lab">누구세요?</div><div id="gateNames"></div><input id="gatePw" type="password" placeholder="비밀번호" autocomplete="current-password"><button id="gateGo">들어가기</button><div class="g-or">관리자</div></div>
-<button id="gateBtn">구글 계정으로 로그인</button><button id="gateOut" style="display:none">다른 계정으로 로그인</button>
-<div id="gateMsg"></div><div class="g-foot">비밀번호는 관리자가 설정 → 원장·선생님 계정에서 만들어 드려요 · 허용되지 않은 사람은 들어올 수 없어요</div></div></div>
+<div id="gateTabs"><button type="button" data-m="staff" class="on">원장 · 선생님</button><button type="button" data-m="stu">학생</button></div>
+<div id="gateStaffWrap"><div id="gateStaff" style="display:none"><div class="g-lab">누구세요?</div><div id="gateNames"></div><input id="gatePw" type="password" placeholder="비밀번호" autocomplete="current-password"><button id="gateGo">들어가기</button><div class="g-or">관리자</div></div>
+<button id="gateBtn">구글 계정으로 로그인</button><button id="gateOut" style="display:none">다른 계정으로 로그인</button></div>
+<div id="gateStu" style="display:none"><input id="stuId" placeholder="아이디 (예: yb0127)" autocapitalize="off" autocomplete="username" inputmode="latin"><input id="stuPw" type="password" placeholder="비밀번호" autocomplete="current-password"><button id="stuGo">들어가기</button><div class="g-foot" style="margin-top:12px">아이디 · 비밀번호는 원장님께 받아요 · 한 번 들어오면 이 폰에서 계속 열려요</div></div>
+<div id="gateMsg"></div><div class="g-foot" id="gateFoot">비밀번호는 관리자가 설정 → 원장·선생님 계정에서 만들어 드려요 · 허용되지 않은 사람은 들어올 수 없어요</div></div></div>
 <div id="memBox"><div class="m-card"><h3>접속 관리</h3><div class="m-n">여기 넣은 구글 계정만 PLAN·T에 들어올 수 있어요 · 빼면 바로 막혀요</div>
 <ul id="memList"></ul><input id="memEmail" placeholder="구글 이메일 (예: teacher@gmail.com)"><input id="memName" placeholder="이름 · 역할 (예: 김○○ 선생님)">
 <button id="memAdd">추가</button><div id="memMsg" class="m-n" style="color:#8a2a1a;margin-top:6px"></div><div style="text-align:right;margin-top:10px"><button id="memClose">닫기</button></div></div></div>
@@ -6017,8 +6032,8 @@ const IKFILES={"index.html": "<!doctype html>\n<html lang=\"ko\"><head><meta cha
    - 다른 기기 변경은 자동으로 받아서 화면에 반영
    ========================================================= */
 (function () {
-  const C = window.__PLANT_CLOUD; if (!C) return;
-  let BASE = null, BASEKEYS = null, VER = C.ver || 0, timer = null, pushing = false, dirty = false, pendingPull = null;
+  const C = window.__PLANT_CLOUD;
+  let BASE = null, BASEKEYS = null, VER = (C && C.ver) || 0, timer = null, pushing = false, dirty = false, pendingPull = null;
   const clone = o => o == null ? o : JSON.parse(JSON.stringify(o));
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   const isObj = x => x && typeof x === 'object' && !Array.isArray(x);
@@ -6053,6 +6068,7 @@ const IKFILES={"index.html": "<!doctype html>\n<html lang=\"ko\"><head><meta cha
     return clone(l);
   }
   window.__PLANT_MERGE = merge;
+  if (!C) return;
   const typing = () => { const a = document.activeElement; return a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== 'button'; };
   const repaint = () => { try { if (STU_LOCK || VIEW) render(); } catch (e) { try { go(VIEW || 'home'); } catch (x) { } } };
   const stamp = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
@@ -6122,6 +6138,210 @@ const IKFILES={"index.html": "<!doctype html>\n<html lang=\"ko\"><head><meta cha
   }
 })();
 
+
+/* =========================================================
+   학생 앱 · 학생 폰에서 자기 데이터만 (학생별 열쇠로 잠김)
+   - 원장 쪽: 학생 화면 「학생 앱 계정」 발급 · 학생 데이터 내려보내기(down) · 학생 기록 받기(up)
+   - 학생 쪽: 플래너 · 타이머 · 기록 · 계획 보내기 · 윈터 · 내 리포트 · 내 정보 입력
+   ========================================================= */
+const STUX = (function () {
+  const clone = o => o == null ? o : JSON.parse(JSON.stringify(o));
+  const strip = s => { const x = clone(s); delete x.app; return x; };
+  // 한 학생 몫만 잘라 낸 작은 S
+  function miniOf(sid) {
+    const s = S.students.find(x => x.id === sid); if (!s) return null;
+    const st = clone(S.settings); delete st.staff; delete st.intake;
+    const m = { v: S.v, cur: sid, students: [strip(s)], plans: { [sid]: clone(S.plans[sid] || {}) }, logs: clone((S.logs || []).filter(l => l.sid === sid).slice(0, 300)),
+      run: S.run && S.run.sid === sid ? clone(S.run) : null, brk: S.brk && S.brk.sid === sid ? clone(S.brk) : null, settings: st };
+    Object.keys(S).filter(k => /^seeded/.test(k)).forEach(k => m[k] = S[k]);
+    return m;
+  }
+  // 학생 폰에서 바뀐 몫을 학원 S에 되돌려 넣기
+  function applyMini(sid, m) {
+    const i = S.students.findIndex(x => x.id === sid); if (i < 0 || !m) return;
+    const app = S.students[i].app; const ns = clone(m.students[0]); ns.id = sid; if (app) ns.app = app; S.students[i] = ns;
+    S.plans[sid] = clone(m.plans[sid] || {});
+    S.logs = (S.logs || []).filter(l => l.sid !== sid).concat(clone(m.logs || [])).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    if ((m.run && m.run.sid === sid) || (S.run && S.run.sid === sid)) S.run = clone(m.run);
+    if ((m.brk && m.brk.sid === sid) || (S.brk && S.brk.sid === sid)) S.brk = clone(m.brk);
+  }
+  return { miniOf, applyMini, clone };
+})();
+
+/* ---------- 학생 폰 모드 ---------- */
+(function () {
+  const P = window.__PLANT_STU; if (!P) return;
+  const merge = window.__PLANT_MERGE || ((b, l, r) => r);
+  const clone = STUX.clone, same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const CK2 = 'plant_sc_' + P.sid;
+  let BASE = null, DVER = 0, timer = null, pushing = false;
+  const stamp = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  async function cache() { try { localStorage.setItem(CK2, JSON.stringify(await P.enc({ base: BASE, s: S, dver: DVER }))); } catch (e) { } }
+  async function push() {
+    if (pushing) { schedule(1500); return; } pushing = true; P.status('저장 중…');
+    try { await P.up(await P.enc(S), DVER); await cache(); P.status('저장됨 ' + stamp()); }
+    catch (e) { P.status('저장 대기 · 인터넷 확인'); pushing = false; schedule(10000); return; }
+    pushing = false;
+  }
+  function schedule(ms) { clearTimeout(timer); timer = setTimeout(() => { timer = null; push(); }, ms); }
+  window.__PLANT_FLUSH = async () => { if (timer) { clearTimeout(timer); timer = null; await push(); } };
+  save = function () { if (S) schedule(1500); };
+  lock = function () { };
+  window.addEventListener('beforeunload', e => { if (timer || pushing) { push(); e.preventDefault(); e.returnValue = ''; } });
+  const typing = () => { const a = document.activeElement; return a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName); };
+  async function onDoc(d) {
+    if (!d.down || (d.dver || 0) <= DVER) return;
+    try {
+      const down = await P.dec(d.down);
+      S = merge(BASE || {}, S, down); BASE = down; DVER = d.dver; await cache();
+      if (!typing()) { try { render(); } catch (e) { } }
+      if (!same(S, down)) schedule(1500);
+      P.status('원장님 화면 반영 ' + stamp());
+    } catch (e) { console.warn('[학생 앱 받기]', e); }
+  }
+  (async () => {
+    const d = P.data; let down = null;
+    try { down = d.down ? await P.dec(d.down) : null; } catch (e) { }
+    let loc = null; try { const c = localStorage.getItem(CK2); if (c) loc = await P.dec(JSON.parse(c)); } catch (e) { loc = null; }
+    if (!down && !loc) { document.getElementById('view').innerHTML = '<div class="card">아직 준비 중이에요 · 원장님께 알려 주세요</div>'; return; }
+    if (loc && down && loc.dver !== d.dver) S = merge(loc.base || {}, loc.s, down); else if (loc) S = loc.s; else S = down;
+    BASE = down || loc.base; DVER = d.dver || 0;
+    CK = await newDK(); KEYS = [];
+    const me = S.students[0]; STU_LOCK = me.id; ROLE = { id: 'stu', role: '학생', name: me.name };
+    document.body.classList.remove('locked'); document.body.classList.add('stumode');
+    start();
+    if (!same(S, BASE)) schedule(1500);
+    P.watch(onDoc);
+    P.status('연결됨');
+  })();
+
+  // 학생 앱 위쪽 · 내 리포트 · 내 정보 입력
+  const f = R.app; R.app = function () {
+    const h = f(); const s = curStu(); if (!s) return h;
+    const need = !s.intake;
+    const card = `<section class="card col" style="gap:10px">
+      ${need ? `<div class="note" style="border-left:4px solid #FEBD59"><b>처음 왔다면 내 정보부터 입력해요</b> · 성적 · 가고 싶은 곳 · 공부 가능한 시간 (3분) · 원장님 화면으로 바로 들어가요</div>` : ''}
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <button class="btn ${need ? 'or' : ''}" data-px="intake">${need ? '내 정보 입력하기' : '내 정보 다시 입력'}</button>
+        <button class="btn" data-px="study">내 학습 리포트</button>
+        <button class="btn" data-px="consult">내 입시 리포트</button>
+      </div></section>`;
+    return card + h;
+  };
+  const fa = R.app_after; R.app_after = function () { fa();
+    document.querySelectorAll('[data-px]').forEach(b => b.onclick = () => { const k = b.dataset.px; if (k === 'intake') openIntake(); else openReport(k); });
+  };
+
+  // 리포트 · 인쇄용 화면을 그대로 띄움 (PDF 저장 버튼은 진짜 인쇄 창)
+  function openReport(kind) {
+    const s = curStu(); const op = window.print; window.print = () => { };
+    try { if (kind === 'study') printStudy(s, 8); else printReport(s); } catch (e) { window.print = op; toast('리포트를 만들지 못했어요 · 성적이나 기록을 먼저 넣어 주세요'); return; }
+    window.print = op;
+    document.body.classList.add('rpview');
+    let bar = document.getElementById('rpBar'); if (!bar) { bar = document.createElement('div'); bar.id = 'rpBar'; document.body.appendChild(bar); }
+    bar.innerHTML = `<button class="btn" id="rpClose">← 닫기</button><button class="btn dark" id="rpPdf">PDF로 저장</button>`;
+    document.getElementById('rpClose').onclick = () => { document.body.classList.remove('rpview'); bar.remove(); };
+    document.getElementById('rpPdf').onclick = () => window.print();
+  }
+  // 내 정보 입력 · 학원 사전 입력지를 앱 안에서 열고, 다 쓰면 바로 내 정보로
+  async function openIntake() {
+    let pub = (S.settings.intake && S.settings.intake.pub) || null;
+    if (!pub) { const kp = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey']); const raw = new Uint8Array(await crypto.subtle.exportKey('raw', kp.publicKey)); pub = btoa(String.fromCharCode.apply(null, raw)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+    let html = fileWith('index.html', 'k=' + pub + '&a=' + encodeURIComponent(S.settings.academy || ''));
+    html = html.replace('async function encrypt(pubB64, obj) {', 'async function encrypt(pubB64, obj) { try { parent.postMessage({ plantIntake: JSON.parse(JSON.stringify(obj)) }, "*"); } catch (e) { }');
+    const ov = document.createElement('div'); ov.id = 'ikOv';
+    ov.innerHTML = '<div class="ik-top"><b>내 정보 입력</b><button class="btn sm" id="ikClose">닫기</button></div><iframe id="ikFrame" title="내 정보 입력"></iframe>';
+    document.body.appendChild(ov); document.getElementById('ikFrame').srcdoc = html;
+    document.getElementById('ikClose').onclick = () => ov.remove();
+  }
+  window.addEventListener('message', e => {
+    const o = e.data && e.data.plantIntake; if (!o || !S) return;
+    const s = curStu(); if (!s) return;
+    try { ikApply(o, s, false); } catch (x) { console.warn(x); return toast('입력한 내용을 넣지 못했어요 · 원장님께 알려 주세요'); }
+    s.intake = s.intake || {}; s.intake.self = true;
+    save(); const ov = document.getElementById('ikOv'); if (ov) ov.remove(); render();
+    toast('저장했어요 · 원장님 화면에도 바로 들어가요');
+  });
+})();
+
+/* ---------- 원장 · 선생님 쪽 · 학생 앱 계정 / 내려보내기 / 받기 ---------- */
+(function () {
+  const C = window.__PLANT_CLOUD; if (!C || !C.stu || window.__PLANT_STU) return;
+  const A = C.stu, merge = window.__PLANT_MERGE, clone = STUX.clone;
+  const PUB = {}, WATCH = {}, KEYC = {};
+  const keyOf = async s => KEYC[s.id] || (KEYC[s.id] = await A.keyFromRaw(s.app.k));
+  async function publish(s) {
+    if (!s.app || !CK || !S) return; const m = STUX.miniOf(s.id); const js = JSON.stringify(m); if (PUB[s.id] === js) return;
+    try {
+      const key = await keyOf(s); const cur = await A.get(s.id);
+      const box = await A.enc(key, m); const dver = Date.now();
+      await A.put(s.id, Object.assign({ down: box, dver }, cur && cur.down ? { downPrev: cur.down, dverPrev: cur.dver || 0 } : {}));
+      PUB[s.id] = js;
+    } catch (e) { console.warn('[학생 앱 내려보내기]', s.id, e); }
+  }
+  async function ingest(s, d) {
+    if (!s.app || !d.up || (d.uver || 0) <= (s.app.uver || 0) || !CK || !S) return;
+    try {
+      const key = await keyOf(s); const up = await A.dec(key, d.up);
+      let base = null;
+      if (d.ubase && d.ubase === d.dver && d.down) base = await A.dec(key, d.down);
+      else if (d.ubase && d.ubase === d.dverPrev && d.downPrev) base = await A.dec(key, d.downPrev);
+      else if (d.down) base = await A.dec(key, d.down);
+      const cur = STUX.miniOf(s.id); const m = merge(base || {}, cur, up);
+      STUX.applyMini(s.id, m); const ns = S.students.find(x => x.id === s.id); if (ns && ns.app) ns.app.uver = d.uver;
+      save(); try { if (!/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName)) render(); } catch (e) { }
+    } catch (e) { console.warn('[학생 앱 받기]', s.id, e); }
+  }
+  function watchAll() {
+    if (!S) return;
+    S.students.filter(s => s.app).forEach(s => { if (WATCH[s.id]) return; WATCH[s.id] = A.watch(s.id, d => { const cur = S && S.students.find(x => x.id === s.id); if (cur) ingest(cur, d); }); });
+    Object.keys(WATCH).forEach(id => { if (!S.students.some(s => s.id === id && s.app)) { try { WATCH[id](); } catch (e) { } delete WATCH[id]; } });
+  }
+  let pt = null; function publishSoon() { clearTimeout(pt); pt = setTimeout(() => { if (S) S.students.filter(s => s.app).forEach(publish); watchAll(); }, 3000); }
+  const _save2 = save; save = function () { _save2.apply(this, arguments); publishSoon(); };
+  const _start2 = start; start = function () { const r = _start2.apply(this, arguments); publishSoon(); return r; };
+
+  // 학생 화면 · 「학생 앱 계정」 칸
+  const can = () => ROLE && ['관리자', '원장', '선생님'].includes(ROLE.role) && !STU_LOCK;
+  const fr = R.app; R.app = function () {
+    const h = fr(); const s = curStu(); if (!s || !can()) return h;
+    const a = s.app;
+    const card = a ? `<section class="card col" style="gap:8px"><div class="row between"><h2>학생 앱 계정</h2><span class="pill b-blk">사용 중</span></div>
+        <div>아이디 <b style="font-size:18px">${esc(a.id)}</b> · 발급 ${esc(a.at || '')} · 학부모 동의 ${esc(a.consent || '')}</div>
+        <div class="small">학생은 같은 주소 → 「학생」 → 이 아이디 + 처음 정한 비밀번호 · 비밀번호를 잊거나 폰을 바꾸면 계정을 빼고 새로 만들어요</div>
+        <div class="row"><button class="btn sm danger" id="saDel">계정 빼기</button></div></section>`
+      : `<section class="card col" style="gap:8px"><h2>학생 앱 계정 만들기</h2>
+        <div class="small">학생이 자기 폰에서 플래너 · 타이머 · 기록 · 리포트를 봐요 · 다른 학생은 안 보여요 · 아이디는 자동으로 정해져요 (yb + 숫자 4자리)</div>
+        <label class="row" style="gap:6px"><input type="checkbox" id="saOk"> <span>학부모 동의서를 받았어요 <span class="small">(만 14세 미만은 꼭 필요)</span></span></label>
+        <div class="row" style="gap:6px;flex-wrap:wrap"><input type="password" id="saPw" placeholder="처음 비밀번호 · 8자 이상 · 글자+숫자" style="width:240px" autocomplete="new-password"><input type="password" id="saPw2" placeholder="비밀번호 확인" style="width:160px" autocomplete="new-password"><button class="btn dark" id="saGo">계정 만들기</button></div></section>`;
+    return card + h;
+  };
+  const fra = R.app_after; R.app_after = function () { fra(); const s = curStu(); if (!s || !can()) return;
+    const go = document.getElementById('saGo'); if (go) go.onclick = async () => {
+      if (!document.getElementById('saOk').checked) return toast('학부모 동의서를 받은 뒤에 만들 수 있어요');
+      const pw = document.getElementById('saPw').value; { const er = pwRule(pw, 8); if (er) return toast('비밀번호 · ' + er); }
+      if (pw !== document.getElementById('saPw2').value) return toast('두 비밀번호가 달라요');
+      go.disabled = true; go.textContent = '만드는 중…';
+      try {
+        let id = null, email = null;
+        for (let i = 0; i < 8 && !email; i++) { id = 'yb' + String(crypto.getRandomValues(new Uint16Array(1))[0] % 10000).padStart(4, '0'); email = await A.create(id, pw); }
+        if (!email) throw new Error('id');
+        const k = await newDK(); const raw = toB64(await crypto.subtle.exportKey('raw', k)); const slot = await makeSlot('stu', pw, k);
+        s.app = { id, email, k: raw, at: ymd(today()), consent: ymd(today()), uver: 0 };
+        KEYC[s.id] = k; const m = STUX.miniOf(s.id);
+        await A.put(s.id, { slot, down: await A.enc(k, m), dver: Date.now() }); PUB[s.id] = JSON.stringify(m);
+        await A.member(email, s.id, s.name);
+        save(); render(); watchAll();
+        toast(`${s.name} 학생 앱 계정을 만들었어요 · 아이디 ${id}`);
+      } catch (e) { console.warn(e); go.disabled = false; go.textContent = '계정 만들기'; toast('계정을 만들지 못했어요 · 인터넷 확인 후 다시 눌러 주세요'); }
+    };
+    const del = document.getElementById('saDel'); if (del) del.onclick = async () => {
+      if (!confirm(`${s.name} 학생 앱 계정을 뺄까요? 그 아이디로는 더 이상 못 들어와요 · 학생 기록은 PLAN·T에 그대로 남아요`)) return;
+      const a = s.app; delete s.app; delete PUB[s.id]; delete KEYC[s.id]; save(); render(); watchAll(); await A.remove(s.id, a.email); toast('계정을 뺐어요');
+    };
+  };
+})();
+
 </script>
 <script type="module">
 // PLAN·T 클라우드 관문 · 구글 로그인 → 접속 허용 확인 → 대학 DB 풀기 → 서울 저장소에서 학생 데이터 받기 → 앱 실행
@@ -6137,11 +6357,12 @@ const firebaseConfig = {
   messagingSenderId: "1039637490828",
   appId: "1:1039637490828:web:4e5b06004f7352a40a5fa9"
 };
-const DB_FILE = 'db.bin?v=c70ac6da5b';
+const DB_FILE = 'db.bin?v=18d4d591db';
 const ENC_KEY = 'plant_v1_enc';
 const PART = 800000;
 const STAFF_DOMAIN = 'staff.yeongbal-plant.app'; // 원장·선생님 비밀번호 계정용 내부 주소 (실제 메일 아님)
-let AUTOPW = null; // 문서 1개 한도(1MiB) 아래로 나눠 저장
+const STU_DOMAIN = 'stu.yeongbal-plant.app'; // 학생 앱 계정용 내부 주소 (실제 메일 아님)
+let AUTOPW = null;
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -6246,9 +6467,77 @@ async function pwLogin() {
   catch (e) { $g('gatePw').value = ''; gateMsg(e && e.code === 'auth/too-many-requests' ? '여러 번 틀려서 잠시 막혔어요 · 몇 분 뒤에 다시 해 주세요' : '비밀번호가 달라요'); }
 }
 
+
+// ---------- 학생 앱 ----------
+const te = new TextEncoder(), td = new TextDecoder();
+async function kek(pw, salt) { const base = await crypto.subtle.importKey('raw', te.encode(pw), 'PBKDF2', false, ['deriveKey']); return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['wrapKey', 'unwrapKey']); }
+async function unwrapSlot(sl, pw) { return crypto.subtle.unwrapKey('raw', unb64(sl.wk), await kek(pw, unb64(sl.salt)), { name: 'AES-GCM', iv: unb64(sl.iv) }, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']); }
+async function encBox(key, obj) { const iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, te.encode(JSON.stringify(obj))); return { iv: b64(iv), ct: b64(ct) }; }
+async function decBox(key, box) { const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(box.iv) }, key, unb64(box.ct)); return JSON.parse(td.decode(pt)); }
+const keyFromRaw = raw => crypto.subtle.importKey('raw', unb64(raw), 'AES-GCM', true, ['encrypt', 'decrypt']);
+// 원장·선생님이 학생 앱 계정을 만들 때
+async function stuCreate(loginId, pw) {
+  const email = loginId + '@' + STU_DOMAIN;
+  const app2 = initializeApp(firebaseConfig, 'stu-' + Date.now() + Math.random());
+  const a2 = getAuth(app2);
+  try { await createUserWithEmailAndPassword(a2, email, pw); } catch (e) { if (e && e.code === 'auth/email-already-in-use') return null; throw e; }
+  await signOut(a2); return email;
+}
+const STUAPI = {
+  create: stuCreate,
+  member: (email, sid, name) => setDoc(doc(fs, 'members', email), { kind: 'stu', sid, name, at: serverTimestamp() }),
+  put: (sid, data) => setDoc(doc(fs, 'stu', sid), data, { merge: true }),
+  get: async sid => { const d = await getDoc(doc(fs, 'stu', sid)); return d.exists() ? d.data() : null; },
+  watch: (sid, cb) => onSnapshot(doc(fs, 'stu', sid), d => { if (d.metadata.hasPendingWrites || !d.exists()) return; cb(d.data()); }),
+  remove: async (sid, email) => { try { await deleteDoc(doc(fs, 'members', email)); } catch (e) { } try { await deleteDoc(doc(fs, 'stu', sid)); } catch (e) { } },
+  enc: encBox, dec: decBox, keyFromRaw
+};
+
+async function stuLogin() {
+  const id = $g('stuId').value.trim().toLowerCase(), pw = $g('stuPw').value;
+  if (!/^yb\d{4}$/.test(id)) return gateMsg('아이디는 yb와 숫자 4자리예요 (예: yb0127)');
+  if (!pw) return gateMsg('비밀번호를 넣어 주세요');
+  gateMsg('확인 중…');
+  try { const r = await signInWithEmailAndPassword(auth, id + '@' + STU_DOMAIN, pw); try { localStorage.setItem('plant_stuid', id); } catch (e) { } AUTOPW = pw; $g('stuPw').value = ''; enter(r.user); }
+  catch (e) { $g('stuPw').value = ''; gateMsg(e && e.code === 'auth/too-many-requests' ? '여러 번 틀려서 잠시 막혔어요 · 몇 분 뒤에 다시 해 주세요' : '아이디나 비밀번호가 달라요'); }
+}
+
+async function enterStudent(user) {
+  const email = user.email; const pw = AUTOPW; AUTOPW = null;
+  const fail = async t => { started = false; try { await signOut(auth); } catch (e) { } showGate(true); setMode('stu'); gateMsg(t); };
+  gateMsg('내 계정 확인 중…');
+  let m; try { m = await getDoc(doc(fs, 'members', email)); } catch (e) { return fail('계정을 확인하지 못했어요 · 인터넷을 확인해 주세요'); }
+  if (!m.exists() || m.data().kind !== 'stu') return fail('사용이 끝난 계정이에요 · 원장님께 새 계정을 받아 주세요');
+  const sid = m.data().sid;
+  let keyDoc, d;
+  try { keyDoc = await getDoc(doc(fs, 'secure', 'dbkey')); d = await getDoc(doc(fs, 'stu', sid)); } catch (e) { return fail('데이터를 받지 못했어요 · 인터넷을 확인해 주세요'); }
+  if (!d.exists()) return fail('아직 준비 중인 계정이에요 · 원장님께 알려 주세요');
+  const data = d.data(); let key = null; const KK = 'plant_sk_' + sid;
+  try { if (pw) { key = await unwrapSlot(data.slot, pw); try { localStorage.setItem(KK, b64(await crypto.subtle.exportKey('raw', key))); } catch (e) { } } else { const raw = localStorage.getItem(KK); if (raw) key = await keyFromRaw(raw); } } catch (e) { key = null; }
+  if (!key) return fail('보안을 위해 한 번 더 로그인해 주세요');
+  gateMsg('대학 DB 여는 중…');
+  try { window.__PLANT = await loadDB(keyDoc.data().k); } catch (e) { return fail('대학 DB를 열지 못했어요 · 새로고침해 주세요'); }
+  window.__PLANT_STU = {
+    sid, email, key, data, name: m.data().name || '',
+    enc: obj => encBox(key, obj), dec: box => decBox(key, box),
+    up: (box, base) => setDoc(doc(fs, 'stu', sid), { up: box, uver: Date.now(), ubase: base }, { merge: true }),
+    watch: cb => onSnapshot(doc(fs, 'stu', sid), x => { if (x.metadata.hasPendingWrites || !x.exists()) return; cb(x.data()); }),
+    status: t => { const e = $g('cloudSt'); if (e) e.textContent = t; },
+    logout: async () => { try { localStorage.removeItem(KK); localStorage.removeItem('plant_sc_' + sid); } catch (e) { } await signOut(auth); location.reload(); }
+  };
+  const b = document.createElement('div'); b.id = 'cloudbar';
+  b.innerHTML = `<span id="cloudSt">연결됨</span><span class="cb-u">${(m.data().name || '').replace(/[<>&"]/g, '')}</span><button id="cbOut">로그아웃</button>`;
+  document.body.appendChild(b);
+  $g('cbOut').onclick = async () => { if (!confirm('로그아웃할까요? 다시 들어오려면 아이디·비밀번호가 필요해요')) return; if (window.__PLANT_FLUSH) { try { await window.__PLANT_FLUSH(); } catch (e) { } } window.__PLANT_STU.logout(); };
+  document.body.classList.add('phone');
+  showGate(false);
+  const s = document.createElement('script'); s.textContent = $g('plant-src').textContent; document.body.appendChild(s);
+}
+
 let started = false;
 async function enter(user) {
   if (started) return; started = true;
+  if ((user.email || '').endsWith('@' + STU_DOMAIN)) return enterStudent(user);
   gateMsg('접속 권한 확인 중…');
   let keyDoc;
   try { keyDoc = await getDoc(doc(fs, 'secure', 'dbkey')); }
@@ -6271,7 +6560,7 @@ async function enter(user) {
   window.__PLANT_CLOUD = {
     ver: st.ver, email: user.email,
     write: (str, baseVer) => writeState(str, baseVer, user.email),
-    createStaff, removeStaff,
+    createStaff, removeStaff, stu: STUAPI,
     watch: cb => onSnapshot(doc(fs, 'state', 'main'), async s => { if (s.metadata.hasPendingWrites || !s.exists()) return; const d = s.data(); cb(d.ver || 0, () => readParts(d.n || 0, getDoc), d.by); }),
     status: t => { const e = $g('cloudSt'); if (e) e.textContent = t; }
   };
@@ -6289,6 +6578,10 @@ $g('gateBtn').onclick = async () => {
   catch (e) { gateMsg(e && e.code === 'auth/popup-blocked' ? '팝업이 막혔어요 · 주소창 오른쪽에서 팝업 허용 후 다시 눌러 주세요' : '로그인을 마치지 못했어요 · 다시 눌러 주세요'); }
 };
 $g('gateOut').onclick = async () => { await signOut(auth); location.reload(); };
+function setMode(m) { document.querySelectorAll('#gateTabs button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); $g('gateStaffWrap').style.display = m === 'stu' ? 'none' : ''; $g('gateStu').style.display = m === 'stu' ? '' : 'none'; $g('gateFoot').style.display = m === 'stu' ? 'none' : ''; try { localStorage.setItem('plant_mode', m); } catch (e) { } gateMsg(''); }
+document.querySelectorAll('#gateTabs button').forEach(b => b.onclick = () => setMode(b.dataset.m));
+{ let m = 'staff'; try { m = new URLSearchParams(location.search).get('m') === 'stu' ? 'stu' : (localStorage.getItem('plant_mode') || 'staff'); const id = localStorage.getItem('plant_stuid'); if (id) $g('stuId').value = id; } catch (e) { } setMode(m); }
+$g('stuGo').onclick = stuLogin; $g('stuPw').onkeydown = e => { if (e.key === 'Enter') stuLogin(); };
 $g('gateGo').onclick = pwLogin; $g('gatePw').onkeydown = e => { if (e.key === 'Enter') pwLogin(); };
 onAuthStateChanged(auth, u => { if (u) enter(u); else { showGate(true); $g('gateBtn').style.display = ''; gateMsg(''); staffGate(); } });
 
