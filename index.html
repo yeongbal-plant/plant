@@ -405,7 +405,41 @@ body.stumode #cloudbar,body.locked #cbMem{display:none}
 @media print{#cloudbar,#rpBar{display:none!important}}
 body.phone #stuExit,body.phone #stuExitPw{display:none!important}
 body.phone #view > .row.between{display:none!important}
-body.phone #view{padding-top:12px}
+body.phone{background:#F4F6FA!important}
+body.phone #cloudbar{display:none!important}
+body.phone #view{padding:0 0 calc(76px + env(safe-area-inset-bottom))!important;max-width:none!important}
+body.phone .phone{width:100%!important;max-width:620px!important;min-height:0!important;border-radius:0!important;padding:0!important;box-shadow:none!important;background:transparent!important;margin:0 auto!important}
+body.phone .screen{min-height:100vh;border-radius:0!important;background:#1B2440}
+body.phone .screen > [data-pg]:not(.sheet){padding:18px 18px 20px}
+body.phone .sheet{border-radius:22px 22px 0 0!important;padding:16px 14px 28px!important;gap:12px!important;font-size:16px}
+body.phone:not([data-pt="today"]) .screen{background:#F4F6FA!important}
+body.phone:not([data-pt="today"]) .sheet{border-radius:0!important;padding-top:20px!important}
+body.phone .sheet .grid.g7{grid-template-columns:repeat(7,1fr)!important;gap:4px!important}
+body.phone .sheet .grid.g7 button{min-height:46px!important;border-radius:10px!important;padding:0!important}
+body.phone[data-pt="today"] [data-pg]:not([data-pg="today"]),body.phone[data-pt="week"] [data-pg]:not([data-pg="week"]),body.phone[data-pt="report"] [data-pg]:not([data-pg="report"]),body.phone[data-pt="me"] [data-pg]:not([data-pg="me"]){display:none!important}
+#ptab{display:none}
+body.phone #ptab{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:9000;background:#fff;border-top:1px solid #E1E4EA;padding:4px 6px calc(4px + env(safe-area-inset-bottom))}
+#ptab button{flex:1;border:0;background:none;font:inherit;font-size:12px;color:#8A90A0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;min-height:54px;cursor:pointer}
+#ptab button.on{color:#1B2440;font-weight:800}
+#ptab button.on svg{color:#E89A1C}
+.pcard{display:flex;flex-direction:column;gap:4px;text-align:left;width:100%;box-sizing:border-box;background:#fff;border:1px solid #E1E4EA;border-radius:14px;padding:16px;font:inherit;color:#141821;cursor:pointer}
+.pcard b{font-size:17px}.pcard span{font-size:13.5px;color:#4a5160;line-height:1.45}
+.pcard.pc-hi{background:#FFF6E6;border-color:#FEBD59}
+.pcard.pc-flat{cursor:default}.pcard.pc-out b{color:#B42318}
+.ph-h{font-size:21px;font-weight:800;color:#141821;margin:6px 2px 0}
+body.phone .task{padding:14px!important;gap:10px!important}
+body.phone .task .row:nth-child(2) > .small{display:none}
+body.phone .task .chip{min-height:32px!important;font-size:13px!important}
+body.phone .task .grid.g2{display:flex!important;gap:8px;align-items:center}
+body.phone .task .grid.g2 .btn.dark{flex:1}
+body.phone .task .grid.g2 .btn:not(.dark){flex:0 0 auto;background:transparent!important;border:0!important;color:#4a5160!important;font-size:13px!important;text-decoration:underline;min-height:40px!important;padding:0 4px!important}
+body.phone #view .note{display:none!important}
+body.phone details.afold summary .small{display:none}
+body.rpsum #print .rp-page ~ .rp-page{display:none!important}
+body.rpsum #print .rp-s,body.rpsum #print .rp-foot,body.rpsum #print .rp-ex{display:none!important}
+body.phone.rpview #print{padding:62px 0 20px!important}
+body.phone.rpview #print .rp-page{max-width:none!important;box-shadow:none!important}
+#rpBar .btn{min-height:40px}
 body.rpview #print{display:block!important;position:fixed;inset:0;z-index:9500;overflow:auto;background:#E9ECF2;padding:64px 8px 24px}
 body.rpview #print .rp-page{background:#fff;margin:0 auto 14px;max-width:820px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
 #rpBar{position:fixed;top:0;left:0;right:0;z-index:9600;display:flex;gap:8px;justify-content:space-between;padding:10px 12px;background:#1B2440}
@@ -6217,33 +6251,49 @@ const STUX = (function () {
     P.status('연결됨');
   })();
 
-  // 학생 앱 위쪽 · 내 리포트 · 내 정보 입력
-  const f = R.app; R.app = function () {
-    const h = f(); const s = curStu(); if (!s) return h;
-    const need = !s.intake;
-    const card = `<section class="card col" style="gap:10px">
-      ${need ? `<div class="note" style="border-left:4px solid #FEBD59"><b>처음 왔다면 내 정보부터 입력해요</b> · 성적 · 가고 싶은 곳 · 공부 가능한 시간 (3분) · 원장님 화면으로 바로 들어가요</div>` : ''}
-      <div class="row" style="gap:8px;flex-wrap:wrap">
-        <button class="btn ${need ? 'or' : ''}" data-px="intake">${need ? '내 정보 입력하기' : '내 정보 다시 입력'}</button>
-        <button class="btn" data-px="study">내 학습 리포트</button>
-        <button class="btn" data-px="consult">내 입시 리포트</button>
-      </div></section>`;
-    return card + h;
-  };
+  // ---------- 폰 화면 · 아래 탭 4개 (오늘 · 이번 주 · 리포트 · 내 정보) ----------
+  let PT = 'today'; try { PT = sessionStorage.getItem('plant_pt') || 'today'; } catch (e) { }
+  function tabBar() {
+    let b = document.getElementById('ptab'); if (!b) { b = document.createElement('nav'); b.id = 'ptab'; document.body.appendChild(b); }
+    const t = [['today', '오늘'], ['week', '이번 주'], ['report', '리포트'], ['me', '내 정보']];
+    const IC = {"today": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>", "week": "<rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15\" rx=\"2\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/>", "report": "<path d=\"M6 3h9l4 4v14H6z\"/><path d=\"M9 12h7M9 16h7M14 3v5h5\"/>", "me": "<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6\"/>"};
+    b.innerHTML = t.map(([k, n]) => `<button data-pt="${k}" class="${PT === k ? 'on' : ''}"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>${n}</button>`).join('');
+    b.querySelectorAll('button').forEach(x => x.onclick = () => { PT = x.dataset.pt; try { sessionStorage.setItem('plant_pt', PT); } catch (e) { } document.body.dataset.pt = PT; tabBar(); if (PT === 'week') { const w = document.getElementById('wcBox'); if (w) w.open = true; } window.scrollTo(0, 0); });
+    document.body.dataset.pt = PT;
+  }
   const fa = R.app_after; R.app_after = function () { fa();
-    document.querySelectorAll('[data-px]').forEach(b => b.onclick = () => { const k = b.dataset.px; if (k === 'intake') openIntake(); else openReport(k); });
+    const s = curStu(); const scr = document.querySelector('#view .phone .screen'); if (!s || !scr) return;
+    const sheet = scr.querySelector('.sheet');
+    [...scr.children].forEach(c => { if (c !== sheet) c.dataset.pg = 'today'; });
+    if (sheet) [...sheet.children].forEach(c => { c.dataset.pg = (c.id === 'wcBox' || c.classList.contains('afold')) ? 'week' : 'today'; });
+    const need = !s.intake;
+    if (sheet && need) sheet.insertAdjacentHTML('afterbegin', `<button class="pcard pc-hi" data-pg="today" data-px="intake"><b>처음이면 내 정보부터</b><span>성적 · 가고 싶은 곳 · 공부 시간 · 3분</span></button>`);
+    if (sheet) sheet.insertAdjacentHTML('beforeend', `
+      <div data-pg="week" class="ph-h">이번 주 목표 · 리듬 · 계획 더하기</div>
+      <div data-pg="report" class="ph-h">내 리포트</div>
+      <button class="pcard" data-pg="report" data-px="study"><b>학습 리포트</b><span>공부 시간 · 계획 달성 · 집중 패턴</span></button>
+      <button class="pcard" data-pg="report" data-px="consult"><b>입시 리포트</b><span>지금 위치 · 목표까지 · 수능 최저</span></button>
+      <div data-pg="me" class="ph-h">내 정보</div>
+      <div class="pcard pc-flat" data-pg="me"><b>${esc(s.name)}</b><span>${esc(s.school || '')} ${esc(s.grade || '')} · 아이디 ${esc((P.email || '').split('@')[0])}</span><span id="pmSt">${esc((document.getElementById('cloudSt') || {}).textContent || '')}</span></div>
+      <button class="pcard" data-pg="me" data-px="intake"><b>${need ? '내 정보 입력하기' : '내 정보 다시 입력'}</b><span>성적 · 가고 싶은 곳 · 공부 가능한 시간</span></button>
+      <button class="pcard pc-out" data-pg="me" id="pmOut"><b>로그아웃</b><span>다시 들어오려면 아이디 · 비밀번호가 필요해요</span></button>`);
+    document.querySelectorAll('[data-px]').forEach(b => b.onclick = () => { const k = b.dataset.px; if (k === 'intake') openIntake(); else openReport(k, false); });
+    const out = document.getElementById('pmOut'); if (out) out.onclick = () => { const b = document.getElementById('cbOut'); if (b) b.click(); };
+    tabBar();
   };
 
-  // 리포트 · 인쇄용 화면을 그대로 띄움 (PDF 저장 버튼은 진짜 인쇄 창)
-  function openReport(kind) {
+  // 리포트 · 폰에서는 첫 장 요약만 · 설명 · 출처는 접어 둠 · 「전체 보기」로 원본 A4
+  function openReport(kind, full) {
     const s = curStu(); const op = window.print; window.print = () => { };
     try { if (kind === 'study') printStudy(s, 8); else printReport(s); } catch (e) { window.print = op; toast('리포트를 만들지 못했어요 · 성적이나 기록을 먼저 넣어 주세요'); return; }
     window.print = op;
-    document.body.classList.add('rpview');
+    document.body.classList.add('rpview'); document.body.classList.toggle('rpsum', !full);
     let bar = document.getElementById('rpBar'); if (!bar) { bar = document.createElement('div'); bar.id = 'rpBar'; document.body.appendChild(bar); }
-    bar.innerHTML = `<button class="btn" id="rpClose">← 닫기</button><button class="btn dark" id="rpPdf">PDF로 저장</button>`;
-    document.getElementById('rpClose').onclick = () => { document.body.classList.remove('rpview'); bar.remove(); };
-    document.getElementById('rpPdf').onclick = () => window.print();
+    bar.innerHTML = `<button class="btn" id="rpClose">← 닫기</button><span class="row" style="gap:6px">${full ? '<button class="btn" id="rpSum">요약만</button>' : '<button class="btn" id="rpFull">전체 보기</button>'}<button class="btn dark" id="rpPdf">PDF</button></span>`;
+    document.getElementById('rpClose').onclick = () => { document.body.classList.remove('rpview', 'rpsum'); bar.remove(); };
+    const fb = document.getElementById(full ? 'rpSum' : 'rpFull'); if (fb) fb.onclick = () => openReport(kind, !full);
+    document.getElementById('rpPdf').onclick = () => { document.body.classList.remove('rpsum'); window.print(); if (!full) document.body.classList.add('rpsum'); };
+    document.getElementById('print').scrollTop = 0;
   }
   // 내 정보 입력 · 학원 사전 입력지를 앱 안에서 열고, 다 쓰면 바로 내 정보로
   async function openIntake() {
@@ -6373,7 +6423,7 @@ const firebaseConfig = {
   messagingSenderId: "1039637490828",
   appId: "1:1039637490828:web:4e5b06004f7352a40a5fa9"
 };
-const DB_FILE = 'db.bin?v=591034ff5e';
+const DB_FILE = 'db.bin?v=a7240f47e7';
 const ENC_KEY = 'plant_v1_enc';
 const PART = 800000;
 const STAFF_DOMAIN = 'staff.yeongbal-plant.app'; // 원장·선생님 비밀번호 계정용 내부 주소 (실제 메일 아님)
