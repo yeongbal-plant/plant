@@ -384,6 +384,14 @@ h2{font-weight:800}
 #gate h1{font-size:26px;margin:0 0 4px;color:#1B2440}#gate .g-sub{color:#4a5160;font-size:14px;margin-bottom:22px}
 #gate button{width:100%;min-height:48px;border-radius:10px;border:1px solid #c9ced8;background:#fff;font-size:16px;font-weight:700;cursor:pointer}
 #gate #gateBtn{background:#1B2440;color:#fff;border:0}#gate #gateMsg{margin-top:14px;font-size:14px;color:#8a2a1a;min-height:20px;line-height:1.5}
+#gate #gateNames{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:12px}
+#gate #gateNames button{width:auto;min-height:44px;padding:0 16px;font-size:15px}
+#gate #gateNames button.on{background:#FEBD59;border-color:#FEBD59;color:#1B2440}
+#gate .g-lab{font-size:14px;color:#4a5160;margin-bottom:10px}
+#gate #gatePw{width:100%;box-sizing:border-box;min-height:48px;border:1px solid #c9ced8;border-radius:10px;padding:0 14px;font-size:16px;margin-bottom:10px}
+#gate #gateGo{background:#1B2440;color:#fff;border:0}
+#gate .g-or{margin:22px 0 8px;font-size:12px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:14px}
+#gate #gateBtn.g-small{min-height:38px;font-size:13px;background:#fff;color:#1B2440;border:1px solid #c9ced8}
 #gate .g-foot{margin-top:18px;font-size:12px;color:#6b7280;line-height:1.5}
 #cloudbar{position:fixed;right:10px;bottom:10px;z-index:9000;background:rgba(27,36,64,.92);color:#fff;border-radius:999px;padding:5px 6px 5px 12px;font-size:12px;display:flex;gap:8px;align-items:center;max-width:calc(100vw - 20px)}
 #cloudbar .cb-u{opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
@@ -400,8 +408,9 @@ body.stumode #cloudbar,body.locked #cbMem{display:none}
 </head>
 <body>
 <div id="gate"><div class="g-card"><h1>PLAN·T</h1><div class="g-sub">영어발전소</div>
+<div id="gateStaff" style="display:none"><div class="g-lab">누구세요?</div><div id="gateNames"></div><input id="gatePw" type="password" placeholder="비밀번호" autocomplete="current-password"><button id="gateGo">들어가기</button><div class="g-or">관리자</div></div>
 <button id="gateBtn">구글 계정으로 로그인</button><button id="gateOut" style="display:none">다른 계정으로 로그인</button>
-<div id="gateMsg"></div><div class="g-foot">접속이 허용된 구글 계정만 들어올 수 있어요 · 들어온 뒤에도 학원 비밀번호(또는 선생님 PIN)로 한 번 더 잠겨 있어요</div></div></div>
+<div id="gateMsg"></div><div class="g-foot">비밀번호는 관리자가 설정 → 원장·선생님 계정에서 만들어 드려요 · 허용되지 않은 사람은 들어올 수 없어요</div></div></div>
 <div id="memBox"><div class="m-card"><h3>접속 관리</h3><div class="m-n">여기 넣은 구글 계정만 PLAN·T에 들어올 수 있어요 · 빼면 바로 막혀요</div>
 <ul id="memList"></ul><input id="memEmail" placeholder="구글 이메일 (예: teacher@gmail.com)"><input id="memName" placeholder="이름 · 역할 (예: 김○○ 선생님)">
 <button id="memAdd">추가</button><div id="memMsg" class="m-n" style="color:#8a2a1a;margin-top:6px"></div><div style="text-align:right;margin-top:10px"><button id="memClose">닫기</button></div></div></div>
@@ -6095,13 +6104,29 @@ const IKFILES={"index.html": "<!doctype html>\n<html lang=\"ko\"><head><meta cha
 
   // 클라우드에서는 「비밀번호를 잊었어요 (전체 초기화)」를 막음 · 다른 기기 데이터까지 못 쓰게 되는 걸 방지
   const st = document.createElement('style'); st.textContent = '#pwReset{display:none!important}'; document.head.appendChild(st);
+
+  // 원장·선생님 계정 만들기 = PLAN·T PIN + 첫 화면 비밀번호 로그인 계정을 한 번에
+  if (C.createStaff) {
+    const f2 = R.settings_after; R.settings_after = function () { f2(); if (ROLE.role !== '관리자') return;
+      const add = $('#stAdd'); if (add) add.onclick = async () => {
+        const name = $('#stName').value.trim(), role = $('#stRole').value, pin = $('#stPin').value;
+        if (!name) return toast('이름을 넣어 주세요'); { const er = pwRule(pin, 8); if (er) return toast('비밀번호 · ' + er); } if (pin !== $('#stPin2').value) return toast('두 비밀번호가 달라요');
+        add.disabled = true; add.textContent = '만드는 중…';
+        if (await findSlot({ keys: KEYS }, pin)) { add.disabled = false; add.textContent = '계정 만들기'; return toast('이미 쓰는 비밀번호·PIN이에요'); }
+        let fb = null; try { fb = await C.createStaff(name, pin); } catch (e) { console.warn(e); add.disabled = false; add.textContent = '계정 만들기'; return toast('로그인 계정을 만들지 못했어요 · 인터넷 확인 후 다시 눌러 주세요'); }
+        const id = 'ST' + uid(); KEYS.push(await makeSlot(id, pin, CK)); S.settings.staff = S.settings.staff || []; S.settings.staff.push({ id, name, role, sids: [], fb }); save(); if (role === '선생님') SCROLL_TO = 'st-' + id; render();
+        toast(`${name} ${role} 계정을 만들었어요 · 첫 화면에서 이름을 누르고 이 비밀번호만 넣으면 들어와요` + (role === '선생님' ? ' · 담당 학생도 정해 주세요' : ''));
+      };
+      document.querySelectorAll('[data-stdel]').forEach(b => b.onclick = () => { const x = staffOf(b.dataset.stdel); if (!confirm(`${x.name} 계정을 뺄까요? 그 비밀번호로는 더 이상 못 들어와요`)) return; S.settings.staff = S.settings.staff.filter(y => y.id !== x.id); KEYS = KEYS.filter(k => k.id !== x.id); save(); render(); if (x.fb) C.removeStaff(x.fb); });
+    };
+  }
 })();
 
 </script>
 <script type="module">
 // PLAN·T 클라우드 관문 · 구글 로그인 → 접속 허용 확인 → 대학 DB 풀기 → 서울 저장소에서 학생 데이터 받기 → 앱 실행
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
 import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, collection, runTransaction, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -6112,9 +6137,11 @@ const firebaseConfig = {
   messagingSenderId: "1039637490828",
   appId: "1:1039637490828:web:4e5b06004f7352a40a5fa9"
 };
-const DB_FILE = 'db.bin?v=dbf66d9e99';
+const DB_FILE = 'db.bin?v=c70ac6da5b';
 const ENC_KEY = 'plant_v1_enc';
-const PART = 800000; // 문서 1개 한도(1MiB) 아래로 나눠 저장
+const PART = 800000;
+const STAFF_DOMAIN = 'staff.yeongbal-plant.app'; // 원장·선생님 비밀번호 계정용 내부 주소 (실제 메일 아님)
+let AUTOPW = null; // 문서 1개 한도(1MiB) 아래로 나눠 저장
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -6178,6 +6205,47 @@ async function members() {
 }
 function alertMsg(t) { $g('memMsg').textContent = t; setTimeout(() => $g('memMsg').textContent = '', 3000); }
 
+
+// 원장·선생님 계정 · 설정에서 계정을 만들면 같은 비밀번호로 로그인 계정도 같이 생김
+async function createStaff(name, pw) {
+  const id = 's' + Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => (b % 36).toString(36)).join('');
+  const email = id + '@' + STAFF_DOMAIN;
+  const app2 = initializeApp(firebaseConfig, 'maker-' + Date.now());
+  const a2 = getAuth(app2);
+  await createUserWithEmailAndPassword(a2, email, pw); await signOut(a2);
+  await setDoc(doc(fs, 'members', email), { name, kind: 'pw', at: serverTimestamp() });
+  const ps = await getDoc(doc(fs, 'public', 'staff')); const list = ps.exists() ? (ps.data().list || []) : [];
+  list.push({ e: email, n: name }); await setDoc(doc(fs, 'public', 'staff'), { list });
+  return email;
+}
+async function removeStaff(email) {
+  if (!email) return;
+  try { await deleteDoc(doc(fs, 'members', email)); } catch (e) { }
+  const ps = await getDoc(doc(fs, 'public', 'staff')); if (!ps.exists()) return;
+  await setDoc(doc(fs, 'public', 'staff'), { list: (ps.data().list || []).filter(x => x.e !== email) });
+}
+let PICK = null;
+async function staffGate() {
+  let list = [];
+  try { const ps = await getDoc(doc(fs, 'public', 'staff')); if (ps.exists()) list = ps.data().list || []; } catch (e) { }
+  const box = $g('gateStaff');
+  if (!list.length) { box.style.display = 'none'; $g('gateBtn').classList.remove('g-small'); return; }
+  box.style.display = ''; $g('gateBtn').classList.add('g-small');
+  let last = null; try { last = localStorage.getItem('plant_pick'); } catch (e) { }
+  $g('gateNames').innerHTML = list.map(x => `<button type="button" data-e="${x.e}">${String(x.n).replace(/[<>&"]/g, '')}</button>`).join('');
+  const pick = e => { PICK = e; document.querySelectorAll('#gateNames button').forEach(b => b.classList.toggle('on', b.dataset.e === e)); $g('gatePw').focus(); };
+  document.querySelectorAll('#gateNames button').forEach(b => b.onclick = () => pick(b.dataset.e));
+  if (last && list.some(x => x.e === last)) pick(last); else if (list.length === 1) pick(list[0].e);
+}
+async function pwLogin() {
+  const pw = $g('gatePw').value;
+  if (!PICK) return gateMsg('이름을 먼저 눌러 주세요');
+  if (!pw) return gateMsg('비밀번호를 넣어 주세요');
+  gateMsg('확인 중…');
+  try { const r = await signInWithEmailAndPassword(auth, PICK, pw); try { localStorage.setItem('plant_pick', PICK); } catch (e) { } AUTOPW = pw; $g('gatePw').value = ''; enter(r.user); }
+  catch (e) { $g('gatePw').value = ''; gateMsg(e && e.code === 'auth/too-many-requests' ? '여러 번 틀려서 잠시 막혔어요 · 몇 분 뒤에 다시 해 주세요' : '비밀번호가 달라요'); }
+}
+
 let started = false;
 async function enter(user) {
   if (started) return; started = true;
@@ -6203,6 +6271,7 @@ async function enter(user) {
   window.__PLANT_CLOUD = {
     ver: st.ver, email: user.email,
     write: (str, baseVer) => writeState(str, baseVer, user.email),
+    createStaff, removeStaff,
     watch: cb => onSnapshot(doc(fs, 'state', 'main'), async s => { if (s.metadata.hasPendingWrites || !s.exists()) return; const d = s.data(); cb(d.ver || 0, () => readParts(d.n || 0, getDoc), d.by); }),
     status: t => { const e = $g('cloudSt'); if (e) e.textContent = t; }
   };
@@ -6210,6 +6279,8 @@ async function enter(user) {
   showGate(false);
   const src = $g('plant-src').textContent;
   const s = document.createElement('script'); s.textContent = src; document.body.appendChild(s);
+  // 비밀번호로 들어온 경우 · 같은 비밀번호로 학원 잠금까지 한 번에 열기
+  if (AUTOPW) { const pw = AUTOPW; AUTOPW = null; setTimeout(() => { const i = $g('pw1'), b = $g('pwGo'); if (i && b && !$g('pw2')) { i.value = pw; b.click(); } }, 50); }
 }
 
 $g('gateBtn').onclick = async () => {
@@ -6218,7 +6289,8 @@ $g('gateBtn').onclick = async () => {
   catch (e) { gateMsg(e && e.code === 'auth/popup-blocked' ? '팝업이 막혔어요 · 주소창 오른쪽에서 팝업 허용 후 다시 눌러 주세요' : '로그인을 마치지 못했어요 · 다시 눌러 주세요'); }
 };
 $g('gateOut').onclick = async () => { await signOut(auth); location.reload(); };
-onAuthStateChanged(auth, u => { if (u) enter(u); else { showGate(true); $g('gateBtn').style.display = ''; gateMsg(''); } });
+$g('gateGo').onclick = pwLogin; $g('gatePw').onkeydown = e => { if (e.key === 'Enter') pwLogin(); };
+onAuthStateChanged(auth, u => { if (u) enter(u); else { showGate(true); $g('gateBtn').style.display = ''; gateMsg(''); staffGate(); } });
 
 </script>
 </body>
