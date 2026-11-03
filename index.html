@@ -7372,6 +7372,14 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
         if (a.offsetHeight <= LIM) { b.remove(); pages.splice(i + 1, 1); i--; }
         else body.forEach(n => { n.style.fontSize = ''; n.style.lineHeight = ''; b.insertBefore(n, bf); });
       }
+      // 공부 리포트 · 추천 공부법이 마지막 쪽으로 넘치면 묶음째 여유 있는 쪽(1쪽 한눈에 포함)으로 옮김
+      { const ps = [...P.querySelectorAll('.rp-page')]; const last = ps[ps.length - 1]; const tips = [...P.querySelectorAll('.rp-page .aitip')];
+        if (ps.length > 2 && last.offsetHeight < 400 && last.querySelector('.aitip')) { const sec = tips[0].previousElementSibling; const grp = (sec && sec.classList.contains('rp-sec') ? [sec] : []).concat(tips);
+          const org = grp.map(n => [n.parentElement, n.nextSibling]);
+          for (const t of ps.slice(0, -1)) { if (grp.some(n => n.parentElement === t)) continue; const f = t.lastElementChild; if (!f || !f.classList.contains('rp-foot')) continue;
+            grp.forEach(n => t.insertBefore(n, f)); if (t.offsetHeight <= LIM) break;
+            for (let k = grp.length - 1; k >= 0; k--) org[k][0].insertBefore(grp[k], org[k][1]); }
+          ps.forEach(pg => { if (pg.children.length <= 2 && pg !== ps[0]) pg.remove(); }); } }
       // 마지막 쪽이 짧게 남으면 · 글자는 그대로 두고 앞 쪽 위아래 여백만 줄여서 합쳐 봄
       { const ps = [...P.querySelectorAll('.rp-page')]; const b = ps[ps.length - 1], a = ps[ps.length - 2];
         if (ps.length > 2 && a.parentElement === b.parentElement && b.offsetHeight < 400) { const af = a.lastElementChild, bf = b.lastElementChild;
@@ -7384,6 +7392,8 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
 })();
 /* 3차 · 리포트 표 글자 바닥 */
 (function () { const st = document.createElement('style'); st.textContent = `#print .rp-t td,#print .rp-t th{font-size:13px!important}#print .rp-pk .rp-t td,#print .rp-pk .rp-t th,#print .rp-pk .aitbl td,#print .rp-pk .aitbl th,#print .rp-pk .aicmp td,#print .rp-pk .aicmp th{padding-top:2px!important;padding-bottom:2px!important;line-height:1.35!important}#print .rp-pk .rp-sec{margin-top:8px!important;margin-bottom:4px!important}#print .rp-pk .aitip{margin-top:2px!important;margin-bottom:2px!important}#print .rp-pk .rp-stats{margin-bottom:6px!important}#print .rp-t.rp-tight td,#print .rp-t.rp-tight th,#print .rp-small2 .rp-t td{font-size:12px!important}#print .rp-t td b{font-size:inherit!important}#print .rp-b{font-size:12px!important}#print .rp-gloss,#print .rp-gloss *{font-size:12.5px!important}#print li{font-size:12.5px!important}`; document.head.appendChild(st); })();
+/* 4차 · 폰 입력 칸 · 아이폰은 16px보다 작은 입력 칸을 누르면 화면이 확대돼서 16px로 · 한국어 시각(「오후 10:30」)이 잘리지 않게 폭 확보 */
+(function () { const st = document.createElement('style'); st.textContent = `@media (max-width:760px){#view input:not([type=checkbox]):not([type=radio]):not([type=range]),#view select,#view textarea,.sheet input:not([type=checkbox]):not([type=radio]),.sheet select,.sheet textarea{font-size:16px!important}#view input[type=time],.sheet input[type=time]{min-width:118px}#view input[type=date],.sheet input[type=date]{min-width:150px}}`; (document.head || document.documentElement).appendChild(st); })();
 
 </script>
 <script>
