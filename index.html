@@ -32,9 +32,9 @@ body{margin:0;background:var(--bg);font-family:'Pretendard Variable',Pretendard,
 .sidein{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:18px 12px;gap:18px}
 .brand{display:flex;flex-direction:column;gap:2px;padding:4px 10px 0}
 .brand .bt{display:flex;align-items:center;gap:7px}.brand b{font-size:15px;font-weight:800;letter-spacing:-.3px}
-.plant{font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--navy3)}.brand .plant{padding-left:27px}.plant i{font-style:normal;color:var(--brand)}
+.plant{font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--mute)}.brand .plant{padding-left:27px}.plant i{font-style:normal;color:var(--brand)}
 #nav{display:flex;flex-direction:column;gap:2px;flex:1}
-#nav .ng{font-size:12px;color:#8A93A6;font-weight:700;padding:14px 12px 4px;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#nav .ng b{color:var(--ink);font-weight:700}
+#nav .ng{font-size:12px;color:var(--mute);font-weight:700;padding:14px 12px 4px;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#nav .ng b{color:var(--ink);font-weight:700}
 #nav .ng:first-child{padding-top:2px}
 #nav button{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--sub);font:inherit;font-size:14px;font-weight:600;padding:9px 12px;border-radius:8px;cursor:pointer;text-align:left;min-height:40px}
 #nav button:hover{background:var(--soft);color:var(--ink)}
@@ -68,7 +68,7 @@ h3{margin:0;font-size:14.5px;font-weight:700}
 .btn{min-height:38px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ink);white-space:nowrap}
 .btn:hover{border-color:#C7CEDB}
 .btn:disabled{opacity:.45;cursor:default}
-.btn.dark{background:var(--navy);color:#fff;border-color:var(--navy);padding:0 14px;border-radius:8px}.btn.dark.sm{padding:0 10px}.btn.or{background:var(--pri);border-color:var(--pri);color:#fff}.btn.sm{min-height:32px;padding:0 10px;font-size:12.5px}.btn.danger{color:var(--red)}
+.btn.dark{background:var(--pri);color:#fff;border-color:var(--pri);padding:0 14px;border-radius:8px}.btn.dark.sm{padding:0 10px}.btn.or{background:var(--pri);border-color:var(--pri);color:#fff}.btn.sm{min-height:32px;padding:0 10px;font-size:12.5px}.btn.danger{color:var(--red)}
 .seg{display:inline-flex;background:#EBEEF4;border-radius:9px;padding:3px;flex-wrap:wrap}.seg button{border:0;background:none;font:inherit;font-weight:600;font-size:13.5px;padding:6px 14px;border-radius:7px;color:var(--sub);cursor:pointer;min-height:32px}.seg button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 2px rgba(27,36,64,.12)}
 .seg.or button.on{background:var(--navy);color:#fff}
 input[type=text],input[type=password],input[type=number],input[type=date],input[type=search],select,textarea{min-height:38px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:inherit;font-size:14.5px;background:#fff;color:var(--ink)}
@@ -76,6 +76,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--pri);outline:0;box-sh
 textarea{padding:10px;min-height:90px;width:100%}
 select,input{max-width:100%}
 input.num{width:72px}
+input[type=checkbox],input[type=radio]{width:20px;height:20px;accent-color:var(--pri)}label:has(> input[type=checkbox]),label:has(> input[type=radio]){min-height:40px;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.ihelp{min-width:32px;min-height:32px}.pill{font-size:12.5px}
 
 /* 표 */
 table{width:100%;border-collapse:collapse;font-size:13.5px}
@@ -153,7 +155,7 @@ details>summary{list-style:none}details>summary::-webkit-details-marker{display:
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 18px;border-radius:10px;font-weight:600;z-index:80;display:none}.ghpop{position:fixed;z-index:85;background:#fff;color:#1A2233;border:1.5px solid #1B2440;border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.5;box-shadow:0 8px 24px rgba(0,0,0,.18)}
 .hide{display:none!important}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
-.ex{font-size:12px;font-weight:700;color:var(--pri2);background:var(--pribg);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.ex{font-size:12.5px;font-weight:700;color:var(--pri2);background:var(--pribg);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:middle}
 #print{display:none}
 .rkbox{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:#fff}
 .rk{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line2)}
@@ -228,9 +230,9 @@ th{font-size:13px}
 td{padding:11px 10px}
 .btn{min-height:40px;border-radius:10px;font-size:14px;padding:0 16px}
 .btn.sm{min-height:34px;border-radius:8px;font-size:13px}
-.btn.dark{border-radius:10px;box-shadow:0 1px 2px rgba(18,27,51,.18)}
+.btn.dark{border-radius:10px;box-shadow:0 1px 2px rgba(47,107,224,.25)}
 .btn.or{border-radius:10px;box-shadow:0 1px 2px rgba(47,91,234,.25)}
-.btn.dark:hover{background:#1F2C52}.btn.or:hover{background:var(--pri2)}
+.btn.dark:hover{background:var(--pri2)}.btn.or:hover{background:var(--pri2)}
 .chip{border-radius:999px;padding:0 14px;min-height:34px}
 .pill{border-radius:999px;padding:3px 10px}
 .kpis{gap:12px}
@@ -267,7 +269,7 @@ details.fold>.fb{padding:0 24px 22px}
 .v40-bar button i{font-style:normal;width:21px;height:21px;border-radius:50%;background:#EDF0F6;color:var(--sub);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
 .v40-bar button:hover{background:var(--soft);color:var(--ink)}
 .v40-bar button.on{background:var(--navy);color:#fff}
-.v40-bar button.on i{background:var(--brand);color:#121B33}
+.v40-bar button.on i{background:#fff;color:var(--navy)}
 .v40-bar .v40-sep{width:14px;height:1px;background:var(--line);flex:none}
 
 /* 소개 화면 */
@@ -282,7 +284,7 @@ details.fold>.fb{padding:0 24px 22px}
 .v40-num em{font-style:normal;font-size:12px;color:var(--mute)}
 .v40-flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .v40-step{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff;display:flex;flex-direction:column;gap:6px;position:relative}
-.v40-step i{font-style:normal;font-size:12px;font-weight:800;color:#B86E00}
+.v40-step i{font-style:normal;font-size:12.5px;font-weight:800;color:var(--pri2)}
 .v40-step b{font-size:15px}
 .v40-step span{font-size:13px;color:var(--sub);line-height:1.55}
 .v40-why{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -354,7 +356,7 @@ h2{font-weight:800}
 /* 학생 앱 · 영발 노랑 */
 .phone{background:#141B2D}
 .phone .bat{height:14px!important;border:0!important;background:#fff}.phone .bat i{background:var(--pri)!important}
-.phone .btn.dark{background:var(--navy);border-color:var(--navy);color:#fff}.phone .btn.or{background:var(--pri);border-color:var(--pri);color:#fff}
+.phone .btn.dark{background:var(--pri);border-color:var(--pri);color:#fff}.phone .btn.or{background:var(--pri);border-color:var(--pri);color:#fff}
 .phone .btn.or:hover{background:var(--pri2)}
 .phone .task{border-left-width:4px;border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
 .phone .task.run{border:2px solid var(--pri);border-left-width:4px;box-shadow:0 0 0 4px rgba(47,107,224,.14)}
@@ -407,7 +409,7 @@ body.phone .sheet .grid.g7 button{min-height:46px!important;border-radius:10px!i
 body.phone[data-pt="today"] [data-pg]:not([data-pg="today"]),body.phone[data-pt="week"] [data-pg]:not([data-pg="week"]),body.phone[data-pt="report"] [data-pg]:not([data-pg="report"]),body.phone[data-pt="me"] [data-pg]:not([data-pg="me"]){display:none!important}
 #ptab{display:none}
 body.phone #ptab{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:9000;background:#fff;border-top:1px solid #E1E4EA;padding:4px 6px calc(4px + env(safe-area-inset-bottom))}
-#ptab button{flex:1;border:0;background:none;font:inherit;font-size:12px;color:#8A90A0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;min-height:54px;cursor:pointer}
+#ptab button{flex:1;border:0;background:none;font:inherit;font-size:12.5px;color:#5B6478;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;min-height:54px;cursor:pointer}
 #ptab button.on{color:#1B2440;font-weight:800}
 #ptab button.on svg{color:#2F6BE0}
 .pcard{display:flex;flex-direction:column;gap:4px;text-align:left;width:100%;box-sizing:border-box;background:#fff;border:1px solid #E1E4EA;border-radius:14px;padding:16px;font:inherit;color:#141821;cursor:pointer}
@@ -423,6 +425,7 @@ body.phone .task .grid.g2 .btn.dark{flex:1}
 body.phone .task .grid.g2 .btn:not(.dark){flex:0 0 auto;background:transparent!important;border:0!important;color:#4a5160!important;font-size:13px!important;text-decoration:underline;min-height:40px!important;padding:0 4px!important}
 body.phone #view .note{display:none!important}
 body.phone details.afold summary .small{display:none}
+details.afold>summary{position:relative;padding-right:26px}details.afold>summary::after{content:'';position:absolute;right:8px;top:50%;width:8px;height:8px;margin-top:-6px;border-right:2px solid #5B6478;border-bottom:2px solid #5B6478;transform:rotate(45deg)}details.afold[open]>summary::after{transform:rotate(225deg);margin-top:-2px}
 body.rpsum #print .rp-page ~ .rp-page{display:none!important}
 body.rpsum #print .rp-s,body.rpsum #print .rp-foot,body.rpsum #print .rp-ex{display:none!important}
 body.phone.rpview #print{padding:62px 0 20px!important}
@@ -1910,8 +1913,8 @@ R.habit = function () {
   const b0 = H.buckets[0], b2 = H.buckets.filter((b, i) => i > 0 && b.n >= 20 && b0.n >= 20).pop();
   const few = H.logDays < 10;
   const hm2 = m => m == null ? '—' : String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.round(m % 60)).padStart(2, '0');
-  return `<div class="row between">${stuPicker()}<div class="seg">${[2, 4, 8].map(n => `<button data-hw="${n}" class="${habitW === n ? 'on' : ''}">최근 ${n}주</button>`).join('')}</div></div>
-  ${s.example ? '<div class="card" style="background:var(--orbg);border-color:#F2D3A6"><b>예시 학생의 예시 기록이에요</b> <span class="small">화면이 어떻게 보이는지 보여 주려고 넣은 값이에요 · 실제 학생은 학생 앱 타이머로 쌓인 기록만 나와요</span></div>' : ''}
+  return `<div class="row between">${stuPicker()}<div class="row"><div class="seg">${[2, 4, 8].map(n => `<button data-hw="${n}" class="${habitW === n ? 'on' : ''}">최근 ${n}주</button>`).join('')}</div><button class="btn or" data-rptop>공부 리포트 · PDF</button></div></div>
+  ${s.example ? '<div class="card" style="background:var(--pribg);border-color:var(--pribd)"><b>예시 학생의 예시 기록이에요</b> <span class="small">화면이 어떻게 보이는지 보여 주려고 넣은 값이에요 · 실제 학생은 학생 앱 타이머로 쌓인 기록만 나와요</span></div>' : ''}
   ${!H.logDays ? insight('기록 없음', '아직 타이머 기록이 없어요 · 학생 앱에서 블록 타이머를 켜고 공부하면 아래 숫자가 채워져요 · 그전까지 「—」나 0으로 보여요', 'empty') : ''}
   ${few && H.logDays ? `<div class="card" style="border:2px dashed var(--line)"><b>기록 ${H.logDays}일</b> <span class="small">· 2~3주(10일 이상)는 쌓여야 습관으로 읽을 수 있어요 · 그전 숫자는 참고만</span></div>` : ''}
   <section class="grid g5">
@@ -1939,14 +1942,14 @@ R.habit = function () {
     <div class="note">속도는 같은 교재 안에서 이 학생의 앞 기록과 뒤 기록만 비교해요 · 학생끼리 비교하지 않아요 · 문항당 분이 줄면서 정답률이 그대로거나 오르면 효율이 좋아진 거예요</div></section>
   <section class="card col"><h2>주별 순공시간</h2>
     <div class="scroll"><table><thead><tr><th>주</th>${keys.map(k => `<th>${subjName(s, k)}</th>`).join('')}<th>합계</th><th>계획</th><th>실행률</th><th>공부한 날</th></tr></thead><tbody>${H.weeks.map(w => `<tr><td>${w.wk.slice(5).replace('-', '/')}</td>${keys.map(k => `<td>${w.by[k] ? fmtH(w.by[k]) : '—'}</td>`).join('')}<td><b>${w.rec ? fmtH(w.rec) : '—'}</b></td><td>${w.pl ? fmtH(w.pl) : '—'}</td><td>${pctTxt(w.rate)}</td><td>${w.days}일</td></tr>`).join('')}</tbody></table></div></section>
-  <section class="card col"><div class="row between"><h2>A4 학습 리포트</h2><button class="btn or" id="rpGo">리포트 인쇄 · PDF 저장</button></div>
+  <section class="card col"><div class="row between"><h2>A4 학습 리포트</h2><button class="btn or" id="rpGo">공부 리포트 · PDF</button></div>
     <div class="small">위에서 고른 기간(최근 ${habitW}주)으로 만들어요 · 인쇄 창에서 PDF로 저장하면 학부모님께 카톡으로 보낼 수 있어요</div>
     <textarea id="rpNote" placeholder="선생님 코멘트 · 리포트 아래쪽에 들어가요">${esc(s.reportNote || '')}</textarea></section>
   <div class="note">숫자가 못 잡는 것 · 타이머를 켜 놓고 딴짓한 시간, 정말 이해했는지는 선생님 구두 확인·테스트로 봐요 · 기준값(${H.gap}분 끊김, 60·120분 구간, 표본 20문항)은 학원 기록이 쌓일 때까지 쓰는 〔설계값〕이에요</div>`;
 };
 /* ---------- A4 학습 리포트 (학부모·학생 전달용) ---------- */
 // 공부 리포트(printStudy)는 patches/5_ai_coaching.js 「6-2. 공부 리포트」에 있음
-R.habit_after = function () { const s = curStu(); if (s) extraAfter(s); document.querySelectorAll('[data-hw]').forEach(b => b.onclick = () => { habitW = +b.dataset.hw; render(); }); if (!s) return; $('#rpNote').onchange = e => { s.reportNote = e.target.value; save(); }; $('#rpGo').onclick = () => { s.reportNote = $('#rpNote').value; save(); printStudy(s, habitW); }; };
+R.habit_after = function () { const s = curStu(); if (s) extraAfter(s); document.querySelectorAll('[data-hw]').forEach(b => b.onclick = () => { habitW = +b.dataset.hw; render(); }); if (!s) return; $('#rpNote').onchange = e => { s.reportNote = e.target.value; save(); }; { const tp = document.querySelector('[data-rptop]'); if (tp) tp.onclick = () => $('#rpGo').click(); } $('#rpGo').onclick = () => { s.reportNote = $('#rpNote').value; save(); printStudy(s, habitW); }; };
 function seedHabits() {
   const ex = stuBy('EX1'); if (!ex || !ex.example) return;
   let x = 7; const rnd = () => (x = (x * 16807) % 2147483647) / 2147483647;
@@ -3140,7 +3143,7 @@ function wchkAppCard(s, wk) {
     <div class="col" style="gap:6px;margin-top:8px">
       <div class="small">이번 주 목표 3가지 · 공부만 아니어도 돼요</div>
       ${w.g.map((g, i) => `<div class="row" style="gap:4px;flex-wrap:nowrap"><select data-wg="${i}|tag" style="width:66px;padding:0 4px;font-size:12px">${WTAG.map(t => `<option ${g.tag === t ? 'selected' : ''}>${t}</option>`).join('')}</select><input type="text" data-wg="${i}|t" value="${esc(g.t)}" placeholder="${['영어 듣기 하루 하나', '11시 30분 전에 자기', '지하철에서 단어장 보기'][i]}" style="flex:1;min-width:0;font-size:13px">${['O', 'X'].map(v => `<button class="chip ${g.ox === v ? 'on' : ''}" data-wox="${i}|${v}" style="min-height:34px;padding:0 10px">${v}</button>`).join('')}</div>`).join('')}
-      <div class="row" style="gap:6px;flex-wrap:nowrap;margin-top:4px"><span class="small" style="flex:none">${DAYS[day]}요일</span><label class="row" style="gap:4px;flex:1;flex-wrap:nowrap"><span class="small">기상</span><input type="time" data-wt="wake|${day}" value="${esc(w.wake[day] || '')}" style="flex:1;min-width:0"></label><label class="row" style="gap:4px;flex:1;flex-wrap:nowrap"><span class="small">취침</span><input type="time" data-wt="sleep|${day}" value="${esc(w.sleep[day] || '')}" style="flex:1;min-width:0"></label></div>
+      <div class="row" style="gap:6px;margin-top:4px"><span class="small" style="flex:1 1 100%">${DAYS[day]}요일</span><label class="row" style="gap:4px;flex:1 1 140px;flex-wrap:nowrap"><span class="small">기상</span><input type="time" data-wt="wake|${day}" value="${esc(w.wake[day] || '')}" style="flex:1;min-width:0"></label><label class="row" style="gap:4px;flex:1 1 140px;flex-wrap:nowrap"><span class="small">취침</span><input type="time" data-wt="sleep|${day}" value="${esc(w.sleep[day] || '')}" style="flex:1;min-width:0"></label></div>
       <div style="background:#F4F6FA;border-radius:10px;padding:10px 12px;font-size:13px"><b>이번 주 공부 ${minH(now)}</b>${last ? (d >= 0 ? ` · 지난주보다 <b style="color:var(--grn)">+${minH(d)}</b>` : ` · 지난주 ${minH(last)}`) : ''}<div class="small">그중 혼자 푼 순공 <b>${minH(M.self * 60)}</b> · 인강 ${minH(M.lec * 60)}${M.none > 0.05 ? ` · 구분 전 ${minH(M.none * 60)}` : ''}</div></div>
       <label class="col" style="gap:4px"><span class="small">이번 주 잘한 점</span><textarea data-wf="good" style="min-height:52px;font-size:13px" placeholder="예: 규칙적으로 일어난 지 1주 넘김">${esc(w.good || '')}</textarea></label>
       <label class="col" style="gap:4px"><span class="small">다음 주에 보완할 점</span><textarea data-wf="fix" style="min-height:52px;font-size:13px" placeholder="예: 단어 시험 결과가 아쉬움 · 다음엔 하루 20개">${esc(w.fix || '')}</textarea></label>
@@ -3149,7 +3152,7 @@ function wchkAppCard(s, wk) {
 }
 function wchkAppAfter(s, wk) {
   const w = wchkOf(s, wk);
-  document.querySelectorAll('[data-wg]').forEach(e => e.onchange = () => { const [i, f] = e.dataset.wg.split('|'); w.g[+i][f] = e.value; save(); });
+  document.querySelectorAll('[data-wg]').forEach(e => e.onchange = () => { const [i, f] = e.dataset.wg.split('|'); w.g[+i][f] = e.value; save(); if (f !== 'tag') toast('저장했어요'); });
   document.querySelectorAll('[data-wox]').forEach(b => b.onclick = () => { const [i, v] = b.dataset.wox.split('|'); w.g[+i].ox = w.g[+i].ox === v ? null : v; save(); render(); });
   document.querySelectorAll('[data-wt]').forEach(e => e.onchange = () => { const [f, d] = e.dataset.wt.split('|'); w[f][d] = e.value; save(); });
   document.querySelectorAll('[data-wf]').forEach(e => e.onchange = () => { w[e.dataset.wf] = e.value; save(); });
@@ -4732,7 +4735,7 @@ R.home = function () {
     ${wait.map(s => { const st = firstSteps(s); const n = st.filter(x => x.done).length; return `<tr class="click" data-hfirst="${s.id}"><td><b>${esc(s.name)}</b><div class="small">${esc(s.school)} · ${esc(s.grade)}${s.track ? ' · ' + esc(s.track) : ''}</div></td><td class="small">${s.intake ? `사전 입력 · ${esc((s.intake.got || '').slice(5).replace('-', '/'))}` : '직접 등록'}</td><td>${homeDots(s)}</td><td class="small">${s.intake && s.intake.memo ? '「' + esc(s.intake.memo.slice(0, 40)) + (s.intake.memo.length > 40 ? '…' : '') + '」' : '—'}</td><td><button class="btn sm or">${n ? '이어서' : '첫 상담 시작'}</button></td></tr>`; }).join('')}</tbody></table></div></section>` : ''}
   <section class="card col"><div class="row between"><h2>이번 주 챙길 학생</h2><span class="small">${wk.slice(5).replace('-', '/')} 주 · 학생마다 지금 할 일 하나</span></div>
     ${todo.length ? `<div class="scroll"><table><thead><tr><th>학생</th><th>할 일</th><th></th></tr></thead><tbody>
-    ${todo.map(({ s, f }) => `<tr><td><b>${esc(s.name)}</b>${s.example ? '<span class="ex">예시</span>' : ''}<div class="small">${esc(s.school)} · ${esc(s.grade)}</div>${typeof stageDots === 'function' ? stageDots(s) : ''}</td><td>${esc(f[0].t)}${f.length > 1 ? `<div class="row" style="gap:4px;margin-top:4px">${f.slice(1).map(x => `<span class="pill b-gray">${esc(x.tag || x.b)}</span>`).join('')}</div>` : ''}</td><td style="white-space:nowrap"><button class="btn sm dark" data-hact="${s.id}|${f[0].a}">${esc(f[0].b)}</button></td></tr>`).join('')}</tbody></table></div>` : `<div class="small">${rows.length ? '모두 계획대로 가고 있어요' : '첫 상담을 끝낸 학생이 생기면 여기에 할 일이 모여요'}</div>`}
+    ${todo.map(({ s, f }) => `<tr class="click" data-hgo="${s.id}"><td><b>${esc(s.name)}</b>${s.example ? '<span class="ex">예시</span>' : ''}<div class="small">${esc(s.school)} · ${esc(s.grade)}</div>${typeof stageDots === 'function' ? stageDots(s) : ''}</td><td>${esc(f[0].t)}${f.length > 1 ? `<div class="row" style="gap:4px;margin-top:4px">${f.slice(1).map(x => `<span class="pill b-gray">${esc(x.tag || x.b)}</span>`).join('')}</div>` : ''}</td><td style="white-space:nowrap"><button class="btn sm dark" data-hact="${s.id}|${f[0].a}">${esc(f[0].b)}</button></td></tr>`).join('')}</tbody></table></div>` : `<div class="small">${rows.length ? '모두 계획대로 가고 있어요' : '첫 상담을 끝낸 학생이 생기면 여기에 할 일이 모여요'}</div>`}
     ${ok ? `<div class="row" style="gap:6px;align-items:center"><span class="small">계획대로 가는 학생${todo.length ? ` ${ok}명 · 위 목록에서 뺐어요` : ''}</span>${rows.filter(x => !x.f.length).map(x => `<button class="chip" data-hgo="${x.s.id}" title="${esc(x.s.name)} 입시 상담 열기">${esc(x.s.name)}</button>`).join('')}</div>` : ''}
     ${exN && real.length ? `<div class="row" style="gap:6px;align-items:center"><span class="small">예시 학생 (연습용 · 위 숫자에는 안 셈)</span>${all0.filter(s => s.example).map(s => { const f = needFirst(s) ? [] : homeFlags(s, wk); return f.length ? `<button class="chip" data-hact="${s.id}|${f[0].a}" title="${esc(f[0].t)}">${esc(s.name)} · ${esc(f[0].b)}</button>` : `<button class="chip" data-hgo="${s.id}" title="${esc(s.name)} 입시 상담 열기">${esc(s.name)}</button>`; }).join('')}</div>` : ''}</section>`;
 };
@@ -4745,7 +4748,7 @@ R.home_after = function () {
     new: () => { stuEdit = 'new'; go('students'); }
   };
   document.querySelectorAll('[data-h]').forEach(b => b.onclick = () => H[b.dataset.h]());
-  document.querySelectorAll('[data-hgo]').forEach(b => b.onclick = () => { S.cur = b.dataset.hgo; save(); go('consult'); });
+  document.querySelectorAll('[data-hgo]').forEach(b => b.onclick = e => { if (e.target.closest('button,a,select,input')) return; S.cur = b.dataset.hgo; save(); go('coach'); });
   document.querySelectorAll('[data-hact]').forEach(b => b.onclick = () => {
     const i0 = b.dataset.hact.indexOf('|'); const id = b.dataset.hact.slice(0, i0), a = b.dataset.hact.slice(i0 + 1); const s = stuBy(id); if (!s) return; S.cur = id; save();
     if (a === 'auto') { const miss = autoPlan(s, weekKey(today())); save(); toast(miss ? `계획을 만들었어요 · ${fmtH(miss)}은 공부 가능 시간이 모자라 못 넣었어요` : '이번 주 계획을 만들었어요 · 확인해요'); return go('planner'); }
@@ -4812,7 +4815,7 @@ function fStep3(s) {
   const sum = {}; (p ? p.blocks : []).forEach(b => sum[b.subj] = (sum[b.subj] || 0) + b.min / 60);
   const plan = `<section class="card col"><div class="row between"><h2>이번 주 계획</h2><span class="small">공부 가능 시간 · 학원 일정 · ${mid ? '중등 비중을' : '목표 · 교재를'} 넣어 자동으로 짜요</span></div>
     ${p && p.blocks.length ? `<div class="rkbox"><b>블록 ${p.blocks.length}개 · 합계 ${fmtH(p.blocks.reduce((a, b) => a + b.min, 0) / 60)}</b><div class="small">${Object.entries(sum).map(([k, h]) => `${subjName(s, k)} ${fmtH(h)}`).join(' · ')}</div>${p.warn ? `<div class="small gap-bad">${esc(p.warn)}</div>` : ''}${p.src ? `<div class="small">근거 · ${esc(p.src)}</div>` : ''}</div>
-      <div class="row"><button class="btn" data-fplan>다시 만들기</button><button class="btn dark" data-fgo="planner">주간 플래너에서 보기 · 고치기</button></div>`
+      <div class="row"><button class="btn" data-fplan>다시 만들기</button>${(planOf(s.id, weekKey(today())) || {}).status === '확정' ? '<span class="pill b-safe">확정됨</span>' : '<button class="btn dark" data-fconf>확정하기</button>'}<button class="btn" data-fgo="planner">주간 플래너에서 보기 · 고치기</button></div>`
       : `<div class="row"><button class="btn dark" data-fplan style="min-height:44px">이번 주 계획 자동으로 만들기</button></div>`}</section>`;
   const fin = `<section class="card col"><div class="row between"><h2>첫 상담 마무리</h2><span class="small">저장하면 오늘 날짜와 핵심 숫자가 상담 기록에 남아요</span></div>
     <textarea id="fmemo" placeholder="오늘 정한 것 · 다음 상담까지 할 일">${esc(s.memo)}</textarea>
@@ -4839,7 +4842,8 @@ R.first_after = function () {
   document.querySelectorAll('[data-ftrack]').forEach(b => b.onclick = () => { s.track = s.track === b.dataset.ftrack ? '' : b.dataset.ftrack; track = s.track; page = {}; minOpen = null; save(); render(); });
   document.querySelectorAll('[data-ftg]').forEach(b => b.onclick = () => { const [u, d] = b.dataset.ftg.split('|'); s.target = { univ: u, dept: d }; save(); render(); toast(`${u} ${d}${josa(d)} 목표로 정했어요`); });
   document.querySelectorAll('[data-fav]').forEach(inp => inp.onchange = () => { const v = num(inp.value); if (v == null || v < 0 || v > 16) { toast('0~16시간 사이로 넣어요'); return render(); } s.avail = availOf(s).slice(); s.avail[+inp.dataset.fav] = v; save(); render(); });
-  document.querySelectorAll('[data-fplan]').forEach(b => b.onclick = () => { const miss = autoPlan(s, weekKey(today())); save(); render(); toast(miss ? `계획을 만들었어요 · ${fmtH(miss)}은 공부 가능 시간이 모자라 못 넣었어요` : '이번 주 계획을 만들었어요'); });
+  document.querySelectorAll('[data-fconf]').forEach(b => b.onclick = () => { const p = ensurePlan(s.id, weekKey(today())); p.status = '확정'; S.logs.unshift({ ts: Date.now(), sid: s.id, kind: 'confirm', text: '선생님 · 계획 확정', sub: `${s.name} 이번 주 계획` }); save(); render(); toast('확정했어요 · 학생 폰은 주간 플래너 「학생 폰으로 보내기」로 보내요'); });
+  document.querySelectorAll('[data-fplan]').forEach(b => b.onclick = () => { if (!isMid(s.grade) && !s.track) return toast('희망 계열을 먼저 정해요 · 계열에 따라 과목별 시간이 달라져요'); const miss = autoPlan(s, weekKey(today())); save(); render(); toast(miss ? `계획을 만들었어요 · ${fmtH(miss)}은 공부 가능 시간이 모자라 못 넣었어요` : '이번 주 계획을 만들었어요'); });
   document.querySelectorAll('[data-fgo]').forEach(b => b.onclick = () => go(b.dataset.fgo));
   document.querySelectorAll('[data-fsub]').forEach(b => b.onclick = () => { if (typeof MOVED !== 'undefined' && MOVED[b.dataset.fsub]) return goStudy(MOVED[b.dataset.fsub]); cTab.keepSub = true; subT[cTab.t] = b.dataset.fsub; go('consult'); });
   const dl = $('#fdl'); if (dl) dl.onchange = () => { const v = dl.value; if (v && new Date(v) <= today()) { toast('오늘 이후 날짜로 넣어요'); return render(); } s.dl = v ? { date: v, label: '직접 고른 날짜' } : {}; if (v) schoolExamSave(s, v); save(); render(); };
@@ -5902,8 +5906,8 @@ function winDemo() { const w = W(); const m = addDays(monday(today()), -7); w.na
 { const rc = renderCore; renderCore = function () { rc.apply(this, arguments); const b = document.querySelector('#view [data-windemo]'); if (b) b.onclick = winDemo; }; }
 
 /* ---------- v4.0 · 메뉴 정리 · 학생 작업 단계 막대 ---------- */
-const V40_STU = ['consult', 'design', 'planner', 'sheet', 'habit', 'sgb', 'app'];
-const V40_LAB = { consult: '입시 상담', design: '공부 계획', planner: '주간 플래너', sheet: '이번 주 점검', habit: '습관 · 리포트', sgb: '생기부', app: '학생 앱' };
+const V40_STU = ['consult', 'coach', 'design', 'planner', 'sheet', 'habit', 'sgb', 'app'];
+const V40_LAB = { consult: '입시 상담', coach: 'AI 코칭', design: '공부 계획', planner: '주간 플래너', sheet: '이번 주 점검', habit: '습관 · 리포트', sgb: '생기부', app: '학생 앱' };
 let V40_LAST = 'consult';
 (function () {
   const nav = document.getElementById('nav'); if (!nav) return;
@@ -6425,7 +6429,7 @@ body.mstaff main#view{padding:72px 16px 112px!important;gap:14px}
 body.mstaff #mtop{display:flex;position:fixed;top:0;left:0;right:0;z-index:40;height:58px;padding:0 14px;align-items:center;gap:10px;background:rgba(242,244,248,.92);backdrop-filter:saturate(1.6) blur(12px);-webkit-backdrop-filter:saturate(1.6) blur(12px);border-bottom:1px solid rgba(20,28,46,.06)}
 #mtop .mlogo{width:32px;height:32px;border-radius:10px;background:#1B2440;display:flex;align-items:center;justify-content:center;flex:none}
 #mtop .mt{flex:1;min-width:0}#mtop .mt b{display:block;font-size:17px;font-weight:800;color:#141C2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#mtop .mt span{display:block;font-size:12px;color:#6B7385;margin-top:1px}
+#mtop .mt span{display:block;font-size:12.5px;color:#4A5366;margin-top:1px}
 #mtop .mst{width:8px;height:8px;border-radius:50%;background:#12A06E;flex:none;box-shadow:0 0 0 3px rgba(18,160,110,.15)}#mtop .mst.wait{background:#E8A33A;box-shadow:0 0 0 3px rgba(232,163,58,.18)}
 body.mstaff #mtab{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:45;background:#fff;border:1px solid #E3E7EF;border-radius:22px;padding:6px;gap:2px;box-shadow:0 8px 24px rgba(20,28,46,.12)}
 #mtab button{flex:1;border:0;background:none;color:#6B7487;font:inherit;font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 7px;border-radius:16px;cursor:pointer}
@@ -6515,8 +6519,8 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     monitor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V11M10 19V5M16 19v-6M22 19H2"/></svg>',
     more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'
   };
-  const TITLE = { home: '오늘', students: '학생', monitor: '이번 주 진척', planner: '주간 플래너', consult: '입시 상담', design: '공부 계획', sheet: '이번 주 점검', habit: '습관 · 리포트', sgb: '생기부', app: '학생 앱', winter: '윈터스쿨', settings: '설정', guide: '학습관리 가이드', about: 'PLAN·T 소개', first: '첫 상담' };
-  const STUV = ['planner', 'consult', 'design', 'sheet', 'habit', 'sgb', 'app', 'first'];
+  const TITLE = { home: '오늘', students: '학생', monitor: '이번 주 진척', planner: '주간 플래너', consult: '입시 상담', coach: 'AI 코칭', design: '공부 계획', sheet: '이번 주 점검', habit: '습관 · 리포트', sgb: '생기부', app: '학생 앱', winter: '윈터스쿨', settings: '설정', guide: '학습관리 가이드', about: 'PLAN·T 소개', first: '첫 상담' };
+  const STUV = ['planner', 'consult', 'coach', 'design', 'sheet', 'habit', 'sgb', 'app', 'first'];
   const navGo = v => { const b = document.querySelector(`#nav button[data-v="${v}"]`); if (b) b.click(); else if (typeof go === 'function') go(v); };
   let built = false;
   function build() {
@@ -6835,7 +6839,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   }
   const CSS = `<style id="aicss">.aicmp{width:100%;border-collapse:collapse;font-size:13px}.aicmp th{text-align:left;font-size:12px;color:var(--sub,#4F5A6E);padding:6px;border-bottom:1px solid var(--line,#E2E6EE);white-space:nowrap}.aicmp td{padding:7px 6px;border-bottom:1px solid #EEF1F5;white-space:nowrap;color:#1A2233}.aicmp tr.tot td{background:#F2F4F8}
   .aidot{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:800;white-space:nowrap}.aidot i{width:8px;height:8px;border-radius:50%;display:inline-block}
-  .aisay{background:#F4F7FF;border:1px solid #D9E2FB;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.6;margin-top:8px;color:#1A2233}.aisay b{font-size:14.5px}.aisrc{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;color:#6B7385;background:#EEF1F5;border-radius:6px;padding:1px 6px}
+  .aisay{background:#F4F7FF;border:1px solid #D9E2FB;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.6;margin-top:8px;color:#1A2233}.aisay b{font-size:14.5px}.aisrc{display:inline-block;margin-left:6px;font-size:11px;font-weight:600;color:#4A5366;background:#EEF1F5;border-radius:6px;padding:1px 6px}
   .aifind{border:2px solid #1B2440;border-radius:14px;padding:10px 12px;margin-top:4px}.aifr{padding:7px 0;border-top:1px solid #EEF1F5;font-size:14px;line-height:1.55}.aifr:first-of-type{border-top:0}.aiarrow{font-weight:800;color:#1B2440}
   .aig{border-top:1px solid #EEF1F5;padding:10px 0;font-size:13.5px;line-height:1.6}.aig:first-child{border-top:0}.aig ul{margin:4px 0 0;padding-left:18px}.aih{font-size:12.5px;font-weight:800;color:#4F5A6E;margin-bottom:4px}.aisub{padding:6px 0}
   .aiflow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px}.aiflow span{background:#EEF1F5;border-radius:999px;padding:4px 10px;font-weight:700}.aiflow i{color:#9AA1B0;font-style:normal}
@@ -6856,10 +6860,89 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
       ${rr && rr.adj && rr.adj.length ? `<div class="aiadj"><b>이번 주 추천에 반영한 것</b> · ${rr.adj.map(a => `${DAYS[a.day]}요일 공부 시간 ${hh(a.from)} → ${hh(a.to)}`).join(' · ')} <span class="aism">(지난 2주 그 요일 계획을 70% 미만 지켜서 실제로 한 만큼 + 30분으로 줄임 · 원래의 절반 아래로는 안 내림 〔설계값〕)</span></div>` : ''}
       ${st && (C || prev || {}).self !== false ? `<div class="aistreak">${STREAK_SAY[st]}</div>` : ''}
       ${C ? `<div style="font-weight:800;margin-top:4px">이번 주 비교${C.upto ? ` · ${DAYS[C.upto - 1]}요일까지` : ''}</div>${cmpTable(C)}${cmpSay(C)}` : prev ? `<div style="font-weight:800;margin-top:4px">지난주 비교 (${prevWk.slice(5).replace('-', '/')} 주)</div>${cmpTable(prev)}${cmpSay(prev)}` : ''}
-      <details ${wk === tw && innerWidth > 760 && !show ? 'open' : ''}><summary style="cursor:pointer;font-weight:800">이 학생 추천 공부법</summary><div style="margin-top:6px">${guideHtml(s)}</div></details>
+      <div class="row between" style="background:var(--pribg);border-radius:12px;padding:10px 14px"><span><b>과목별 공부법 · 시간 · 교재</b> <span class="aism">학생 정보부터 리포트까지 한 화면에 모아 뒀어요</span></span><button class="btn or sm" onclick="go('coach')">AI 코칭 열기</button></div>
       ${recoDays ? `<details><summary style="cursor:pointer;font-weight:800">이번 주 추천 계획 · ${hm(reco.reduce((a, b) => a + b.min, 0))} <span class="aism">(${rr && rr.dflt ? '학생 공부 가능 시간을 아직 안 넣어 학원 기본값 기준 · 학생 정보에서 넣으면 더 맞아져요' : '학생이 알려 준 공부 가능 시간 기준'})</span></summary><div style="margin-top:6px">${recoDays}</div></details>` : `<div class="aism">이번 주 추천 계획이 아직 없어요 · 「자동 배치」를 누르면 생기고, ${s.selfPlan ? '학생 앱에 「선생님 추천」으로 가요' : '그대로 학생 계획이 돼요'}</div>`}
       <div class="aism">판정 · 80~120% 맞음 · 50~79% 조금 다름 · 그 밖 많이 다름 〔설계값〕 · 「계획만큼 했나」는 끝낸 할 일 기준(리포트 1쪽 계획 실행률과 같은 계산)</div></section>`;
   }
+
+
+  /* ---------- 5-2. AI 코칭 한 화면 ----------
+     학생 정보 → 진단 → 처방(과목별) → 이번 주 계획 → 지난 기록 비교 → 학부모 리포트
+     새 계산 없음 · 위 guide · cmpWeek · sumCmp · finds · autoPlan · habitOf 를 그대로 순서대로 보여 줌 */
+  const CCSS = `<style id="coachcss">.cst{display:flex;align-items:center;gap:10px;margin:0 0 10px}.cst i{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex:none}.cst h2{margin:0}.cst span{font-size:13px;color:var(--mute)}
+  .cinfo td:first-child{width:150px;font-weight:700;color:var(--sub)}.cinfo td:last-child{width:120px;text-align:right}.cmiss{color:var(--amb);font-weight:700}
+  .cbar{display:flex;align-items:flex-end;gap:10px;height:120px;margin:6px 0 2px}.cbar>div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;justify-content:flex-end;height:100%}.cbar b{font-size:12.5px}.cbar i{display:block;width:100%;max-width:44px;border-radius:6px 6px 0 0;background:var(--pri)}.cbar span{font-size:13px;color:var(--sub)}
+  .ctip{font-size:13.5px;line-height:1.55}.ctip small{display:block;color:var(--mute);font-size:13px}
+  @media(max-width:760px){.cst{flex-wrap:wrap}.cst span{flex:1 1 100%}.cinfo,.cinfo tbody{display:block}.cinfo tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 0;border-top:1px solid var(--line2)}.cinfo tr:first-child{border-top:0}.cinfo td{display:block;border:0!important;padding:0!important;width:auto!important;text-align:left!important}.cinfo td:first-child{font-size:13px}.cinfo td:nth-child(2){grid-row:2}.cinfo td:last-child{grid-column:2;grid-row:1/3;align-self:center}}</style>`;
+  const goBtn = (v, t) => `<button class="btn sm" data-cgo="${v}">${t}</button>`;
+  function coachPage(s) {
+    CS = s; const tw = weekKey(today()); const G = guide(s); const n = s.nae || {}, mk = s.mock || {};
+    const LV = { 국어: 'K', 수학: 'M', 영어: 'E', 통합사회: 'SO', 통합과학: 'SC' };
+    const av = availOf(s); const avW = av.reduce((a, b) => a + b, 0); const own = Array.isArray(s.avail) && s.avail.length === 7;
+    const H = habitOf(s, 4); const AW = habitAvgWeeks(H); const rec = avg(AW.map(w => w.rec)), rate = avg(AW.filter(w => w.rate != null).map(w => w.rate)), days = avg(AW.map(w => w.days));
+    const books = SUBJS.reduce((a, k) => a + ((s.design && s.design.subjects && s.design.subjects[k] || {}).books || []).length, 0);
+    const tgt = s.target && s.target.univ ? `${s.target.univ} ${s.target.dept || ''}` : '';
+    const sc = k => n[LV[k]] != null ? n[LV[k]] : null;
+    // ① 학생 정보
+    const rows = [
+      ['목표 대학 · 학과', tgt ? E(tgt) : '', 'consult', '목표 정하기'],
+      ['희망 계열', isMid(s.grade) ? '중학생 · 계열 없이 진행' : s.track ? E(s.track) : '', 'consult', '계열 고르기'],
+      ['내신 (5등급)', n.avg != null ? `평균 ${(+n.avg).toFixed(2)} · ${SUBJS.filter(k => sc(k) != null).map(k => `${E(SHORT(k))} ${sc(k)}`).join(' · ')}` : '', 'consult', '성적 넣기'],
+      ['모의고사', ['K', 'M', 'E'].some(k => mk[k] != null) ? ['K', 'M', 'E', 'SO', 'SC'].filter(k => mk[k] != null).map(k => `${({ K: '국어', M: '수학', E: '영어', SO: '탐구1', SC: '탐구2' })[k]} ${mk[k]}`).join(' · ') + '등급' : '', 'consult', '모의 넣기'],
+      ['공부 가능 시간', `주 ${Math.round(avW * 10) / 10}시간 · 평일 ${Math.round(av.slice(0, 5).reduce((a, b) => a + b, 0) / 5 * 10) / 10}시간 · 주말 ${Math.round((av[5] + av[6]) / 2 * 10) / 10}시간${own ? '' : ' <span class="cmiss">· 학원 기본값</span>'}`, 'planner', own ? '고치기' : '학생 시간 넣기'],
+      ['교재', books ? `${books}권 골라 둠` : '', 'design', books ? '고치기' : '교재 고르기'],
+      ['지난 4주 기록', rec ? `실제 공부 주 ${fmtH(rec)} · 계획한 할 일 ${rate != null ? Math.round(rate * 100) + '%' : '—'} 끝냄 · 주 ${days != null ? Math.round(days * 10) / 10 : 0}일 공부` : '', 'habit', '기록 보기']];
+    const miss = rows.filter(r => !r[1] && r[2] !== 'habit').length;
+    const s1 = `<section class="card col"><div class="cst"><i>1</i><h2>학생 정보</h2><span>${miss ? `빈 칸 ${miss}개 · 채우면 아래 추천이 더 정확해져요` : '추천에 쓰는 값이 다 들어 있어요'}</span></div>
+      <table class="cinfo"><tbody>${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1] || `<span class="cmiss">비어 있음</span>`}</td><td>${goBtn(r[2], r[3])}</td></tr>`).join('')}</tbody></table></section>`;
+    // ② 진단
+    const tc = sumCmp(weeksBack(5).filter(w => w < tw).map(w => cmpWeek(s, w)));
+    const F = tc ? finds(s, tc) : [];
+    const s2 = `<section class="card col"><div class="cst"><i>2</i><h2>진단</h2><span>학년 · 시기 · 성적 · 지난 기록으로</span></div>
+      ${G.when ? `<div class="ctip"><b>${E(G.when.h)}</b> · ${E(G.when.t)}${G.when.li.length ? `<small>${G.when.li.map(E).join(' · ')}</small>` : ''}</div>` : ''}
+      ${G.subj.length ? `<div class="row" style="gap:6px">${G.subj.map(x => `<span class="pill b-fit">${E(SHORT(x.k))} · ${x.k === '영어' ? E(x.eng || '수업 단계') : E(x.lv || '수준 미정')}${x.st ? ' · ' + E(x.st) : ''}</span>`).join('')}</div>` : '<div class="small">과목별 수준은 성적과 교재가 들어오면 나와요</div>'}
+      ${F.length ? `<div class="ctip"><b>지난 ${tc.n}주 기록에서</b>${F.map(f => `<small>· ${E(f.t)} → ${E(f.act)}</small>`).join('')}</div>` : tc ? '<div class="small">지난 기록에서 걸리는 점은 없어요</div>' : '<div class="small">지난 기록이 쌓이면 여기서 무엇을 바꿀지 나와요</div>'}</section>`;
+    // ③ 처방 · 과목별
+    let reco = []; try { reco = recoOf(s, tw) || []; } catch (e) { }
+    const p = planOf(s.id, tw); const pbl = p ? p.blocks : [];
+    const wkMin = k => { const src = reco.length ? reco : pbl.filter(b => b.by === 'auto'); return src.filter(b => SK(b.subj) === k).reduce((a, b) => a + (b.min || 0), 0); };
+    const R0 = ratioOf(s); const needTrack = !isMid(s.grade) && !s.track;
+    const ksub = SUBJS.filter(k => G.subj.some(x => x.k === k) || R0[k]);
+    const s3 = `<section class="card col"><div class="cst"><i>3</i><h2>과목별 처방</h2><span>공부법 · 시간 · 교재 · 언제</span></div>
+      ${needTrack ? `<div class="ins warn"><b class="lead">희망 계열</b>계열을 정해야 과목별 시간이 나와요 ${goBtn('consult', '계열 고르기')}</div>` : ''}
+      ${ksub.length ? `<div class="scroll"><table><thead><tr><th>과목</th><th>수준 · 단계</th><th>이번 주</th><th>교재</th><th>이렇게 공부해요</th><th>언제</th></tr></thead><tbody>${ksub.map(k => { const x = G.subj.find(y => y.k === k) || { k }; const m = wkMin(k);
+        return `<tr><td><b>${SD(k)}${E(SHORT(k))}</b>${R0[k] ? `<div class="small">비중 ${Math.round(R0[k] * 10) / 10}%</div>` : ''}</td><td>${k === '영어' ? E(x.eng || '영어발전소 수업') : E(x.lv || '—')}${x.stW ? `<div class="small">${E(x.stW)}</div>` : ''}</td><td><b>${m ? hm(m) : '—'}</b></td><td>${x.book ? E(x.book) : '<span class="cmiss">교재 없음</span>'}</td><td class="ctip">${k === '영어' ? '영어발전소 수업 단계로 관리' : x.tip ? E(x.tip) : '—'}${x.next ? `<small>${E(x.next)}</small>` : ''}</td><td><span class="small">${E(x.place || '')}</span></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="small">성적 · 교재가 들어오면 과목별 처방이 나와요</div>'}
+      ${G.vol ? `<div class="small">하루 자습량 기준 · ${G.vol.rows.map(r => `${E(r[0])} 평일 ${E(r[1])} · 주말 ${E(r[2])}`).join(' / ')} (학습량 · 공부법 기준 · 학원 수업 제외)</div>` : ''}</section>`;
+    // ④ 이번 주 계획
+    const src4 = pbl.length ? pbl : reco; const dayM = DAYS.map((d, i) => src4.filter(b => b.day === i).reduce((a, b) => a + (b.min || 0), 0)); const mx = Math.max(60, ...dayM);
+    const tot = dayM.reduce((a, b) => a + b, 0);
+    const s4 = `<section class="card col"><div class="cst"><i>4</i><h2>이번 주 계획</h2><span>${tot ? `${hm(tot)} · ${p && p.status === '확정' ? '확정됨' : '확정 전'}` : '아직 없어요'}</span></div>
+      ${tot ? `<div class="cbar">${dayM.map((m, i) => `<div><b>${m ? hm(m) : ''}</b><i style="height:${Math.max(2, m / mx * 90)}px"></i><span>${DAYS[i]}</span></div>`).join('')}</div>` : ''}
+      <div class="row"><button class="btn or" data-cauto="1"${needTrack ? ' disabled' : ''}>${tot ? '이번 주 계획 다시 만들기' : '이번 주 계획 만들기'}</button>${tot && !(p && p.status === '확정') ? '<button class="btn dark" data-cconf="1">확정하기</button>' : ''}${goBtn('planner', '주간 플래너에서 고치기')}</div>
+      <div class="small">위 처방의 시간 · 교재로 공부 가능 시간 안에 요일별로 나눠요${s.selfPlan ? ' · 이 학생은 계획을 직접 짜서 이건 추천으로만 보여요' : ''}</div></section>`;
+    // ⑤ 지난 기록 비교 → 다음 주
+    const rr = recoRec(s, tw);
+    const s5 = `<section class="card col"><div class="cst"><i>5</i><h2>지난 기록 비교 → 다음 주</h2><span>${tc ? `지난 ${tc.n}주` : '기록 쌓이는 중'}</span></div>
+      ${tc ? cmpTable(tc) + cmpSay(tc) + (findHtml(s, tc, true) || '') : '<div class="small">타이머 기록이 1주 쌓이면 비교가 나와요</div>'}
+      ${rr && rr.adj && rr.adj.length ? `<div class="aiadj"><b>이번 주 추천에 반영한 것</b> · ${rr.adj.map(a => `${DAYS[a.day]}요일 공부 ${hh(a.from)} → ${hh(a.to)}`).join(' · ')}</div>` : ''}</section>`;
+    // ⑥ 리포트
+    const s6 = `<section class="card col"><div class="cst"><i>6</i><h2>학부모 리포트</h2><span>위 내용을 3쪽으로</span></div><div class="row"><button class="btn dark" data-crep="1">공부 리포트 보기 · PDF</button>${goBtn('habit', '선생님 한마디 쓰기')}</div></section>`;
+    return css() + CCSS + s1 + s2 + s3 + s4 + s5 + s6;
+  }
+  VTITLE.coach = 'AI 코칭';
+  R.coach = function () {
+    const s = curStu(); if (!s) return '<div class="card empty">학생을 먼저 골라 주세요 <button class="btn dark sm" onclick="go(\'students\')">학생 목록으로</button></div>';
+    let body = ''; try { body = coachPage(s); } catch (e) { console.warn('[AI 코칭]', e); body = '<div class="card">AI 코칭을 그리지 못했어요 · 학생 정보를 확인해 주세요</div>'; }
+    return (typeof v40Bar === 'function' ? v40Bar() : '') + `<div class="row between">${stuPicker('AI 코칭')}</div>` + body;
+  };
+  R.coach_after = function () {
+    const s = curStu(); if (!s) return;
+    document.querySelectorAll('[data-cgo]').forEach(b => b.onclick = () => go(b.dataset.cgo));
+    const a = document.querySelector('[data-cauto]'); if (a) a.onclick = () => { const tw = weekKey(today()); const p = planOf(s.id, tw); if (p && p.blocks.some(b => b.by === 'auto' && !b.done) && !confirm('자동으로 만든 블록을 다시 만들까요? (자습 루틴 · 직접 넣은 블록 · 끝낸 블록은 그대로)')) return; const u = autoPlan(s, tw); save(); render(); const pp = planOf(s.id, tw); toast(!pp || !pp.blocks.some(b => b.by === 'auto') ? '넣을 시간이 없어요 · 공부 가능 시간을 확인해 주세요' : u > 0 ? `만들었어요 · ${fmtH(u)}은 공부 가능 시간이 모자라 못 넣었어요` : '이번 주 계획을 만들었어요'); };
+    const c = document.querySelector('[data-cconf]'); if (c) c.onclick = () => { const p = ensurePlan(s.id, weekKey(today())); p.status = '확정'; S.logs.unshift({ ts: Date.now(), sid: s.id, kind: 'confirm', text: '선생님 · 계획 확정', sub: `${s.name} 이번 주 계획` }); save(); render(); toast('확정했어요 · 학생 폰은 주간 플래너 「학생 폰으로 보내기」로 보내요'); };
+    const r = document.querySelector('[data-crep]'); if (r) r.onclick = () => printStudy(s, 4);
+    document.querySelectorAll('[data-aido]').forEach(x => x.onchange = () => { s.aiDo = s.aiDo || {}; if (x.checked) s.aiDo[x.dataset.aido] = ymd(today()); else delete s.aiDo[x.dataset.aido]; save(); toast(x.checked ? '학부모 리포트 「다음 주에는」에 들어가요' : '리포트에서 뺐어요'); });
+  };
 
   if (!isStuMode()) {
     { const f = R.planner; R.planner = function () { const h = f.apply(this, arguments); const s = curStu(); if (!s) return h; let card = ''; try { card = plannerCard(s, ymd(addDays(monday(today()), weekOff * 7))); } catch (e) { console.warn('[AI 코칭]', e); } const i = h.indexOf('<section'); const j = i < 0 ? -1 : h.indexOf('</section>', i); return j < 0 ? h + card : h.slice(0, j + 10) + card + h.slice(j + 10); }; } // 주간 계획 카드 다음에 (계획이 먼저 보이게)
@@ -7211,7 +7294,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   :root{--mute:#535C6E}
   .small,.note,.label{font-size:13px}
   th{font-size:13px}
-  .pill,.gterm,.aisrc{font-size:12px!important}
+  .pill,.aisrc{font-size:12.5px!important}
   #view [style*="font-size:11px"],#view [style*="font-size:11.5px"],#view [style*="font-size:10.5px"],#view [style*="font-size:10px"]{font-size:12px!important}
   body.mstaff .kpis .kpi .s{font-size:12.5px!important}
   .mdstrip span{font-size:12px!important}.blk .bx{font-size:12.5px!important}
@@ -7393,7 +7476,13 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
       if (!sc._mh) { sc._mh = 1; sc.addEventListener('scroll', upd, { passive: true }); }
     });
   }
-  if (typeof renderCore === 'function') { const f = renderCore; renderCore = function () { const r = f.apply(this, arguments); try { const V = document.getElementById('view'); stack(V); hints(V); } catch (e) { } return r; }; }
+  // 폰 · 옆으로 미는 줄(학생 작업 탭 · 제목 버튼 · 숫자 카드) · 고른 탭을 가운데로 · 더 있으면 오른쪽 끝을 흐리게
+  function edges(V) {
+    if (!document.body.classList.contains('mstaff')) return;
+    const bar = V.querySelector('.v40-bar'), on = bar && bar.querySelector('button.on'); if (on) bar.scrollLeft = Math.max(0, on.offsetLeft - bar.clientWidth / 2 + on.offsetWidth / 2);
+    V.querySelectorAll('.v40-bar, .ph > .row, .kpis').forEach(el => { const upd = () => el.classList.toggle('mfade', el.scrollLeft + el.clientWidth < el.scrollWidth - 4); upd(); if (!el._me) { el._me = 1; el.addEventListener('scroll', upd, { passive: true }); } });
+  }
+  if (typeof renderCore === 'function') { const f = renderCore; renderCore = function () { const r = f.apply(this, arguments); try { const V = document.getElementById('view'); stack(V); hints(V); edges(V); } catch (e) { } return r; }; }
 
   // 리포트 · 짧은 쪽은 바로 앞 쪽에 붙임 (넘치지 않을 때만 · 1쪽 요약은 그대로)
   function pack() {
