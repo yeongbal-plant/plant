@@ -6605,7 +6605,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const d = new Date(); const ds = `${d.getMonth() + 1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일`;
     const ok = Math.max(0, n - todo); const pct = n ? Math.round(ok / n * 100) : 0;
     const hero = document.createElement('section'); hero.className = 'mhero';
-    hero.innerHTML = `<div><div class="d">${ds}</div><div class="n">${n}명<small>${ex && ex === n ? '예시 학생' : '관리 중'}</small></div></div><div class="mid"><div class="bar"><i style="width:${pct}%"></i></div><div class="s"><span>이번 주 할 일 끝 ${ok}명</span><b>지금 챙길 학생 ${todo}명</b></div></div>${todo ? '<button type="button" class="go" data-mgo="care">챙길 학생 보기</button>' : ''}`;
+    hero.innerHTML = `<div><div class="d">${ds}</div><div class="n">${n}명<small>${ex && ex === n ? '예시 학생' : '관리 중'}</small></div></div><div class="mid"><div class="bar"><i style="width:${pct}%"></i></div><div class="s"><span>이번 주 할 일 끝 ${ok}명 / ${n}명</span></div></div>${todo ? `<button type="button" class="go" data-mgo="care">챙길 학생 ${todo}명 보기</button>` : ''}`;
     hero.addEventListener('click', e => { if (e.target.closest('[data-mgo]')) { const c = document.querySelector('.mcare'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); } });
     const h1 = ph.querySelector('h1'); if (h1 && document.body.classList.contains('mstaff')) h1.textContent = '안녕하세요'; const sm = ph.querySelector('.small'); if (sm) sm.style.display = 'none';
     ph.after(hero);
@@ -7304,6 +7304,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   body.mstaff table.mstack td,body.mstaff table.mstack th{border:0!important;padding:3px 0!important;white-space:normal!important;text-align:left!important;font-size:14px;line-height:1.5}
   body.mstaff table.mstack tr>:first-child{font-weight:800;font-size:15px}
   body.mstaff table.mstack [data-h]:not(:first-child)::before{content:attr(data-h) " · ";color:#535C6E;font-size:12.5px;font-weight:700}
+  body.mstaff table.mstack.mact tr{position:relative;padding-right:76px}body.mstaff table.mstack.mact tr>:last-child{position:absolute;top:8px;right:10px;padding:0!important}body.mstaff table.mstack.mact tr>:last-child .btn{min-height:36px}body.mstaff table.mstack.mact tr>:nth-child(-n+2){display:inline-block!important;margin-right:10px;font-weight:800;font-size:15px}body.mstaff table.mstack.mact tr>:nth-child(2)::before{content:none!important}
   body.mstaff table.mstack.mcat tr>:first-child{font-weight:700;font-size:12.5px;color:#535C6E}body.mstaff table.mstack.mcat tr>:nth-child(2){font-weight:800;font-size:15px}
   .day>.row.between>.small{text-align:right;line-height:1.25}
   body.mstaff .mhint{font-size:12.5px;color:#535C6E;margin:2px 0 4px;text-align:right}
@@ -7314,13 +7315,22 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   function stack(V) {
     if (!document.body.classList.contains('mstaff')) return;
     V.querySelectorAll('table').forEach(t => {
-      if (t.classList.contains('mstack') || t.closest('#print') || t.querySelector('input,select,textarea,button')) return;
+      if (t.classList.contains('mstack') || t.closest('#print') || t.querySelector('input,select,textarea')) return;
       const rows = [...t.rows]; if (!rows.length) return; const head = rows.find(r => [...r.cells].every(c => c.tagName === 'TH'));
       const cols = Math.max(...rows.map(r => r.cells.length)); if (cols < 3) return;
       const box = t.parentElement; const over = t.scrollWidth > (box ? box.clientWidth : innerWidth) + 6;
-      const longTxt = rows.some(r => [...r.cells].some(c => (c.textContent || '').trim().length > 16));
-      const narrow = rows.some(r => [...r.cells].some(c => (c.textContent || '').trim().length > 16 && c.clientWidth < 150));
-      if (!(longTxt && (over || narrow))) return;
+      // 버튼은 맨 끝 칸(머리 빈칸)에만 있을 때 · 넘치면 카드로 쌓고 버튼은 카드 오른쪽 위로
+      const act = !!t.querySelector('button');
+      if (act) {
+        const bodyR = rows.filter(r => r !== head);
+        const lastOnly = bodyR.every(r => [...r.cells].every((c, i) => i === r.cells.length - 1 || !c.querySelector('button')));
+        if (!head || (head.cells[head.cells.length - 1].textContent || '').trim() || !lastOnly || !over) return;
+        t.classList.add('mact');
+      } else {
+        const longTxt = rows.some(r => [...r.cells].some(c => (c.textContent || '').trim().length > 16));
+        const narrow = rows.some(r => [...r.cells].some(c => (c.textContent || '').trim().length > 16 && c.clientWidth < 150));
+        if (!(longTxt && (over || narrow))) return;
+      }
       const lab = head ? [...head.cells].map(c => (c.textContent || '').trim()) : [];
       if (head) head.classList.add('mh');
       rows.forEach(r => { if (r === head) return; [...r.cells].forEach((c, i) => { if (lab[i] && i > 0) c.dataset.h = lab[i]; }); });
@@ -7362,13 +7372,18 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
         if (a.offsetHeight <= LIM) { b.remove(); pages.splice(i + 1, 1); i--; }
         else body.forEach(n => { n.style.fontSize = ''; n.style.lineHeight = ''; b.insertBefore(n, bf); });
       }
+      // 마지막 쪽이 짧게 남으면 · 글자는 그대로 두고 앞 쪽 위아래 여백만 줄여서 합쳐 봄
+      { const ps = [...P.querySelectorAll('.rp-page')]; const b = ps[ps.length - 1], a = ps[ps.length - 2];
+        if (ps.length > 2 && a.parentElement === b.parentElement && b.offsetHeight < 400) { const af = a.lastElementChild, bf = b.lastElementChild;
+          if (af && bf && af.classList.contains('rp-foot') && bf.classList.contains('rp-foot')) { const body = [...b.children].slice(1, -1);
+            if (body.length) { a.classList.add('rp-pk'); body.forEach(n => a.insertBefore(n, af)); if (a.offsetHeight <= LIM) b.remove(); else { a.classList.remove('rp-pk'); body.forEach(n => b.insertBefore(n, bf)); } } } } }
       const all = [...P.querySelectorAll('.rp-page')]; all.forEach((pg, k) => { const f = pg.lastElementChild; if (f && f.classList.contains('rp-foot')) f.innerHTML = f.innerHTML.replace(/\d+ \/ \d+(?=\s*$|\s*·)/, `${k + 1} / ${all.length}`); });
     } finally { P.style.cssText = keep; }
   }
   if (typeof rpFit === 'function') { const f = rpFit; rpFit = function () { const r = f.apply(this, arguments); try { pack(); } catch (e) { console.warn('[쪽 붙이기]', e); } return r; }; }
 })();
 /* 3차 · 리포트 표 글자 바닥 */
-(function () { const st = document.createElement('style'); st.textContent = `#print .rp-t td,#print .rp-t th{font-size:13px!important}#print .rp-t.rp-tight td,#print .rp-t.rp-tight th,#print .rp-small2 .rp-t td{font-size:12px!important}#print .rp-t td b{font-size:inherit!important}#print .rp-b{font-size:12px!important}#print .rp-gloss,#print .rp-gloss *{font-size:12.5px!important}#print li{font-size:12.5px!important}`; document.head.appendChild(st); })();
+(function () { const st = document.createElement('style'); st.textContent = `#print .rp-t td,#print .rp-t th{font-size:13px!important}#print .rp-pk .rp-t td,#print .rp-pk .rp-t th,#print .rp-pk .aitbl td,#print .rp-pk .aitbl th,#print .rp-pk .aicmp td,#print .rp-pk .aicmp th{padding-top:2px!important;padding-bottom:2px!important;line-height:1.35!important}#print .rp-pk .rp-sec{margin-top:8px!important;margin-bottom:4px!important}#print .rp-pk .aitip{margin-top:2px!important;margin-bottom:2px!important}#print .rp-pk .rp-stats{margin-bottom:6px!important}#print .rp-t.rp-tight td,#print .rp-t.rp-tight th,#print .rp-small2 .rp-t td{font-size:12px!important}#print .rp-t td b{font-size:inherit!important}#print .rp-b{font-size:12px!important}#print .rp-gloss,#print .rp-gloss *{font-size:12.5px!important}#print li{font-size:12.5px!important}`; document.head.appendChild(st); })();
 
 </script>
 <script>
