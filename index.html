@@ -1829,7 +1829,7 @@ R.app_after = function () {
    ========================================================= */
 function progressOf(s, wk) {
   const p = planOf(s.id, wk); const tdi = (today().getDay() + 6) % 7; const isThis = wk === weekKey(today());
-  if (!p || !p.blocks.length) return { st: '계획 없음', pct: 0, p };
+  if (!p || !p.blocks.length) return { st: '계획 없음', pct: 0, p, overdue: 0, pl: 0, dn: 0 }; // 빈 계획도 시간은 0으로 (카드가 NaN을 찍지 않게)
   const pl = p.blocks.reduce((a, b) => a + b.min, 0), dn = p.blocks.reduce((a, b) => a + doneMin(b), 0);
   const pct = pl ? Math.round(dn / pl * 100) : 0;
   const overdue = p.blocks.filter(b => !b.done && (!isThis || b.day < tdi)).length;
@@ -1852,7 +1852,7 @@ R.monitor = function () {
     <section style="flex:999 1 640px;min-width:0" class="grid g2">${all.map(({ s, g }) => `<div class="card col" style="gap:10px;${g.st === '밀림' ? 'background:#FFF1EC;border:2px solid #D9472B' : g.st === '확정 대기' ? 'border:2px solid var(--or)' : ''}">
       <div class="row between"><div class="row"><b style="font-size:17px">${esc(s.name)}</b>${s.example ? '<span class="ex">예시</span>' : ''}${g.p && g.p.status === '작성 중' && g.st === '계획대로' ? '' : `<span class="pill" style="background:#fff;border:1px solid ${col[g.st]};color:${col[g.st]}">${g.st}${g.st === '밀림' ? ' ' + g.overdue + '개' : ''}</span>`}${g.p && g.p.status === '작성 중' && g.st !== '계획 없음' ? statusPill('작성 중') : ''}</div><span class="small">${esc(s.grade)}</span></div>
       <div class="row" style="flex-wrap:nowrap"><div class="bat"><i style="width:${Math.min(100, g.pct)}%;background:${g.st === '밀림' ? '#D9472B' : 'var(--or)'}"></i></div><b>${g.pct}%</b></div>
-      <div class="small row" style="gap:8px">${g.p ? `계획 ${fmtH(g.pl / 60)} · 끝낸 할 일 ${fmtH(g.dn / 60)}` : '이번 주 계획이 없어요'}${typeof sparkRec === 'function' && sparkRec(s) ? ` <span title="최근 4주 순공">${sparkRec(s)} <span class="small">이번 주 순공 · 4주 추세</span></span>` : ''}</div>
+      <div class="small row" style="gap:8px">${g.p && g.pl ? `계획 ${fmtH(g.pl / 60)} · 끝낸 할 일 ${fmtH(g.dn / 60)}` : '이번 주 계획이 없어요'}${typeof sparkRec === 'function' && sparkRec(s) ? ` <span title="최근 4주 순공">${sparkRec(s)} <span class="small">이번 주 순공 · 4주 추세</span></span>` : ''}</div>
       ${(() => { const sg = segsOf(s.id, [wk]); const rec = (g.p ? g.p.blocks : []).reduce((a, b) => a + blockElapsed(b), 0) / 3600; return rec ? `<div class="small">순공 (인강 포함) ${fmtH(rec)} · 한 번에 이어서 평균 ${minTxt(avg(sg.map(x => (x.e - x.s) / 60000)))}</div>` : ''; })()}
       <div class="grid g3" style="gap:6px"><button class="btn dark" data-go="planner|${s.id}">${g.st === '확정 대기' ? '확인하고 확정' : g.st === '계획 없음' ? '계획 만들기' : '계획 보기'}</button><button class="btn" data-go="habit|${s.id}">습관 · 리포트</button><button class="btn" data-go="consult|${s.id}">상담</button></div></div>`).join('') || '<div class="card empty">학생이 없어요</div>'}</section>
     <aside class="card" style="flex:1 1 300px"><div class="row between"><h2>기록</h2><span class="small">최근</span></div>
