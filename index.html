@@ -5965,7 +5965,7 @@ function v40Side() {
   const s = typeof curStu === 'function' ? curStu() : null;
   const n = document.getElementById('v40StuName'), sub = document.getElementById('v40StuSub');
   if (n) n.textContent = s ? (s.name || '(이름 없음)') : '학생 작업';
-  if (sub) sub.textContent = s ? `${s.grade || ''} · ${on ? V40_LAB[VIEW] : '상담 · 계획 · 점검'}` : '학생을 먼저 고르세요';
+  if (sub) sub.textContent = s ? `${s.grade || ''} · ${on ? V40_LAB[VIEW] : '최근 본 학생 · 눌러서 이어서 보기'}` : '학생을 먼저 고르세요';
   const ng = document.getElementById('navStu'); if (ng) ng.textContent = '학생 작업';
 }
 function v40Bar() {
@@ -6106,6 +6106,10 @@ const IKFILES={"index.html": "<!doctype html>\n<html lang=\"ko\"><head><meta cha
   window.__PLANT_MERGE = merge;
   if (!C) return;
   const typing = () => { const a = document.activeElement; return a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.type !== 'button'; };
+  const MYCUR = () => { try { return localStorage.getItem('plant_cur_' + (C.email || '')); } catch (e) { return null; } };
+  const keepCur = () => { const c = MYCUR(); if (S && c && (S.students || []).some(x => x.id === c)) S.cur = c; };
+  window.__PLANT_KEEPCUR = keepCur;
+  { const f = uiAfter; uiAfter = function () { f(); try { if (S && S.cur) localStorage.setItem('plant_cur_' + (C.email || ''), S.cur); } catch (e) { } }; }
   const repaint = () => { try { if (STU_LOCK || VIEW) render(); } catch (e) { try { go(VIEW || 'home'); } catch (x) { } } };
   const stamp = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
 
@@ -6120,7 +6124,7 @@ const IKFILES={"index.html": "<!doctype html>\n<html lang=\"ko\"><head><meta cha
       if (res.ok) { VER = res.ver; BASE = snap; BASEKEYS = keys; C.status('저장됨 ' + stamp()); }
       else if (res.conflict) {
         const rbox = JSON.parse(res.str); const rS = await openWith(CK, rbox);
-        S = merge(BASE || {}, S, rS); KEYS = merge(BASEKEYS || [], KEYS, rbox.keys || []);
+        S = merge(BASE || {}, S, rS); KEYS = merge(BASEKEYS || [], KEYS, rbox.keys || []); keepCur();
         BASE = rS; BASEKEYS = clone(rbox.keys || []); VER = res.ver; dirty = true; C.status('다른 기기 변경과 합치는 중…');
         if (!typing()) repaint();
       }
@@ -6132,7 +6136,7 @@ const IKFILES={"index.html": "<!doctype html>\n<html lang=\"ko\"><head><meta cha
   window.__PLANT_FLUSH = async () => { if (timer) { clearTimeout(timer); timer = null; await push(); } };
 
   const _save = save; save = function () { _save.apply(this, arguments); if (CK && S) schedule(2500); };
-  const _start = start; start = function () { if (!BASE) { BASE = clone(S); BASEKEYS = clone(KEYS); } return _start.apply(this, arguments); };
+  const _start = start; start = function () { keepCur(); if (!BASE) { BASE = clone(S); BASEKEYS = clone(KEYS); } return _start.apply(this, arguments); };
   const _lock = lock; lock = function () { if (timer && CK && S) { clearTimeout(timer); timer = null; const p = push(); const a = arguments; p.finally(() => { _lock.apply(this, a); BASE = null; BASEKEYS = null; }); return; } const r = _lock.apply(this, arguments); BASE = null; BASEKEYS = null; return r; };
   window.addEventListener('beforeunload', e => { if (timer || pushing) { push(); e.preventDefault(); e.returnValue = ''; } });
 
@@ -6144,7 +6148,7 @@ const IKFILES={"index.html": "<!doctype html>\n<html lang=\"ko\"><head><meta cha
     try {
       const str = await getStr(); const rbox = JSON.parse(str); const rS = await openWith(CK, rbox);
       if (ver <= VER) return;
-      S = merge(BASE || {}, S, rS); KEYS = merge(BASEKEYS || [], KEYS, rbox.keys || []);
+      S = merge(BASE || {}, S, rS); KEYS = merge(BASEKEYS || [], KEYS, rbox.keys || []); keepCur();
       BASE = rS; BASEKEYS = clone(rbox.keys || []); VER = ver;
       try { localStorage.setItem(ENC_KEY, str); } catch (e) { }
       if (ROLE.id !== 'admin') { try { setRole(ROLE.id); } catch (e) { lock(); return; } }
@@ -6680,7 +6684,7 @@ const firebaseConfig = {
   messagingSenderId: "1039637490828",
   appId: "1:1039637490828:web:4e5b06004f7352a40a5fa9"
 };
-const DB_FILE = 'db.bin?v=a7ef226a34';
+const DB_FILE = 'db.bin?v=91a154e966';
 const ENC_KEY = 'plant_v1_enc';
 const PART = 800000;
 const STAFF_DOMAIN = 'staff.yeongbal-plant.app'; // 원장·선생님 비밀번호 계정용 내부 주소 (실제 메일 아님)
