@@ -480,7 +480,7 @@ body.rpview #print .rp-page{background:#fff;margin:0 auto 14px;max-width:820px;b
     <button data-v="design"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2.5h7.5L13 5v8.5H3z M5.5 7h5M5.5 9.5h5M5.5 12h3"/></svg>공부 계획표</button>
     <button data-v="planner"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2.5h7.5L13 5v8.5H3z M5.5 7h5M5.5 9.5h5M5.5 12h3"/></svg>주간 플래너</button>
     <button data-v="habit"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 13.5h11M4 11V8M7 11V5M10 11V7M13 11V3.5"/></svg>학습 습관 · 리포트</button>
-    <button data-v="sheet"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 13.5h11M4 11V8M7 11V5M10 11V7M13 11V3.5"/></svg>관리 시트</button>
+    <button data-v="sheet"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 13.5h11M4 11V8M7 11V5M10 11V7M13 11V3.5"/></svg>이번 주 점검</button>
     <button data-v="app"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4.5" y="1.8" width="7" height="12.4" rx="1.5"/><path d="M7 12h2"/></svg>학생 앱</button>
     <div class="ng">운영</div>
     <button data-v="winter"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3M3.4 3.4l2 2M10.6 10.6l2 2M3.4 12.6l2-2M10.6 5.4l2-2"/></svg>윈터스쿨</button>
@@ -800,7 +800,7 @@ const monday = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); const w = (
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 const hm = d => String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 const fmtSec = s => { s = Math.max(0, Math.floor(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' : '') + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0'); };
-const fmtH = h => h == null ? '—' : (Math.round(h * 10) / 10) + '시간';
+const fmtH = h => h == null ? '—' : (m => { const H = Math.floor(m / 60), r = m % 60; return H ? (r ? `${H}시간 ${r}분` : `${H}시간`) : `${r}분`; })(Math.round(h * 60));
 const isMid = g => /^중/.test(g);
 function toast(t) { toast.at = Date.now(); const e = $('#toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => e.style.display = 'none', Math.max(2200, String(t).length * 70)); }
 
@@ -1974,7 +1974,7 @@ function printStudy(s, n) {
   ${(() => { const full = wks.filter(w => w.wk !== tw0 && w.rec); if (!full.length) return ''; const a = full[0].rec, b = full[full.length - 1].rec; const wkH = availOf(s).reduce((x, y) => x + y, 0); const tr = full.length < 2 ? '' : b < a * 0.85 ? ` · 주별 순공이 ${fmtH(Math.round(a * 10) / 10)} → ${fmtH(Math.round(b * 10) / 10)}로 <b>줄었어요</b>` : b > a * 1.15 ? ` · 주별 순공이 ${fmtH(Math.round(a * 10) / 10)} → ${fmtH(Math.round(b * 10) / 10)}로 <b>늘었어요</b>` : ' · 주별 순공이 비슷하게 이어져요'; return `<div class="rp-goal" style="display:block;background:#F4F7FF;border-color:#D6DFF7"><b>한눈에</b> · 공부 가능 시간 주 ${fmtH(wkH)} 중 실제 순공은 평균 <b>${fmtH(recAvg)}</b>${tr} · 계획 실행률은 세운 계획 중 끝낸 비율이라 계획을 적게 세우면 높게 나와요</div>`; })()}
   <div class="rp-sec">주별 순공시간 (시간)</div>
   <table class="rp-t"><tr><th style="width:56px">주</th><th></th>${keys.map(k => `<th class="r">${subjName(s, k).replace('통합', '')}</th>`).join('')}<th class="r">합계</th></tr>
-  ${wks.map(w => `<tr><td>${w.wk.slice(5).replace('-', '/')}${w.wk === tw0 ? '<div class="rp-s">진행 중</div>' : ''}</td><td style="width:34%"><div class="rp-bar">${keys.map(k => w.by[k] ? `<i style="width:${w.by[k] / maxW * 100}%;background:${COL[k]}"></i>` : '').join('')}</div></td>${keys.map(k => `<td class="r">${w.by[k] ? (Math.round(w.by[k] * 10) / 10) : '—'}</td>`).join('')}<td class="r"><b>${w.rec ? Math.round(w.rec * 10) / 10 + 'h' : '—'}</b></td></tr>`).join('')}</table>
+  ${wks.map(w => `<tr><td>${w.wk.slice(5).replace('-', '/')}${w.wk === tw0 ? '<div class="rp-s">진행 중</div>' : ''}</td><td style="width:34%"><div class="rp-bar">${keys.map(k => w.by[k] ? `<i style="width:${w.by[k] / maxW * 100}%;background:${COL[k]}"></i>` : '').join('')}</div></td>${keys.map(k => `<td class="r">${w.by[k] ? (Math.round(w.by[k] * 10) / 10) : '—'}</td>`).join('')}<td class="r"><b>${w.rec ? fmtH(w.rec) : '—'}</b></td></tr>`).join('')}</table>
   <div class="rp-cols">
     <div><div class="rp-sec">과목별 비중</div><table class="rp-t"><tr><th>과목</th><th class="r">공부</th><th class="r">${isMid(s.grade) ? '중등 권장' : (typeof autoOn === 'function' && autoOn(s) ? '맞춤 비중' : '계열 권장')}</th></tr>${[...new Set([...Object.keys(R0), ...keys])].map(k => `<tr><td><i class="rp-dot" style="background:${COL[k]}"></i>${subjName(s, k)}</td><td class="r">${T ? Math.round((tot[k] || 0) / T * 100) + '%' : '—'}</td><td class="r">${R0[k] != null ? R0[k] + '%' : '—'}</td></tr>`).join('')}</table><div class="rp-s" style="margin-top:3px">공부 = 실제 순공 시간 비중 · 오른쪽 = 이 학생에게 정한 비중 · 차이가 큰 과목부터 시간을 옮겨요</div></div>
     <div><div class="rp-sec">집중 패턴</div><table class="rp-t">
@@ -2179,7 +2179,7 @@ function setkCard(s) {
       <div class="col"><h3>5 추천 도서</h3><div class="col" style="gap:4px;max-height:260px;overflow:auto">${bk.map(r => `<div style="font-size:14px">${r[2] === '대학 추천' ? '<span class="pill b-try">대학 추천</span> ' : r[2] === '합격 사례' ? '<span class="pill b-fit">합격 사례</span> ' : ''}<b>${esc(r[5])}</b> <span class="small">${esc(r[6])}${r[4] ? ' · ' + esc(r[4]) : ''}${r[3] ? ' · ' + esc(r[3]) : ''}</span></div>`).join('') || '<div class="small">없음</div>'}</div><div class="note">같은 세부 계열 · 이 학년에 맞는 책 먼저 · 대학 추천 → 합격 사례 순 · 최대 5권 · 읽은 것 자체는 기록되지 않아요 · 탐구로 연결해 세특에 남겨야 해요</div></div>
     </div>
 
-    <div class="note">근거 · 권장 과목 47개 대학 2028 권장 이수과목 자료집 951건 · 4단 구조 2027학년도 연세대학교 학생부종합전형 안내서 · 5기준 서울대 합격생 생기부 원문 분석 · 수상경력·자율동아리·독서활동은 2024학년도부터 대입 미반영</div>
+    <div class="note">근거 · 권장 과목 47개 대학 2028 권장 이수과목 자료집 951건 · 4단계 2027학년도 연세대학교 학생부종합전형 안내서 · 5기준 서울대 합격생 생기부 원문 분석 · 수상경력·자율동아리·독서활동은 2024학년도부터 대입 미반영</div>
   </section>`;
 }
 function contentAfter(s) {
@@ -2398,7 +2398,7 @@ function balanceCard(s, recWeek) {
   const ext = ['weekend', 'evening', 'spare'].reduce((a, k) => a + (num(B[k]) || 0), 0);
   const f = (k, l, v, ph) => `<label class="col" style="gap:4px"><span class="label">${l}</span><input type="number" class="num" step="0.5" min="0" data-bal="${k}" value="${v ?? ''}" placeholder="${ph || ''}" style="width:100%"></label>`;
   return `<section class="card col"><div class="row between"><h2>학습 균형 · 학(수업) vs 습(자습)</h2><span class="small">주 단위 · 메타인지 시간 분석표 방식</span></div>
-    <div class="grid g3">${f('school', '학교 수업 (주 시간)', B.school, '예: 35')}${f('academy', '학원 수업 (주 시간)', B.academy ?? '', fxH ? '학원·학교 일정 ' + (Math.round(fxH * 10) / 10) + 'h' : '')}${f('tutor', '과외 (주 시간)', B.tutor)}</div>
+    <div class="grid g3">${f('school', '학교 수업 (주 시간)', B.school, '예: 35')}${f('academy', '학원 수업 (주 시간)', B.academy ?? '', fxH ? '학원·학교 일정 ' + fmtH(fxH) : '')}${f('tutor', '과외 (주 시간)', B.tutor)}</div>
     <div class="grid g3">
       <div class="card"><div class="label">필요한 자습</div><div style="font-size:24px;font-weight:900">${need != null ? fmtH(need) : '—'}</div><div class="small">학교×1 + 학원×2 + 과외×3</div></div>
       <div class="card"><div class="label">실제 자습 (타이머)</div><div style="font-size:24px;font-weight:900">${fmtH(self)}</div><div class="small">고른 기간의 주 평균</div></div>
@@ -2611,7 +2611,7 @@ function bridgeAfter(s) {
    자가진단 → 판정 → 다른 화면에 반영
    · 기반학습 체크리스트 → 영역 상태 · 보완 처방 → 연결 탭 우선순위 「습관」 · 학습 경로 수준 제안
    · 학생부종합 준비도 → 전형 방향(교과 중심 / 병행 / 종합 적극) → 진단 탭 · 리포트
-   · 세특 스스로 점검(4단 구조 · 5기준) → 다음에 채울 것
+   · 세특 스스로 점검(4단계 · 5기준) → 다음에 채울 것
    · 정시 합격 사례 비교 (2026학년도 사례 12건 + 우리 학원 사례)
    ========================================================= */
 const CHK_ACT = {
@@ -2660,17 +2660,17 @@ function jongResultCard(s) {
       <div class="grid g3">${Object.entries(R.gav).map(([g, v]) => `<div class="card" style="padding:12px"><div class="label">${g}</div><div style="font-size:22px;font-weight:900;color:${v < 3.5 ? 'var(--red)' : 'var(--grn)'}">${v.toFixed(1)}</div></div>`).join('')}</div>
       <div class="note">이 판정은 상담 기록 탭 「판정 모아 보기」과 상담 리포트에 들어가요 · 약한 영역 문항부터 다음 학기 활동을 정해요</div>` : '<div class="note">아래 자가 점검에 6문항 이상 점수를 매기면 전형 방향이 나와요</div>'}</section>`;
 }
-// 세특 스스로 점검 — 4단 구조 · 5기준 (연세대 학종 안내서 · 서울대 합격생 분석 기준)
+// 세특 스스로 점검 — 4단계 · 5기준 (연세대 학종 안내서 · 서울대 합격생 분석 기준)
 const SK4 = ['계기 · 수업의 어느 지점에서 무엇이 궁금했는지', '과정 · 어떤 자료·도구로 어떻게 했는지', '결과 · 무엇을 알게 됐는지', '확장 · 다음 활동이나 진로로 어떻게 이어졌는지'];
 const SK5 = ['구체성 · 자료·도구를 구체적으로', '주도성 · 스스로 세운 질문에서 출발', '연계성 · 교과 개념·진로와 연결', '성장 서사 · 탐구 전후로 달라진 이해', '고유성 · 나만의 관점'];
 function skSelfCard(s) {
   s.sks = s.sks || { a: {}, b: {} }; const A = s.sks.a, B = s.sks.b; const fill = SK4.filter((_, i) => A[i]).length, has5 = SK5.filter((_, i) => B[i]).length, ans = Object.keys(A).length;
-  const verdict = !ans ? null : fill < 4 ? `「${SK4.find((_, i) => !A[i]).split(' · ')[0]}」 단계부터 채워요 · 4단 구조에 빈칸이 있으면 나열식 기록이 돼요` : has5 >= 2 ? '충분해요 · 다른 과목 탐구로 넘어가세요' : `4단 구조는 찼어요 · 5기준 중 ${2 - has5}개만 더 뚜렷하게 하면 충분해요`;
+  const verdict = !ans ? null : fill < 4 ? `「${SK4.find((_, i) => !A[i]).split(' · ')[0]}」 단계부터 채워요 · 4단계에 빈칸이 있으면 나열식 기록이 돼요` : has5 >= 2 ? '충분해요 · 다른 과목 탐구로 넘어가세요' : `4단계는 찼어요 · 5기준 중 ${2 - has5}개만 더 뚜렷하게 하면 충분해요`;
   const box = (arr, obj, key) => arr.map((t, i) => `<label class="row" style="gap:8px;flex-wrap:nowrap;padding:6px 0;border-top:1px solid var(--line2);cursor:pointer"><input type="checkbox" data-sks="${key}|${i}" ${obj[i] ? 'checked' : ''} style="width:18px;height:18px"><span style="font-size:14px">${t}</span></label>`).join('');
   return `<section class="card col"><div class="row between"><h2>세특 스스로 점검</h2><span class="small">최근 탐구 하나를 떠올리고 체크 · 점수 매기지 않음</span></div>
-    <div class="grid g2"><div class="rkbox"><b>4단 구조 · ${fill}/4</b>${box(SK4, A, 'a')}</div><div class="rkbox"><b>5기준 · ${has5}/5</b>${box(SK5, B, 'b')}</div></div>
+    <div class="grid g2"><div class="rkbox"><b>4단계 · ${fill}/4</b>${box(SK4, A, 'a')}</div><div class="rkbox"><b>5기준 · ${has5}/5</b>${box(SK5, B, 'b')}</div></div>
     ${verdict ? `<div class="dark"><b style="color:var(--or)">${verdict}</b></div>` : ''}
-    <div class="note">판정 규칙 · 4단 구조에 빈칸이 있으면 그 단계를 먼저 · 4단 구조가 차 있고 5기준이 2~3개면 충분 · 근거 2027학년도 연세대학교 학생부종합전형 안내서(4단 구조) · 서울대 합격생 생기부 원문 분석(5기준)</div></section>`;
+    <div class="note">판정 규칙 · 4단계에 빈칸이 있으면 그 단계를 먼저 · 4단계가 차 있고 5기준이 2~3개면 충분 · 근거 2027학년도 연세대학교 학생부종합전형 안내서(4단계) · 서울대 합격생 생기부 원문 분석(5기준)</div></section>`;
 }
 // 정시 합격 사례 비교 — 2026학년도 정시 입결 (외부 입시교육 2회차 p.36) + 우리 학원 사례
 const JS26 = [['연세대', '첨단컴퓨팅', 2, 1, 1, 1, 1], ['연세대', '교육학부', 1, 3, 2, 1, 1], ['한양대', '생명과학', 1, 2, 3, 3, 1], ['성균관대', '인문과학', 2, 1, 2, 2, 2], ['중앙대', '경영', 2, 1, 2, 2, 2], ['중앙대', '소프트웨어학과', 2, 4, 2, 4, 4],
@@ -2940,7 +2940,7 @@ function sgbKpi(s) {
   return kpis([
     ['목표 학과 핵심 과목', u0 ? (u0.core.length ? `${u0.core.length - u0.cm.length}<small style="font-size:13px;color:var(--mute);font-weight:600"> / ${u0.core.length}</small>` : '—') : '—', u0 ? `${esc(u0.r[0])} ${esc(u0.r[1]).slice(0, 18)}` : '선택과목 탭에서 대학을 골라요'],
     ['선택한 과목', g.pick.length + '개', g.pick.length ? `진로 ${g.pick.filter(x => SG.subj[SG_ORDER[x]][2] === '진로선택').length} · 융합 ${g.pick.filter(x => SG.subj[SG_ORDER[x]][2] === '융합선택').length}` : '공통 과목 제외'],
-    ['세특 점검', `${SK4.filter((_, i) => sk.a[i]).length}<small style="font-size:13px;color:var(--mute);font-weight:600"> / 4</small>`, `4단 구조 · 5기준 ${SK5.filter((_, i) => sk.b[i]).length}/5`],
+    ['세특 점검', `${SK4.filter((_, i) => sk.a[i]).length}<small style="font-size:13px;color:var(--mute);font-weight:600"> / 4</small>`, `4단계 · 5기준 ${SK5.filter((_, i) => sk.b[i]).length}/5`],
     ['이번 학기 실천 목표', `${plan}<small style="font-size:13px;color:var(--mute);font-weight:600"> / 4</small>`, plan === 4 ? '모두 적었어요' : '한눈에 탭에서 적어요'],
     ['학종 방향', J ? esc(J.dir.split(' · ')[0]) : '—', J ? '자가 점검 ' + J.av.toFixed(1) + '점' : '대학 평가 탭에서 점검', 1]]);
 }
@@ -2970,7 +2970,7 @@ function sgbHome(s) {
     <div class="small">대입에 반영 · 출결 · 학교폭력 조치 · 창의적 체험활동 · 교과학습발달(내신+세특) · 행동특성 및 종합의견 / 반영 안 함 · 인적·학적 사항 · 수상 경력 · 자격증·인증 · 독서활동(독서활동은 미반영이지만, 세특에 녹이면 살아납니다) — 서창동 중등 입시설명회 2028 기준</div></section>
   <section class="card col"><div class="row between"><h2>생기부는 다섯 칸으로 채워져요</h2><span class="small">2027학년도 연세대학교 학생부종합전형 안내서 기준</span></div>
     <table><thead><tr><th style="width:26%">항목</th><th>무엇이 남나</th><th style="width:34%">대학이 보는 것</th></tr></thead><tbody>
-    ${[['출결상황', '성실성과 자기관리 능력을 보여주는 가장 기본적인 기록', '지원자의 성실성과 자기관리 능력'], ['창의적 체험활동', '자율·동아리·봉사·진로활동 — 수업 밖에서 무엇에 몰두했는지', '사회성과 인성, 모집단위에 대한 관심과 열정'], ['교과학습 발달상황', '이수과목과 성적 — 어떤 과목을 어떻게 채워왔는지', '학업의 기초소양 — 이수과목·성적·세특'], ['세부능력 및 특기사항', '교과 시간에 보여준 탐구와 성장 — 생기부의 핵심', '성장가능성과 잠재력을 보여주는 핵심 근거'], ['행동특성 및 종합의견', '담임선생님이 1년간 관찰한 인성과 태도', '1년간 관찰된 인성·태도 · 봉사·독서 관련 의견도 담길 수 있음']].map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td class="small" style="color:var(--sub)">${r[2]}</td></tr>`).join('')}</tbody></table>
+    ${[['출결상황', '성실성과 자기관리 능력을 보여주는 가장 기본적인 기록', '지원자의 성실성과 자기관리 능력'], ['창의적 체험활동', '자율·동아리·봉사·진로활동 — 수업 밖에서 무엇에 몰두했는지', '사회성과 인성, 모집단위에 대한 관심과 열정'], ['교과학습 발달상황', '이수과목과 성적 — 어떤 과목을 어떻게 채워왔는지', '학업의 기초소양 — 이수과목·성적·세특'], ['세부능력 및 특기사항', '교과 시간에 보여준 교과 시간에 보여 준 탐구와 성장', '성장가능성과 잠재력을 보여주는 핵심 근거'], ['행동특성 및 종합의견', '담임선생님이 1년간 관찰한 인성과 태도', '1년간 관찰된 인성·태도 · 봉사·독서 관련 의견도 담길 수 있음']].map(r => `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td class="small" style="color:var(--sub)">${r[2]}</td></tr>`).join('')}</tbody></table>
     <div class="note" data-keep>탐구 보고서 파일 자체는 생기부에 남지 않아요 · 연세대 안내서의 학교생활기록부 제외 항목에 소논문 기재금지가 명시돼 있어요 · 남는 건 그 탐구를 지켜본 선생님의 서술이에요</div></section>`;
 }
 function sgbSubj(s) {
@@ -3044,7 +3044,7 @@ function sgbReport(s) {
 function sgbWrite(s) {
   const g = sgbOf(s); const d = g.draft || ''; const hits = SK_BAD.filter(([p]) => d.includes(p)); const fy = FIN_Q.filter((_, i) => g.fin[i]).length;
   let hl = esc(d); SK_BAD.forEach(([p]) => { hl = hl.split(esc(p)).join(`<mark style="background:var(--redbg);color:var(--red);border-radius:3px;padding:0 2px">${esc(p)}</mark>`); });
-  return `<section class="card col"><div class="row between"><h2>세특의 4단 구조</h2><span class="small">평가자가 읽는 건 활동 목록이 아니라 생각이 자라난 흔적 · 하나라도 비면 나열식이 돼요</span></div>
+  return `<section class="card col"><div class="row between"><h2>세특의 4단계</h2><span class="small">평가자가 읽는 건 활동 목록이 아니라 생각이 자라난 흔적 · 하나라도 비면 나열식이 돼요</span></div>
     <div class="grid g4">${[['계기·문제의식', '수업의 어느 지점에서 무엇이 궁금했는지'], ['탐구 과정', '어떤 자료·방법으로 어떻게 파고들었는지'], ['결과와 배움', '무엇을 알게 됐고 어떤 개념이 확장됐는지'], ['확장·후속', '이 배움이 다음 활동·진로로 어떻게 이어졌는지']].map(([t, x], i) => `<div class="rkbox"><span class="pill b-blk" style="align-self:flex-start;border-radius:50%;width:24px;height:24px;padding:0;display:grid;place-items:center">${i + 1}</span><b>${t}</b><span class="small">${x}</span></div>`).join('')}</div>
     ${insight('가상의 예시', '① 계기 화학 수업에서 비누가 기름때를 없애는 원리가 궁금해짐 ② 과정 계면활성제 구조를 조사하고 세제 성분표를 비교함 ③ 결과 소수성·친수성 부분이 기름과 물을 동시에 붙잡는 원리를 설명함 ④ 확장 생분해되지 않는 합성 계면활성제의 환경 문제로 관심을 넓힘')}</section>
   <section class="card col"><div class="row between"><h2>좋은 세특 다섯 기준</h2><span class="small">다섯 개를 다 담을 필요는 없어요 · 두세 개만 뚜렷해도 충분해요</span></div>
@@ -3118,7 +3118,7 @@ function sgbSummaryCard(s) {
   const go = (t, l) => `<button class="btn sm" data-sgbgo="${t}">${l}</button>`;
   return `<section class="card col"><div class="row between"><h2>생기부 한눈에</h2><button class="btn or" data-sgbgo="한눈에">생기부 관리 열기</button></div>
     <div class="grid g3"><div class="rkbox"><b>대학별 선택과목</b>${U.length ? U.map(x => `<div class="rk"><span><b>${esc(x.r[0])}</b> <span class="small">${esc(x.r[1]).slice(0, 16)}</span></span><span class="pill ${SGST[x.st]}">${x.st}</span></div>`).join('') : '<span class="small">대학을 고르기 전</span>'}<div style="margin-top:6px">${go('선택과목', '선택과목 점검')}</div></div>
-      <div class="rkbox"><b>세특 점검</b><div class="rk"><span>4단 구조</span><b>${SK4.filter((_, i) => sk.a[i]).length} / 4</b></div><div class="rk"><span>5기준</span><b>${SK5.filter((_, i) => sk.b[i]).length} / 5</b></div><div style="margin-top:6px">${go('세특 문장', '세특 문장 점검')}</div></div>
+      <div class="rkbox"><b>세특 점검</b><div class="rk"><span>4단계</span><b>${SK4.filter((_, i) => sk.a[i]).length} / 4</b></div><div class="rk"><span>5기준</span><b>${SK5.filter((_, i) => sk.b[i]).length} / 5</b></div><div style="margin-top:6px">${go('세특 문장', '세특 문장 점검')}</div></div>
       <div class="rkbox"><b>학종 준비도</b><div class="rk"><span>전형 방향</span><b>${J ? esc(J.dir) : '점검 전'}</b></div>${J ? `<div class="rk"><span>가장 약한 영역</span><b>${esc(J.weak[0])} ${J.weak[1].toFixed(1)}</b></div>` : ''}<div style="margin-top:6px">${go('대학 평가', '학종 자가 점검')}</div></div></div></section>`;
 }
 function sgbAppCard(s) {
@@ -3131,7 +3131,7 @@ function printSgb(s) {
   $('#print').innerHTML = `<div class="rp rp-page"><div class="rp-head"><div><div class="rp-brand"><svg width="14" height="18" viewBox="40 106 52 66" aria-hidden="true"><defs><g/><clipPath id="c615cc6020"><path d="M 42.039062 108.710938 L 90.039062 108.710938 L 90.039062 169.460938 L 42.039062 169.460938 Z M 42.039062 108.710938 " clip-rule="nonzero"/></clipPath><clipPath id="660f0103e5"><rect x="0" width="274" y="0" height="64"/></clipPath></defs><g clip-path="url(#c615cc6020)"><path fill="#ffbd59" d="M 53.605469 108.710938 L 42.046875 149.566406 L 54.089844 149.617188 L 49.84375 169.464844 L 68.980469 140.800781 L 55.902344 140.828125 L 61.59375 122.28125 L 75.691406 122.234375 C 75.914062 122.234375 76.125 122.273438 76.328125 122.359375 C 76.535156 122.445312 76.714844 122.5625 76.871094 122.71875 C 77.027344 122.875 77.144531 123.054688 77.230469 123.261719 C 77.316406 123.464844 77.359375 123.675781 77.359375 123.898438 C 77.355469 124.121094 77.316406 124.332031 77.230469 124.539062 C 77.144531 124.742188 77.023438 124.921875 76.863281 125.078125 C 76.707031 125.234375 76.527344 125.355469 76.320312 125.4375 C 76.113281 125.523438 75.902344 125.5625 75.679688 125.5625 L 64.234375 125.570312 L 60.503906 137.667969 L 75.585938 137.667969 C 83.621094 137.667969 90.125 131.113281 90.0625 123.070312 C 89.992188 115.121094 83.527344 108.710938 75.578125 108.710938 Z M 53.605469 108.710938 " fill-opacity="1" fill-rule="nonzero"/></g></svg> ${esc(S.settings.academy)} · PLAN·T</div><div class="rp-title">나의 생기부 플랜</div></div><div class="rp-who"><b>${esc(s.name)}</b> ${esc(s.school)} ${esc(s.grade)}<br>${s.track ? '희망 계열 ' + esc(s.track) + ' · ' : ''}${ymd(today()).replace(/-/g, '.')}${s.example ? '<br><span class="rp-ex">예시 학생</span>' : ''}</div></div>
     <div class="rp-stats"><div class="rp-stat"><div class="rp-l">선택한 과목</div><div class="rp-v">${g.pick.length}<small>개</small></div><div class="rp-s">공통 과목 제외</div></div>
       <div class="rp-stat"><div class="rp-l">핵심 과목 계획</div><div class="rp-v">${U[0] && U[0].core.length ? (U[0].core.length - U[0].cm.length) + '<small> / ' + U[0].core.length + '</small>' : '—'}</div><div class="rp-s">${U[0] ? esc(U[0].r[0]) : '대학 고르기 전'}</div></div>
-      <div class="rp-stat"><div class="rp-l">세특 4단 구조</div><div class="rp-v">${SK4.filter((_, i) => sk.a[i]).length}<small> / 4</small></div><div class="rp-s">5기준 ${SK5.filter((_, i) => sk.b[i]).length}/5</div></div>
+      <div class="rp-stat"><div class="rp-l">세특 4단계</div><div class="rp-v">${SK4.filter((_, i) => sk.a[i]).length}<small> / 4</small></div><div class="rp-s">5기준 ${SK5.filter((_, i) => sk.b[i]).length}/5</div></div>
       <div class="rp-stat"><div class="rp-l">이번 학기 실천 목표</div><div class="rp-v">${PLAN_Q.filter(([k]) => (g.plan[k] || '').trim()).length}<small> / 4</small></div><div class="rp-s">학생이 직접 작성</div></div></div>
     <div class="rp-sec">목표 대학이 공시한 과목과 내 계획</div>
     ${U.length ? `<table class="rp-t"><tr><th style="width:24%">대학 · 모집단위</th><th>핵심 과목</th><th>권장 과목</th><th style="width:11%">판정</th></tr>${U.map(x => `<tr><td><b>${esc(x.r[0])}</b><div class="rp-s">${esc(x.r[1])}</div></td><td>${x.core.map(n => (hasS(g.pick, n) ? '✓ ' : '✗ ') + esc(n)).join('<br>') || '<span class="rp-s">원문 확인</span>'}</td><td>${x.rec.map(n => (hasS(g.pick, n) ? '✓ ' : '✗ ') + esc(n)).join('<br>') || '—'}</td><td><span class="rp-b ${SGST[x.st]}">${x.st}</span></td></tr>`).join('')}</table><div class="rp-s" style="margin-top:3px">✓ 계획에 있음 · ✗ 아직 없음 · 판정은 PLAN·T 화면 기준(핵심 모두 + 권장 절반 이상) · 원문 조건은 대학 모집요강으로 확인</div>` : '<div class="rp-note">목표 대학을 고르면 여기에 정리돼요</div>'}
@@ -3139,17 +3139,17 @@ function printSgb(s) {
     <div class="rp-cols"><div><div class="rp-sec">이번 학기 실천 목표</div><table class="rp-t">${PLAN_Q.map(([k, l]) => `<tr><td style="width:46%">${l}</td><td><b>${esc(g.plan[k] || '')}</b></td></tr>`).join('')}</table>
         <div class="rp-sec">탐구 질문</div><div class="rp-note" style="min-height:40px">${esc(g.topic || g.plan.q1 || '')}</div></div>
       <div><div class="rp-sec">${gr} · ${ROAD[gr][0]}</div><table class="rp-t">${ROAD[gr][1].map(x => `<tr><td>□ ${esc(x)}</td></tr>`).join('')}</table>
-        <div class="rp-sec">세특 4단 구조 점검</div><table class="rp-t">${SK4.map((t, i) => `<tr><td>${sk.a[i] ? '✓' : '□'} ${esc(t)}</td></tr>`).join('')}</table></div></div>
+        <div class="rp-sec">세특 4단계 점검</div><table class="rp-t">${SK4.map((t, i) => `<tr><td>${sk.a[i] ? '✓' : '□'} ${esc(t)}</td></tr>`).join('')}</table></div></div>
     <div class="rp-foot">근거 · 2028학년도 대입 대학별 권장과목 자료집(47개 대학) · 2027학년도 연세대학교 학생부종합전형 안내서 · 교육부 고시 제2022-33호 · ${esc(S.settings.academy)} PLAN·T · 1 / 1</div></div>`;
   window.print();
 }
 /* =========================================================
    v2.2 · 학습관리 특강 반영
-   주간 점검표 · 인강/혼자 구분 · 학원 과제 배치 · 관리 시트
+   주간 점검표 · 인강/혼자 구분 · 학원 과제 배치 · 이번 주 점검
    첫 상담 순서 · 관리 유형 · 학부모 설명 · 120일 윈터 · 공부 시간 목표
    ※ 특강 = 학습관리 프로그램 교육(2024년 녹화) · 강사 경험에서 나온 원칙은 〔특강 원칙〕으로 표시
    ========================================================= */
-VTITLE.sheet = '관리 시트';
+VTITLE.sheet = '이번 주 점검';
 const LEC_TAG = '<span class="pill b-gray" style="font-size:11px">특강 원칙</span>';
 const r10 = m => Math.round(m / 10) * 10;
 const minH = m => m == null ? '—' : m >= 60 ? `${Math.floor(m / 60)}시간${Math.round(m % 60) ? ' ' + Math.round(m % 60) + '분' : ''}` : Math.round(m) + '분';
@@ -3306,7 +3306,7 @@ function placeSeg() {
   return `<div class="row" style="gap:6px"><span class="small">자동 배치 방식</span><div class="seg" id="placeSeg"><button data-pl="even" class="${lec ? '' : 'on'}">고르게</button><button data-pl="lec" class="${lec ? 'on' : ''}">원칙대로</button></div>${lec ? '<span class="small">국어는 공부하는 날마다 (최소 30분 · 아침 먼저) · 영어 점심 뒤(평일은 하교 후) · 수학은 학원 없는 날 3시간까지 몰아서 · 탐구는 저녁 먹고 인강</span>' : '<span class="small">과목을 요일마다 고르게 · 시간대 순서 없음</span>'}</div>`;
 }
 
-/* ---------- 관리 시트 (선생님 작성 · 학부모 상담 근거) ---------- */
+/* ---------- 이번 주 점검 (선생님 작성 · 학부모 상담 근거) ---------- */
 function mgOf(s) { s.mg = s.mg || {}; const g = s.mg; g.ac = g.ac || {}; g.done = g.done || []; g.tch = g.tch || {}; g.log = g.log || []; g.call = g.call || []; g.memo = g.memo || {}; return g; }
 const SAT = ['좋음', '보통', '아쉬움'];
 R.sheet = function () {
@@ -3319,7 +3319,7 @@ R.sheet = function () {
   return `<div class="row between">${stuPicker()}<button class="btn" id="mgPrint">학부모 상담용 · A4</button></div>
   <div class="small">${esc(s.grade)} · ${esc(s.track || '계열 미정')} · 내신 ${s.nae && s.nae.avg != null ? s.nae.avg.toFixed(2) : '—'} · 모의 ${['K', 'M', 'E', 'SO', 'SC'].filter(k => s.mock && s.mock[k] != null).map(k => ({ K: '국', M: '수', E: '영', SO: '사', SC: '과' })[k] + s.mock[k]).join(' ') || '—'}</div>
   ${kpis([['이번 주 과제', bl.length ? `${done}<small> / ${bl.length}</small>` : '—', '끝낸 블록', 1], ['이번 주 순공', minH(M.tot * 60 || null), `인강 ${minH(M.lec * 60 || null)}`, 1], ['학부모 연락', `${calls4}<small>번</small>`, '최근 4주', 1], ['관리 유형', esc(s.mtype || '—'), '입시 상담 · 상담 기록 탭', 1]])}
-  <section class="card col"><div class="row between"><h2>다음 만남에 물어볼 것</h2><span class="small">관리 시트 맨 위 칸 · 작은 관심이 관계를 만들어요</span></div>
+  <section class="card col"><div class="row between"><h2>다음 만남에 물어볼 것</h2><span class="small">이번 주 점검 맨 위 칸 · 작은 관심이 관계를 만들어요</span></div>
     <input type="text" data-mm="ask" value="${esc(g.memo.ask || '')}" placeholder="예: 제주도 여행 잘 다녀왔어? (여행이라 이번 주 과제를 줄여 줌)"></section>
   <section class="card col"><div class="row between"><h2>다니는 학원</h2><span class="small">진도·만족도까지 알고 있으면 학부모 상담 때 믿음이 생겨요</span></div>
     ${Object.keys(acs).length ? `<div class="scroll"><table><thead><tr><th>학원</th><th>요일·시간</th><th>과목</th><th>지금 진도</th><th>학생 만족도</th></tr></thead><tbody>${Object.entries(acs).map(([l, a]) => { const x = g.ac[l] || {}; return `<tr><td><b>${esc(l)}</b></td><td>${a.days.join('·')} · 주 ${fmtH(a.h)}</td><td><select data-mac="${esc(l)}|subj"><option value="">—</option>${[...SUBJS, '기타'].map(k => `<option ${x.subj === k ? 'selected' : ''}>${k}</option>`).join('')}</select></td><td><input type="text" data-mac="${esc(l)}|prog" value="${esc(x.prog || '')}" placeholder="예: 공통수학1 2단원" style="min-width:160px"></td><td><div class="seg" style="padding:3px">${SAT.map(v => `<button data-macs="${esc(l)}|${v}" class="${x.sat === v ? 'on' : ''}" style="min-height:28px;padding:3px 10px;font-size:12px">${v}</button>`).join('')}</div></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="small">주간 플래너의 「학원·학교 일정」에 학원을 넣으면 여기 나와요</div>'}</section>
@@ -3358,7 +3358,7 @@ R.sheet_after = function () {
 function printSheet(s) {
   const g = mgOf(s); const wk = weekKey(today()); const p = planOf(s.id, wk); const bl = p ? p.blocks.slice().sort((a, b) => a.day - b.day) : []; const M = modeStat(s, [wk]); const w = wchkOf(s, wk);
   const now = weekRec(s, wk), last = weekRec(s, prevWk(wk)); const books = []; SUBJS.forEach(k => ((s.design.subjects[k] || {}).books || []).forEach(b => books.push([k, b])));
-  $('#print').innerHTML = `<div class="rp rp-page"><div class="rp-head"><div><div class="rp-brand"><svg width="14" height="18" viewBox="40 106 52 66" aria-hidden="true"><defs><g/><clipPath id="c615cc6020"><path d="M 42.039062 108.710938 L 90.039062 108.710938 L 90.039062 169.460938 L 42.039062 169.460938 Z M 42.039062 108.710938 " clip-rule="nonzero"/></clipPath><clipPath id="660f0103e5"><rect x="0" width="274" y="0" height="64"/></clipPath></defs><g clip-path="url(#c615cc6020)"><path fill="#ffbd59" d="M 53.605469 108.710938 L 42.046875 149.566406 L 54.089844 149.617188 L 49.84375 169.464844 L 68.980469 140.800781 L 55.902344 140.828125 L 61.59375 122.28125 L 75.691406 122.234375 C 75.914062 122.234375 76.125 122.273438 76.328125 122.359375 C 76.535156 122.445312 76.714844 122.5625 76.871094 122.71875 C 77.027344 122.875 77.144531 123.054688 77.230469 123.261719 C 77.316406 123.464844 77.359375 123.675781 77.359375 123.898438 C 77.355469 124.121094 77.316406 124.332031 77.230469 124.539062 C 77.144531 124.742188 77.023438 124.921875 76.863281 125.078125 C 76.707031 125.234375 76.527344 125.355469 76.320312 125.4375 C 76.113281 125.523438 75.902344 125.5625 75.679688 125.5625 L 64.234375 125.570312 L 60.503906 137.667969 L 75.585938 137.667969 C 83.621094 137.667969 90.125 131.113281 90.0625 123.070312 C 89.992188 115.121094 83.527344 108.710938 75.578125 108.710938 Z M 53.605469 108.710938 " fill-opacity="1" fill-rule="nonzero"/></g></svg> ${esc(S.settings.academy)} · PLAN·T</div><div class="rp-title">학습 관리 시트</div></div><div class="rp-who"><b>${esc(s.name)}</b> ${esc(s.school)} ${esc(s.grade)}<br>${wk.replace(/-/g, '.')} 주 · ${ymd(today()).replace(/-/g, '.')}${s.example ? '<br><span class="rp-ex">예시 학생</span>' : ''}</div></div>
+  $('#print').innerHTML = `<div class="rp rp-page"><div class="rp-head"><div><div class="rp-brand"><svg width="14" height="18" viewBox="40 106 52 66" aria-hidden="true"><defs><g/><clipPath id="c615cc6020"><path d="M 42.039062 108.710938 L 90.039062 108.710938 L 90.039062 169.460938 L 42.039062 169.460938 Z M 42.039062 108.710938 " clip-rule="nonzero"/></clipPath><clipPath id="660f0103e5"><rect x="0" width="274" y="0" height="64"/></clipPath></defs><g clip-path="url(#c615cc6020)"><path fill="#ffbd59" d="M 53.605469 108.710938 L 42.046875 149.566406 L 54.089844 149.617188 L 49.84375 169.464844 L 68.980469 140.800781 L 55.902344 140.828125 L 61.59375 122.28125 L 75.691406 122.234375 C 75.914062 122.234375 76.125 122.273438 76.328125 122.359375 C 76.535156 122.445312 76.714844 122.5625 76.871094 122.71875 C 77.027344 122.875 77.144531 123.054688 77.230469 123.261719 C 77.316406 123.464844 77.359375 123.675781 77.359375 123.898438 C 77.355469 124.121094 77.316406 124.332031 77.230469 124.539062 C 77.144531 124.742188 77.023438 124.921875 76.863281 125.078125 C 76.707031 125.234375 76.527344 125.355469 76.320312 125.4375 C 76.113281 125.523438 75.902344 125.5625 75.679688 125.5625 L 64.234375 125.570312 L 60.503906 137.667969 L 75.585938 137.667969 C 83.621094 137.667969 90.125 131.113281 90.0625 123.070312 C 89.992188 115.121094 83.527344 108.710938 75.578125 108.710938 Z M 53.605469 108.710938 " fill-opacity="1" fill-rule="nonzero"/></g></svg> ${esc(S.settings.academy)} · PLAN·T</div><div class="rp-title">이번 주 점검표</div></div><div class="rp-who"><b>${esc(s.name)}</b> ${esc(s.school)} ${esc(s.grade)}<br>${wk.replace(/-/g, '.')} 주 · ${ymd(today()).replace(/-/g, '.')}${s.example ? '<br><span class="rp-ex">예시 학생</span>' : ''}</div></div>
     <div class="rp-stats"><div class="rp-stat"><div class="rp-l">이번 주 과제</div><div class="rp-v">${bl.filter(b => b.done).length}<small> / ${bl.length}</small></div><div class="rp-s">끝낸 블록</div></div>
       <div class="rp-stat"><div class="rp-l">이번 주 순공</div><div class="rp-v">${Math.round(now / 6) / 10}<small>시간</small></div><div class="rp-s">${last ? '지난주 ' + Math.round(last / 6) / 10 + '시간' : '타이머 기록'}</div></div>
       <div class="rp-stat"><div class="rp-l">혼자 풀기 · 인강</div><div class="rp-v">${Math.round(M.self * 10) / 10}<small> · ${Math.round(M.lec * 10) / 10}h</small></div><div class="rp-s">구분해서 잰 시간</div></div>
@@ -3625,7 +3625,7 @@ function gWeek() {
     <tr><td><b>선생님 한마디</b></td><td>포스트잇 크기 · 칭찬·숙제·격려</td><td>매주 반드시 · 한 번 빠지면 세 번 빠져요${evT('경험', '수치 근거 없음')} · 학생들이 모아 붙여 둬요</td></tr></tbody></table></div>
     ${insight('앱에서', '학생 앱 「이번 주 점검」에 학생이 쓰고 · 주간 플래너 「주간 점검」에서 선생님이 보고 코멘트로 답해요 · 순공시간은 타이머에서 자동')}`, '특강 2~3강')
   + gsec('쓰게 하는 요령', glist(['문과 성향은 싫어하고 이과 성향은 잘 써요 · 중학생은 어려워해요 → 강제하지 말고 왜 필요한지 계속 설명' + evT('주의', '성향 고정관념 · 근거 없음'), '10명 중 1명은 이 틀이 안 맞아요 → 좋아하는 플래너를 써도 돼요' + evT('경험', '수치 근거 없음'), '기상·취침은 「혼내려는 거 아니야 · 솔직하게」라고 약속해요', '거짓 기록을 알아도 바로 혼내지 않아요 → 나중에 「전에 생활 무너졌다 돌아오는 데 한 달 걸렸던 거 기억나지? 지금은 얼마 안 됐으니 빨리 돌아오자」', '수면을 줄이는 공부는 권하지 않아요 · 11시 넘으면 자라 · 다만 늦게 자도 괜찮은 학생은 유연하게' + evT('연구', '청소년 권장 8~10시간 · 미국수면의학회 2016')]))
-  + gsec('관리 시트 · 선생님이 써요', glist(['다음 만남에 물어볼 것 (맨 위)', '끝낸 교재 / 하고 있는 교재 + 코멘트', '강사 (인강·현강 · 영역별로 다를 수 있음)', '날짜별 과제 · 했는지 · 안 한 이유', '생활·학습·특이사항 메모', '다니는 학원·진도·만족도 → 학부모 상담 때 띄워 놓으면 믿음이 생겨요']) + insight('앱에서', '왼쪽 메뉴 「관리 시트」 · A4로 뽑아 학부모 상담에 써요'), '특강 3강');
+  + gsec('이번 주 점검 · 선생님이 써요', glist(['다음 만남에 물어볼 것 (맨 위)', '끝낸 교재 / 하고 있는 교재 + 코멘트', '강사 (인강·현강 · 영역별로 다를 수 있음)', '날짜별 과제 · 했는지 · 안 한 이유', '생활·학습·특이사항 메모', '다니는 학원·진도·만족도 → 학부모 상담 때 띄워 놓으면 믿음이 생겨요']) + insight('앱에서', '왼쪽 메뉴 「이번 주 점검」 · A4로 뽑아 학부모 상담에 써요'), '특강 3강');
 }
 /* ---------- 5. 계획 짜기 ---------- */
 function gPlan() {
@@ -3735,7 +3735,7 @@ R.guide_after = function () {
   document.querySelectorAll('[data-gbf]').forEach(b => b.onclick = () => { gBookF = b.dataset.gbf; render(); });
 };
 
-/* ---------- 학생별 MBTI · 기질 메모 (상담 기록 탭 · 관리 시트) ---------- */
+/* ---------- 학생별 MBTI · 기질 메모 (상담 기록 탭 · 이번 주 점검) ---------- */
 function temperRow(s) {
   return `<div class="row" style="gap:8px;align-items:center"><span class="label">MBTI</span><select data-mbti><option value="">모름</option>${MBTI.map(t => `<option ${s.mbti === t ? 'selected' : ''}>${t}</option>`).join('')}</select><input type="text" data-temper value="${esc(s.temper || '')}" placeholder="기질 메모 (예: 칭찬하면 더 함 · 혼자 정리하는 걸 좋아함)" style="flex:1;min-width:220px"></div>`;
 }
@@ -3843,14 +3843,14 @@ function applyRole() {
 const PERM = [
   ['학생 목록', '전체', '전체', '담당 학생만', '—'], ['입시 상담 · 생기부 관리', '전체', '전체', '담당 학생만', '—'],
   ['공부 계획 · 주간 플래너', '전체', '전체', '담당 학생만', '—'], ['진척 현황 · 학습 습관', '전체', '전체', '담당 학생만', '—'],
-  ['관리 시트 (기질·MBTI·학부모 연락 포함)', '전체', '전체', '담당 학생만', '—'], ['학습관리 가이드', '○', '○', '○', '—'],
+  ['이번 주 점검 (기질·MBTI·학부모 연락 포함)', '전체', '전체', '담당 학생만', '—'], ['학습관리 가이드', '○', '○', '○', '—'],
   ['학생 앱 (타이머·이번 주 점검·계획 보내기)', '○', '○', '○', '본인 것만'], ['CSV 불러오기 · 학생 삭제', '○', '○', '—', '—'],
   ['설정 (학원 정보·시험 일정·합격 사례)', '○', '○', '—', '—'], ['선생님 계정 · 백업 · 초기화', '○', '—', '—', '—']];
 function staffCard() {
   const st = S.settings.staff || [];
   return `<section class="card col"><div class="row between"><h2>사람별 권한</h2><span class="small">관리자만 보여요</span></div>
     <div class="scroll"><table><thead><tr><th>화면</th><th>관리자</th><th>원장</th><th>선생님</th><th>학생 모드</th></tr></thead><tbody>${PERM.map(r => `<tr><td>${r[0]}</td>${r.slice(1).map(x => `<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
-    <div class="note" data-keep>학부모님은 이 프로그램에 들어오지 않아요 · A4 리포트(학습 리포트 · 생기부 플랜 · 관리 시트)를 PDF로 받아요 · 관리자 = 처음 만든 비밀번호의 주인 · 원장·선생님은 아래에서 각자 PIN을 만들어 같은 잠금 화면에서 열어요</div>
+    <div class="note" data-keep>학부모님은 이 프로그램에 들어오지 않아요 · A4 리포트(학습 리포트 · 생기부 플랜 · 이번 주 점검)를 PDF로 받아요 · 관리자 = 처음 만든 비밀번호의 주인 · 원장·선생님은 아래에서 각자 PIN을 만들어 같은 잠금 화면에서 열어요</div>
     <h3 style="margin:8px 0 0">원장 · 선생님 계정</h3>
     ${st.length ? `<div class="scroll"><table><thead><tr><th>이름</th><th>역할</th><th>담당 학생</th><th></th></tr></thead><tbody>${st.map(x => `<tr id="st-${x.id}"><td><b>${esc(x.name)}</b>${x.role === '선생님' && !(x.sids || []).length ? '<div class="small" style="color:var(--red)">담당 학생을 눌러 정해요</div>' : ''}</td><td>${x.role}</td><td>${x.role === '원장' ? '전체' : `<div class="row" style="gap:4px">${S.students.map(s => `<label class="chip ${(x.sids || []).includes(s.id) ? 'on' : ''}" style="min-height:28px;padding:0 8px;font-size:12px;cursor:pointer"><input type="checkbox" class="hide" data-sid="${x.id}|${s.id}" ${(x.sids || []).includes(s.id) ? 'checked' : ''}>${esc(s.name)}</label>`).join('')}</div>`}</td><td><button class="btn sm danger" data-stdel="${x.id}">빼기</button></td></tr>`).join('')}</tbody></table></div>` : '<div class="small">아직 없어요 · 지금은 관리자 비밀번호로만 열려요</div>'}
     <div class="row" style="gap:6px"><input type="text" id="stName" placeholder="이름" style="width:140px"><select id="stRole"><option>선생님</option><option>원장</option></select><input type="password" id="stPin" placeholder="PIN 8자 이상 · 글자+숫자" style="width:150px" autocomplete="new-password"><input type="password" id="stPin2" placeholder="PIN 확인" style="width:150px" autocomplete="new-password"><button class="btn dark" id="stAdd">계정 만들기</button></div>
@@ -4959,7 +4959,7 @@ function vizMinScatter(s, kd, o = {}) {
   const nm = D.both.slice().sort((a, b) => b.gap - a.gap).map(p => p.u); if (nm.length && !o.short) g += vzT(x0, H - 6, `내신까지 닿는 곳 · ${nm.slice(0, 6).join(' · ')}${nm.length > 6 ? ` 외 ${nm.length - 6}곳` : ''}`, { fs: 11, c: VZ.acc, b: 1 });
   g += `<line x1="${x0}" x2="${x1}" y1="${base}" y2="${base}" stroke="${VZ.axis}"/>`; for (let t = Math.ceil(lo / tstep) * tstep; t <= hi + 1e-9; t += tstep) { const tv = Math.round(t * 10) / 10; g += vzT(X(tv), base + 14, tv > 0 ? '+' + tv : String(tv), { a: 'middle', fs: 10.5 }); }
   g += vzT(x0, base + 28, '← 내신 부족 (등급)', { fs: 10.5 }) + vzT(x1, base + 28, '내신 여유 →', { fs: 10.5, a: 'end' });
-  if (!o.short) g += vzT(16, 20, `수능 최저를 넘는 대학 ${D.metU}곳 (${kd}) · 그중 내신까지 닿는 곳 ${D.both.length}곳`, { fs: 13, c: VZ.ink, b: 1 }); if (o.short && W < 500) g += vzT(16, 14, '+숫자 = 같은 곳에 더 있는 대학 수', { fs: 10.5 }); g += vzT(16, o.short ? (W < 500 ? 30 : 26) : 36, o.short ? (W < 500 ? '점 = 대학 한 곳 · 파란 칸 = 내신도 컷에 닿는 곳' : '점 하나 = 대학 한 곳 · 오른쪽 파란 칸 = 내신도 그 대학 컷에 닿는 곳 · +숫자 = 같은 자리에 더 있는 대학 수') : `점 하나 = 대학 한 곳 · 가로 = 그 대학 학과 컷과 내 내신 차이 (전형이 여럿이면 가운데 값)${D.metU > D.met.length ? ` · 입결이 없는 ${D.metU - D.met.length}곳은 점 없음` : ''}`, { fs: 10.5 });
+  if (!o.short) g += vzT(16, 20, `수능 최저를 넘는 대학 ${D.metU}곳 (${kd}) · 그중 내신까지 닿는 곳 ${D.both.length}곳`, { fs: 13, c: VZ.ink, b: 1 }); if (o.short && W < 500) g += vzT(16, 14, '+숫자 = 같은 곳에 더 있는 대학 수', { fs: 10.5 }); g += vzT(16, o.short ? (W < 500 ? 30 : 26) : 36, o.short ? (W < 500 ? '점 = 대학 한 곳 · 파란 칸 = 내신도 컷에 닿는 곳' : '점 하나 = 대학 한 곳 · 오른쪽 파란 칸 = 내신도 그 대학 컷에 닿는 곳 · +숫자 = 같은 점수에 겹친 대학 수') : `점 하나 = 대학 한 곳 · 가로 = 그 대학 학과 컷과 내 내신 차이 (전형이 여럿이면 가운데 값)${D.metU > D.met.length ? ` · 입결이 없는 ${D.metU - D.met.length}곳은 점 없음` : ''}`, { fs: 10.5 });
   return vzWrap(W, H, g, `수능 최저를 넘는 대학 ${D.metU}곳 중 내신까지 닿는 곳 ${D.both.length}곳`);
 }
 
@@ -5532,7 +5532,7 @@ function blockPages(s, b) { if (!b || !b.bid || b.probs) return null; let rows; 
    2) 교재 · 인강 · 지금 수준 → 목표 수준 · 학기 범위 · 교재 연계 강좌 순으로 자동 (선생님이 고른 값은 그대로)
    3) 공부 속도 · 실측이 없으면 2028 수능 시험 시간(문항당 분)으로 시작 · 첫 주 타이머로 바뀜
    4) 공부 계획표 첫 화면 = 자동으로 맞춘 결과 + 이유 · 바꾸고 싶을 때만 ①~⑤
-   5) 학습 습관 · 관리 시트 = 이번 주 신호 4개 → 할 말 하나 → 다음 주 약속 (근거 · 자기 점검 기록 연구 · 실행 의도 연구) */
+   5) 학습 습관 · 이번 주 점검 = 이번 주 신호 4개 → 할 말 하나 → 다음 주 약속 (근거 · 자기 점검 기록 연구 · 실행 의도 연구) */
 
 // ---------- 1. 공부 비중 ----------
 // 계열 가중치 · 47개 대학 2028 권장 이수과목 951건 · 가중치 = (출현율 ÷ 계열 평균) × 0.5 + 0.5 (산출근거 07 시트 값 그대로)
@@ -5747,13 +5747,13 @@ function signalCard(s, opt) {
   const W = weekSignals(s); const wk = W.w ? W.w.wk.slice(5).replace('-', '/') + ' 주' : '';
   const tiles = W.sig.map(x => `<div class="card col" style="gap:4px;border-top:4px solid ${AU_DOT[x.c][0]}"><div class="row between"><span class="label">${x.n}</span><span class="small" style="color:${AU_DOT[x.c][0]};font-weight:700">● ${AU_DOT[x.c][1]}</span></div><div style="font-size:24px;font-weight:900">${x.v}</div><div class="small">${x.sub}</div></div>`).join('');
   const say = W.allGray ? '아직 지난주 기록이 없어요 · 학생 앱 타이머로 한 주를 지내면 신호가 켜져요' : W.worst ? W.worst.say : '네 가지 모두 좋아요 · 지금 계획을 그대로 두고 잘한 점을 짚어 칭찬해요';
-  return `<section class="card col" id="sigCard"><div class="row between"><div class="row" style="gap:8px"><h2>${opt && opt.title || '이번 주 볼 것 4개'}</h2>${wk ? `<span class="small">${wk} 기준 · 끝난 주</span>` : ''}</div>${opt && opt.link ? '<button class="btn sm dark" onclick="go(\'sheet\')">관리 시트에서 점검하기</button>' : ''}</div>
+  return `<section class="card col" id="sigCard"><div class="row between"><div class="row" style="gap:8px"><h2>${opt && opt.title || '이번 주 볼 것 4개'}</h2>${wk ? `<span class="small">${wk} 기준 · 끝난 주</span>` : ''}</div>${opt && opt.link ? '<button class="btn sm dark" onclick="go(\'sheet\')">이번 주 점검에서 점검하기</button>' : ''}</div>
     <div class="grid g4">${tiles}</div>
     <div class="dark col" style="gap:4px"><span class="small">그래서 이번 주 할 말 하나</span><b style="font-size:16px">${esc(say)}</b>${W.worst ? `<span class="small">가장 먼저 볼 신호 · ${W.worst.n}</span>` : ''}</div>
     <details class="src"><summary>${typeof INFO_SVG !== 'undefined' ? INFO_SVG : ''}신호 기준과 근거</summary><div class="small" style="line-height:1.8">
       <div>초록 · 노랑 · 빨강 기준 〔기준서 6-2 · 영발 기록이 쌓이면 다시 정함〕 · 계획 지킨 정도 80% · 60% · 순공 시간 정한 시간의 90% · 70% · 공부한 날 5일 · 3일 · 끝난 시각 자정 · 새벽 1시</div>
       <div>왜 매주 보나 · 목표까지 진행을 점검하게 하면 목표 달성이 늘고, 점검을 기록하거나 남에게 알릴 때 효과가 더 컸어요 (138개 연구 · 1만 9,951명 메타분석 · Harkin 외 2016)</div>
-      <div>왜 할 말은 하나 · 「언제 · 어디서 · 무엇을」 정한 약속 하나가 막연한 다짐보다 실행을 크게 늘렸어요 (94개 연구 · 효과 크기 d = 0.65 · Gollwitzer · Sheeran 2006) · 그래서 관리 시트에서 다음 주 약속을 한 줄로 받아요</div>
+      <div>왜 할 말은 하나 · 「언제 · 어디서 · 무엇을」 정한 약속 하나가 막연한 다짐보다 실행을 크게 늘렸어요 (94개 연구 · 효과 크기 d = 0.65 · Gollwitzer · Sheeran 2006) · 그래서 이번 주 점검에서 다음 주 약속을 한 줄로 받아요</div>
       <div>잠 · 13~18세는 하루 8~10시간 자는 것을 권해요 (미국수면의학회 2016 합의문) · 7시에 일어나면 밤 11시 전후에는 자야 해요</div></div></details></section>`;
 }
 { const f = R.habit; R.habit = function () {
@@ -5763,7 +5763,7 @@ function signalCard(s, opt) {
     return h.slice(0, i) + signalCard(s, { link: true }) + `<details class="fold" id="habitMore"><summary><div class="row" style="gap:10px;align-items:baseline"><h2>숫자 전체 보기</h2><span class="small">앉아 있는 모습 · 공부 시간 목표 · 학습 균형 · 오래 앉을수록 · 교재별 속도 · 주별 순공</span></div></summary><div class="fb">${mid}</div></details>` + tail;
   }; }
 
-// ---------- 7. 관리 시트 · 5분 주간 점검 ----------
+// ---------- 7. 이번 주 점검 · 5분 주간 점검 ----------
 const AU_WHY = ['시간 부족', '너무 어려움', '학원 과제 몰림', '잊어버림', '컨디션 · 일정'];
 function promiseOf(s, wk) { const g = mgOf(s); g.pr = g.pr || {}; return g.pr[wk] = g.pr[wk] || {}; }
 function parentLine(s) {
@@ -6190,8 +6190,8 @@ const STUX = (function () {
   // 학생 폰으로 안 내려가는 칸 · 상담 메모 · 학부모 연락 · 기질 메모 · 학부모가 알려 준 특징 (원장·선생님만)
   const strip = s => { const x = clone(s); delete x.app; x.memo = ''; x.counsels = []; x.temper = '';
     if (x.mg) { delete x.mg.call; delete x.mg.memo; delete x.mg.log; } if (x.flow) x.flow.pmemo = ''; return x; };
-  const PRIV = s => ({ memo: s.memo, counsels: s.counsels, temper: s.temper, call: s.mg && s.mg.call, mmemo: s.mg && s.mg.memo, mlog: s.mg && s.mg.log, pmemo: s.flow && s.flow.pmemo, example: s.example, selfPlan: s.selfPlan, aiAdapt: s.aiAdapt, aiDo: s.aiDo });
-  const putPriv = (x, p) => { ['memo', 'counsels', 'temper', 'example', 'selfPlan', 'aiAdapt', 'aiDo'].forEach(k => { if (p[k] === undefined) delete x[k]; else x[k] = p[k]; }); // 학원이 정하는 칸은 학생 폰 값으로 안 바뀜
+  const PRIV = s => ({ memo: s.memo, counsels: s.counsels, temper: s.temper, call: s.mg && s.mg.call, mmemo: s.mg && s.mg.memo, mlog: s.mg && s.mg.log, pmemo: s.flow && s.flow.pmemo, example: s.example, selfPlan: s.selfPlan, aiAdapt: s.aiAdapt, aiDo: s.aiDo, scoreT: (Array.isArray(s.scoreHist) ? s.scoreHist : []).filter(e => e && e.by === 'teacher') });
+  const putPriv = (x, p) => { ['memo', 'counsels', 'temper', 'example', 'selfPlan', 'aiAdapt', 'aiDo'].forEach(k => { if (p[k] === undefined) delete x[k]; else x[k] = p[k]; }); x.scoreHist = (Array.isArray(x.scoreHist) ? x.scoreHist : []).filter(e => e && e.by !== 'teacher').map(e => Object.assign(e, { by: 'student' })).concat(p.scoreT || []); /* 선생님이 넣은 성적은 학원 값 그대로 · 학생 폰에서 온 것은 학생 입력으로 */ // 학원이 정하는 칸은 학생 폰 값으로 안 바뀜
     if (p.call !== undefined || p.mmemo !== undefined || p.mlog !== undefined) { x.mg = x.mg || {}; if (p.call !== undefined) x.mg.call = p.call; if (p.mmemo !== undefined) x.mg.memo = p.mmemo; if (p.mlog !== undefined) x.mg.log = p.mlog; }
     if (x.flow) { if (p.pmemo === undefined) delete x.flow.pmemo; else x.flow.pmemo = p.pmemo; } };
   // 학생 쪽에서 들어온 글자는 화면 태그로 못 쓰게 바꿈 ( < > " ' ` )
@@ -6451,7 +6451,7 @@ function quietMore() {
    참고 — 토스 앱인토스 UI/UX 가이드(떠 있는 탭바 2~5개 · 들어오자마자 막는 창 없음 · 다음 행동이 보이는 버튼)
         · 열품타(주간 날짜 줄 + 하루 단위 플래너) · 올락 관리자(대기 N건 · 학생별 카드에서 바로 처리)
    - 위: 짧은 앱 바 / 아래: 떠 있는 탭바 (홈 · 학생 · 플래너 · 진척 · 더보기)
-   - 홈: 요약 카드 → 챙길 숫자 → 지금 처리할 학생 카드
+   - 홈: 요약 카드 → 챙길 숫자 → 지금 챙길 학생 카드
    - 학생: 카드 목록 / 플래너: 요일 하나씩
    ========================================================= */
 (function () {
@@ -6476,9 +6476,9 @@ body.mstaff.msheet #msheet{display:block;position:fixed;left:0;right:0;bottom:0;
 #msheet .grab{width:40px;height:5px;border-radius:3px;background:#D6DBE5;margin:2px auto 12px}
 #msheet .macc{display:flex;align-items:center;gap:10px;background:#F2F4F8;border-radius:16px;padding:12px 14px;margin-bottom:14px}
 #msheet .macc b{display:block;font-size:15px}#msheet .macc span{font-size:12.5px;color:#6B7385;word-break:break-all}
-#msheet .mgrp{font-size:12.5px;font-weight:800;color:#8A92A3;margin:14px 4px 6px}
+#msheet .mgrp{font-size:12.5px;font-weight:800;color:#5F6879;margin:14px 4px 6px}
 #msheet .mi{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;font:inherit;font-size:16px;font-weight:600;color:#141C2E;padding:13px 6px;border-bottom:1px solid #EEF1F5;text-align:left;cursor:pointer}
-#msheet .mi:after{content:'›';color:#B5BCCB;font-size:22px;line-height:1}#msheet .mi.on{color:#1E4FD6}
+#msheet .mi:after{content:'›';color:#6B7385;font-size:22px;line-height:1}#msheet .mi.on{color:#1E4FD6}
 #msheet .mrow{display:flex;gap:8px;margin-top:14px}#msheet .mrow button{flex:1;min-height:48px;border-radius:14px;border:1px solid #DDE2EA;background:#fff;font:inherit;font-size:15px;font-weight:700}
 body.mstaff .ph{display:block}body.mstaff .ph h1{font-size:24px;letter-spacing:-.5px}
 body.mstaff .ph>.row{margin-top:10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:8px}body.mstaff .ph>.row::-webkit-scrollbar{display:none}
@@ -6499,7 +6499,7 @@ body.mstaff.v-home .kpis{display:flex!important;overflow-x:auto;gap:8px;margin:0
 body.mstaff.v-home .kpis .kpi{flex:0 0 118px;min-height:0;padding:12px 12px 10px;border-radius:16px;border:1px solid #E6E9F0;background:#fff;box-shadow:none}
 body.mstaff.v-home .kpis .kpi .k{font-size:12.5px}body.mstaff.v-home .kpis .kpi .v{font-size:22px;margin:4px 0 2px}body.mstaff.v-home .kpis .kpi .s{font-size:11.5px}
 body.mstaff.v-home .kpis .kpi.hot{border-color:#FFD7A0;background:#FFF8EE}body.mstaff.v-home .kpis .kpi.hot .v{color:#C25E00}
-body.mstaff.v-home .kpis .kpi.zero .v{color:#B5BCCB}
+body.mstaff.v-home .kpis .kpi.zero .v{color:#6B7385}
 body.mstaff .mcare thead{display:none}body.mstaff .mcare .scroll{overflow:visible!important}body.mstaff .mcare table,body.mstaff .mcare tbody{display:block!important;min-width:0!important;width:100%}
 body.mstaff .mcare tr{display:grid!important;grid-template-columns:1fr auto;gap:6px 10px;padding:14px 2px;border-bottom:1px solid #EEF1F5;align-items:center}
 body.mstaff .mcare tr:last-child{border-bottom:0}body.mstaff .mcare td{display:block;padding:0!important;border:0!important}
@@ -6528,7 +6528,7 @@ body.mstaff.v-students .row.between:has(#stuG){flex-direction:column;align-items
 .mlist td:nth-child(1){grid-column:2/4;grid-row:1}.mlist .mav{grid-column:1;grid-row:1/4;width:44px;height:44px;border-radius:14px;background:#EEF1FA;color:#1B2440;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center}
 .mlist td:nth-child(2){grid-column:2/4;grid-row:2;color:#6B7385;font-size:13px}.mlist td:nth-child(2) .small{display:inline;margin-left:4px}
 .mlist td:nth-child(3),.mlist td:nth-child(4){grid-row:3;margin-top:6px}.mlist td:nth-child(3){grid-column:2}
-.mlist td:nth-child(3):before{content:'내신 ';color:#8A92A3;font-weight:600}.mlist td:nth-child(4){grid-column:3;margin-left:12px}.mlist td:nth-child(4):before{content:'모의 ';color:#8A92A3}
+.mlist td:nth-child(3):before{content:'내신 ';color:#5F6879;font-weight:600}.mlist td:nth-child(4){grid-column:3;margin-left:12px}.mlist td:nth-child(4):before{content:'모의 ';color:#5F6879}
 .mlist td:nth-child(5),.mlist td:nth-child(6){display:none}
 .mlist td:nth-child(7){grid-column:4;grid-row:1;text-align:right}.mlist td:nth-child(8){grid-column:4;grid-row:2/4;text-align:right;align-self:end}
 .mlist td:nth-child(8) .btn{min-height:34px;border-radius:10px}
@@ -6536,7 +6536,7 @@ body.mstaff.v-students .row.between:has(#stuG){flex-direction:column;align-items
 /* 플래너 */
 .mdstrip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:2px -2px 6px;padding:2px}.mdstrip::-webkit-scrollbar{display:none}
 .mdstrip button{flex:1 0 42px;border:1px solid #E2E6EE;background:#fff;border-radius:14px;padding:7px 0 6px;font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer}
-.mdstrip b{font-size:15px}.mdstrip span{font-size:11px;color:#8A92A3}.mdstrip button.today b{color:#1E4FD6}
+.mdstrip b{font-size:15px}.mdstrip span{font-size:11px;color:#5F6879}.mdstrip button.today b{color:#1E4FD6}
 .mdstrip button.on{background:#1B2440;border-color:#1B2440;color:#fff}.mdstrip button.on span{color:#C9D0E0}
 .mdays>.day{display:none!important}.mdays>.day.mon{display:block!important;border:0;padding:0;background:none}
 .mdays .day>.row:first-child{display:none}
@@ -6593,7 +6593,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     if (Su) Su.textContent = STUV.includes(v) && s ? `${[s.school, s.grade].filter(Boolean).join(' · ')} · ${TITLE[v] || ''}` : ((S && S.settings && S.settings.academy) || '');
     const dot = document.getElementById('mtDot'), stt = (document.getElementById('cloudSt') || {}).textContent || '';
     if (dot) dot.classList.toggle('wait', /대기|중…|합치는/.test(stt));
-    const key = v === 'home' ? 'home' : v === 'students' ? 'students' : v === 'monitor' ? 'monitor' : STUV.includes(v) ? 'planner' : 'more';
+    const key = v === 'home' ? 'home' : v === 'students' ? 'students' : v === 'monitor' ? 'monitor' : v === 'planner' ? 'planner' : STUV.includes(v) ? 'students' : 'more';
     document.querySelectorAll('#mtab [data-mt]').forEach(b => b.classList.toggle('on', b.dataset.mt === key));
   }
   function home() {
@@ -6611,7 +6611,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     ph.after(hero);
     kp.querySelectorAll('.kpi').forEach(k => { const v = parseInt((k.querySelector('.v') || {}).textContent) || 0; k.classList.add(v ? 'hot' : 'zero'); });
     hero.after(kp);
-    if (care) { care.classList.add('mcare'); const h2 = care.querySelector('h2'); if (h2) h2.textContent = `지금 처리할 학생 ${todo}명`; kp.after(care); }
+    if (care) { care.classList.add('mcare'); const h2 = care.querySelector('h2'); if (h2) h2.textContent = `지금 챙길 학생 ${todo}명`; kp.after(care); }
     V.querySelectorAll('section.card').forEach(x => { if (x !== care && /처음 설정|처음이라면/.test((x.querySelector('h2') || {}).textContent || '')) { x.classList.add('mslim'); V.appendChild(x); } });
   }
   function students() {
@@ -6673,7 +6673,9 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   const isStuMode = () => !!window.__PLANT_STU || (typeof STU_LOCK !== 'undefined' && STU_LOCK);
   const dkey = d => ymd(d); // 로컬 날짜
   const wkDate = wk => { const [y, m, d] = String(wk).split('-').map(Number); return new Date(y, m - 1, d); }; // 'YYYY-MM-DD'를 로컬 자정으로 (UTC로 읽지 않게)
-  const SHORT = k => ({ 통합사회: '사회', 통합과학: '과학' }[k] || k);
+  let CS = null; // 지금 그리는 학생 · 과목 이름을 학년에 맞게 (고2 이상은 사회탐구 · 과학탐구)
+  const SHORT = k => { try { const s0 = CS || (typeof curStu === 'function' ? curStu() : null); if (s0 && typeof subjName === 'function' && SUBJS.includes(k)) return subjName(s0, k); } catch (e) { } return ({ 통합사회: '사회', 통합과학: '과학' }[k] || k); };
+  const SD = k => `<i class="aisd" style="background:${SUBCOL[k] || '#9AA1B0'}"></i>`;
 
   /* ---------- 1. 추천안 저장 + 지난 기록 반영 ---------- */
   const lite = b => ({ id: b.id || null, by: b.by || '', day: b.day, subj: b.subj, title: b.title || b.subj, min: b.min, bid: b.bid || null, band: b.band || null, at: b.at || null });
@@ -6790,8 +6792,8 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const F = [], L = C.weeks[C.weeks.length - 1]; // 마지막 주에도 같은 모습일 때만 (최근에 나아졌으면 안 꺼냄)
     Object.entries(C.by).forEach(([k, v]) => {
       if (k === '기타') return; const lv = (L && L.by[k]) || z();
-      if (C.self !== false && v.r >= 60 && v.p / v.r < 0.8 && lv.r && lv.p / lv.r < 0.8) F.push({ key: 'p|' + k, w: v.r - v.p, k, t: `${SHORT(k)} · ${C.n}주 동안 추천 ${hm(v.r)} 중 ${hm(v.p)}만 계획 (${pc(v.r, v.p)}) · 지난주도 ${pc(lv.r, lv.p)}`, act: `${SHORT(k)} 추천을 지난주 스스로 짠 ${hm(lv.p)}에서 시작해 매주 30분씩 늘려요` });
-      if (v.p >= 60 && v.k / v.p < 0.8 && lv.p && lv.k / lv.p < 0.8) F.push({ key: 'k|' + k, w: v.p - v.k, k, t: `${SHORT(k)} · 계획한 할 일 중 ${pc(v.p, v.k)}만 끝냄 · 지난주도 ${pc(lv.p, lv.k)}`, act: `${SHORT(k)}는 ${RUN_ACT[k] || '블록을 짧게 나눠요'}` });
+      if (C.self !== false && v.r >= 60 && v.p / v.r < 0.8 && lv.r && lv.p / lv.r < 0.8) F.push({ key: 'p|' + k, w: v.r - v.p, k, t: `${SHORT(k)} · ${C.n}주 동안 추천 ${hm(v.r)} 중 ${hm(v.p)}만 계획 (${pc(v.r, v.p)})${C.n > 1 ? ` · 지난주도 ${pc(lv.r, lv.p)}` : ''}`, act: `${SHORT(k)} 추천을 ${C.n > 1 ? '지난주' : '이번 주'} 스스로 짠 ${hm(lv.p)}에서 시작해 매주 30분씩 늘려요` });
+      if (v.p >= 60 && v.k / v.p < 0.8 && lv.p && lv.k / lv.p < 0.8) F.push({ key: 'k|' + k, w: v.p - v.k, k, t: `${SHORT(k)} · 계획한 할 일 중 ${pc(v.p, v.k)}만 끝냄${C.n > 1 ? ` · 지난주도 ${pc(lv.p, lv.k)}` : ''}`, act: `${SHORT(k)}는 ${RUN_ACT[k] || '블록을 짧게 나눠요'}` });
     });
     const days = DAYS.map((d, i) => ({ d, i, v: C.day[i] || z(), l: (L && L.day[i]) || z() })).filter(x => x.v.p >= 60);
     const best = days.slice().sort((a, b) => b.v.k / b.v.p - a.v.k / a.v.p)[0];
@@ -6847,10 +6849,10 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     opt = opt || {}; if (!C) return ''; const H = opt.dec ? (m => m ? (Math.round(m / 6) / 10).toFixed(1) : '—') : hm;
     const rows = Object.entries(C.by).sort((a, b) => SUBJS.indexOf(a[0]) - SUBJS.indexOf(b[0]));
     const sf = C.self !== false;
-    const tr = (k, v, tot) => `<tr${tot ? ' class="tot"' : ''}><td><b ${tot ? '' : `style="color:${SUBCOL[k] || '#333'}"`}>${tot ? '합계' : E(SHORT(k))}</b></td>${sf ? `<td>${H(v.r)}</td>` : ''}<td>${H(v.p)}</td><td><b>${H(v.a)}</b></td>${sf ? `<td>${dot(tone(v.r, v.p, 'plan'))}</td>` : ''}<td>${dot(tone(v.p, v.k, 'run'))}</td></tr>`;
+    const tr = (k, v, tot) => `<tr${tot ? ' class="tot"' : ''}><td><b>${tot ? '합계' : SD(k) + E(SHORT(k))}</b></td>${sf ? `<td>${H(v.r)}</td>` : ''}<td>${H(v.p)}</td><td><b>${H(v.a)}</b></td>${sf ? `<td>${dot(tone(v.r, v.p, 'plan'))}</td>` : ''}<td>${dot(tone(v.p, v.k, 'run'))}</td></tr>`;
     const table = `<div class="scroll aitbl"><table class="aicmp"><thead><tr><th>과목</th>${sf ? '<th>추천</th><th>학생 계획</th>' : '<th>학원 계획</th>'}<th>실제 공부</th>${sf ? '<th>추천만큼 짰나</th>' : ''}<th>계획한 할 일 끝낸 비율</th></tr></thead><tbody>${rows.map(([k, v]) => tr(k, v)).join('')}${tr('', C.T, true)}</tbody></table></div>`;
     if (opt.print) return table;
-    const cards = `<div class="aicards">${rows.concat([['합계', C.T]]).map(([k, v]) => `<div class="aicd"><div class="row between"><b style="color:${SUBCOL[k] || '#1B2440'}">${E(SHORT(k))}</b><span class="aism">${sf ? `추천 ${hm(v.r)} → 계획 ${hm(v.p)}` : `학원 계획 ${hm(v.p)}`} → 실제 ${hm(v.a)}</span></div><div class="row" style="gap:10px;flex-wrap:wrap">${sf ? dot(tone(v.r, v.p, 'plan')) : ''}${dot(tone(v.p, v.k, 'run'))}</div></div>`).join('')}</div>`;
+    const cards = `<div class="aicards">${rows.concat([['합계', C.T]]).map(([k, v]) => `<div class="aicd"><div class="row between"><b>${k === '합계' ? '' : SD(k)}${E(SHORT(k))}</b><span class="aism">${sf ? `추천 ${hm(v.r)} → 계획 ${hm(v.p)}` : `학원 계획 ${hm(v.p)}`} → 실제 ${hm(v.a)}</span></div><div class="row" style="gap:10px;flex-wrap:wrap">${sf ? dot(tone(v.r, v.p, 'plan')) : ''}${dot(tone(v.p, v.k, 'run'))}</div></div>`).join('')}</div>`;
     return table + cards;
   }
   function findHtml(s, C, teacher) {
@@ -6867,7 +6869,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const G = guide(s); const src = t => `<span class="aisrc">${t}</span>`; const parts = [];
     if (G.when) parts.push(`<div class="aig"><div class="aih">이번 시기 ${src(G.when.src)}</div><b>${E(G.when.h)}</b><div>${E(G.when.t)}</div>${short ? '' : `<ul>${G.when.li.map(x => `<li>${E(x)}</li>`).join('')}</ul>`}</div>`);
     if (G.vol && !short) parts.push(`<div class="aig"><div class="aih">하루 자습량 ${src(G.vol.src)}</div>${G.vol.rows.map(r => `<div>${E(r[0])} · 평일 ${E(r[1])} · 주말 ${E(r[2])}</div>`).join('')}<div class="aism">이 학생이 알려 준 공부 가능 시간 · 평일 평균 ${G.vol.wd.toFixed(1)}시간 · 주말 평균 ${G.vol.we.toFixed(1)}시간</div></div>`);
-    if (G.subj.length) parts.push(`<div class="aig"><div class="aih">과목별 공부법 ${src('과목 수준별 공부법 · 교재 단계 · 회독 규칙 · 과목 배치')}</div>${G.subj.map(x => `<div class="aisub"><div class="row" style="gap:6px;flex-wrap:wrap"><b style="color:${SUBCOL[x.k]}">${E(SHORT(x.k))}</b>${x.lv ? `<span class="pill b-gray">${E(x.lv)}${x.lvSrc && !short ? ' · ' + E(x.lvSrc) : ''}</span>` : ''}${x.book ? `<span class="aism">지금 교재 ${E(x.book)}${x.stW ? ' · ' + E(x.stW) : ''}${x.rounds ? ' · ' + x.rounds + '번 반복' : ''}</span>` : ''}${x.eng ? `<span class="aism">영어발전소 수업 단계 ${E(x.eng)}</span>` : ''}</div>${x.tip ? `<div>${E(x.tip)}</div>` : x.k === '영어' ? '<div class="aism">영어는 영어발전소 수업 단계로 관리해요</div>' : ''}${!short && x.next ? `<div class="aism">· ${E(x.next)}</div>` : ''}${!short && x.place ? `<div class="aism">· 언제 · ${E(x.place)}</div>` : ''}</div>`).join('')}</div>`);
+    if (G.subj.length) parts.push(`<div class="aig"><div class="aih">과목별 공부법 ${src('과목 수준별 공부법 · 교재 단계 · 회독 규칙 · 과목 배치')}</div>${G.subj.map(x => `<div class="aisub"><div class="row" style="gap:6px;flex-wrap:wrap"><b>${SD(x.k)}${E(SHORT(x.k))}</b>${x.lv ? `<span class="pill b-gray">${E(x.lv)}${x.lvSrc && !short ? ' · ' + E(x.lvSrc) : ''}</span>` : ''}${x.book ? `<span class="aism">지금 교재 ${E(x.book)}${x.stW ? ' · ' + E(x.stW) : ''}${x.rounds ? ' · ' + x.rounds + '번 반복' : ''}</span>` : ''}${x.eng ? `<span class="aism">영어발전소 수업 단계 ${E(x.eng)}</span>` : ''}</div>${x.tip ? `<div>${E(x.tip)}</div>` : x.k === '영어' ? '<div class="aism">영어는 영어발전소 수업 단계로 관리해요</div>' : ''}${!short && x.next ? `<div class="aism">· ${E(x.next)}</div>` : ''}${!short && x.place ? `<div class="aism">· 언제 · ${E(x.place)}</div>` : ''}</div>`).join('')}</div>`);
     if (G.week && !short) parts.push(`<div class="aig"><div class="aih">이번 주 한 가지 ${src(G.week.src)}</div><div>${E(G.week.say)}</div></div>`);
     return parts.join('');
   }
@@ -6877,19 +6879,20 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   .aifind{border:2px solid #1B2440;border-radius:14px;padding:10px 12px;margin-top:4px}.aifr{padding:7px 0;border-top:1px solid #EEF1F5;font-size:14px;line-height:1.55}.aifr:first-of-type{border-top:0}.aiarrow{font-weight:800;color:#1B2440}
   .aig{border-top:1px solid #EEF1F5;padding:10px 0;font-size:13.5px;line-height:1.6}.aig:first-child{border-top:0}.aig ul{margin:4px 0 0;padding-left:18px}.aih{font-size:12.5px;font-weight:800;color:#4F5A6E;margin-bottom:4px}.aisub{padding:6px 0}
   .aiflow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px}.aiflow span{background:#EEF1F5;border-radius:999px;padding:4px 10px;font-weight:700}.aiflow i{color:#9AA1B0;font-style:normal}
-  .aism{font-size:12.5px;color:#4F5A6E;line-height:1.55}.aistreak{background:#FFF6E8;border:1px solid #F2D3A6;border-radius:12px;padding:8px 12px;font-size:13.5px;font-weight:700;margin-top:8px}.aiadj{background:#EEF7F1;border:1px solid #BFE3CC;border-radius:12px;padding:8px 12px;font-size:13px;margin-top:6px}
+  .aism{font-size:13px;color:#4F5A6E;line-height:1.55}.aisd{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}.aistreak{background:#FFF6E8;border:1px solid #F2D3A6;border-radius:12px;padding:8px 12px;font-size:13.5px;font-weight:700;margin-top:8px}.aiadj{background:#EEF7F1;border:1px solid #BFE3CC;border-radius:12px;padding:8px 12px;font-size:13px;margin-top:6px}
   .aicards{display:none}.aicd{border:1px solid #E2E6EE;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;margin-top:6px}
   .aistep{display:inline-flex;gap:4px;align-items:center}.aistep button{min-height:30px;padding:2px 10px}
   @media(max-width:760px){.aiflow{display:none}.aitbl{display:none}.aicards{display:block}body.mstaff #view table td:first-child,body.mstaff #view table th{white-space:nowrap}body.mstaff #view .scroll{overflow-x:auto}}</style>`;
   const css = () => { if (!document.getElementById('aicss')) document.head.insertAdjacentHTML('beforeend', CSS); return ''; };
 
   function plannerCard(s, wk) {
+    CS = s;
     const C = cmpWeek(s, wk); const reco = recoOf(s, wk); const rr = recoRec(s, wk); const tw = weekKey(today());
     const prevWk = ymd(addDays(wkDate(wk), -7)); const prev = cmpWeek(s, prevWk); const st = streak(s); const show = C || prev;
     const recoDays = reco && reco.length ? DAYS.map((d, i) => { const bl = reco.filter(b => b.day === i); return bl.length ? `<div class="aisub"><b>${d}</b> ${bl.map(b => `<span class="aism">${E(SHORT(b.subj))} · ${E(b.title)} ${b.min}분</span>`).join(' · ')}</div>` : ''; }).join('') : '';
     return `${css()}<section class="card col" id="aiCard"><div class="row between"><div class="row" style="gap:8px"><h2>AI 코칭</h2><span class="aism">이 학생 숫자로 추천 → 학생이 짬 → 실제와 비교 → 다음 추천에 반영</span></div>
       <div class="row" style="gap:12px;flex-wrap:wrap"><label class="row" style="gap:6px;font-size:13.5px;font-weight:700"><input type="checkbox" id="aiSelf" ${s.selfPlan ? 'checked' : ''}> 계획은 학생이 직접 짜기</label><label class="row" style="gap:6px;font-size:13.5px;font-weight:700"><input type="checkbox" id="aiAdapt" ${s.aiAdapt === false ? '' : 'checked'}> 지난 기록 반영해 추천</label></div></div>
-      ${(() => { const tw2 = weekKey(today()); const C4 = sumCmp(weeksBack(5).filter(w => w < tw2).map(w => cmpWeek(s, w))); return C4 ? `<div class="aism" style="font-weight:700">지난 ${C4.n}주 기준 (학부모 리포트와 같은 기간)</div>` + findHtml(s, C4, true) : ''; })()}
+      ${(() => { const tw2 = weekKey(today()); const C4 = sumCmp(weeksBack(5).filter(w => w < tw2).map(w => cmpWeek(s, w))); const fh = C4 ? findHtml(s, C4, true) : ''; return fh ? `<div class="aism" style="font-weight:700">지난 ${C4.n}주 기준 (학부모 리포트와 같은 기간)</div>` + fh : ''; })()}
       ${rr && rr.adj && rr.adj.length ? `<div class="aiadj"><b>이번 주 추천에 반영한 것</b> · ${rr.adj.map(a => `${DAYS[a.day]}요일 공부 시간 ${hh(a.from)} → ${hh(a.to)}`).join(' · ')} <span class="aism">(지난 2주 그 요일 계획을 70% 미만 지켜서 실제로 한 만큼 + 30분으로 줄임 · 원래의 절반 아래로는 안 내림 〔설계값〕)</span></div>` : ''}
       ${st && (C || prev || {}).self !== false ? `<div class="aistreak">${STREAK_SAY[st]}</div>` : ''}
       ${C ? `<div style="font-weight:800;margin-top:4px">이번 주 비교${C.upto ? ` · ${DAYS[C.upto - 1]}요일까지` : ''}</div>${cmpTable(C)}${cmpSay(C)}` : prev ? `<div style="font-weight:800;margin-top:4px">지난주 비교 (${prevWk.slice(5).replace('-', '/')} 주)</div>${cmpTable(prev)}${cmpSay(prev)}` : ''}
@@ -6899,14 +6902,14 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   }
 
   if (!isStuMode()) {
-    { const f = R.planner; R.planner = function () { const h = f.apply(this, arguments); const s = curStu(); if (!s) return h; let card = ''; try { card = plannerCard(s, ymd(addDays(monday(today()), weekOff * 7))); } catch (e) { console.warn('[AI 코칭]', e); } const i = h.indexOf('<section'); return i < 0 ? h + card : h.slice(0, i) + card + h.slice(i); }; }
+    { const f = R.planner; R.planner = function () { const h = f.apply(this, arguments); const s = curStu(); if (!s) return h; let card = ''; try { card = plannerCard(s, ymd(addDays(monday(today()), weekOff * 7))); } catch (e) { console.warn('[AI 코칭]', e); } const i = h.indexOf('<section'); const j = i < 0 ? -1 : h.indexOf('</section>', i); return j < 0 ? h + card : h.slice(0, j + 10) + card + h.slice(j + 10); }; } // 주간 계획 카드 다음에 (계획이 먼저 보이게)
     { const f = R.planner_after; R.planner_after = function () { const r = f ? f.apply(this, arguments) : undefined; const s = curStu();
       const c = document.getElementById('aiSelf'); if (c) c.onchange = () => { s.selfPlan = c.checked; save(); render(); toast(c.checked ? '이제 계획은 학생이 짜요 · 자동 배치는 추천으로만 가요' : '자동 배치 결과가 그대로 학생 계획이 돼요'); };
       document.querySelectorAll('[data-aido]').forEach(x => x.onchange = () => { s.aiDo = s.aiDo || {}; if (x.checked) s.aiDo[x.dataset.aido] = ymd(today()); else delete s.aiDo[x.dataset.aido]; save(); toast(x.checked ? '학부모 리포트 「학원이 바꾸는 것」에 들어가요' : '리포트에서 뺐어요'); });
       const a = document.getElementById('aiAdapt'); if (a) a.onchange = () => { s.aiAdapt = a.checked; save(); render(); toast(a.checked ? '다음 자동 배치부터 지난 기록을 반영해요' : '지난 기록 없이 공부 가능 시간 그대로 추천해요'); };
       return r; }; }
     { const f = R.habit_after; R.habit_after = function () { const r = f ? f.apply(this, arguments) : undefined; const s = curStu(); document.querySelectorAll('[data-aido]').forEach(x => x.onchange = () => { s.aiDo = s.aiDo || {}; if (x.checked) s.aiDo[x.dataset.aido] = ymd(today()); else delete s.aiDo[x.dataset.aido]; save(); toast(x.checked ? '학부모 리포트 「학원이 바꾸는 것」에 들어가요' : '리포트에서 뺐어요'); }); return r; }; }
-    { const f = R.habit; R.habit = function () { const h = f.apply(this, arguments); const s = curStu(); if (!s) return h; let card = '';
+    { const f = R.habit; R.habit = function () { const h = f.apply(this, arguments); const s = curStu(); if (!s) return h; CS = s; let card = '';
       try { const wks = weeksBack(habitW); const cs = wks.map(w => cmpWeek(s, w)); const C = sumCmp(cs);
         card = `${css()}<section class="card col"><div class="row between"><h2>추천 → 학생 계획 → 실제</h2><span class="aism">최근 ${habitW}주 중 추천이 있던 ${C ? C.n : 0}주</span></div>
           ${C ? findHtml(s, C, true) + cmpTable(C) + cmpSay(C) + `<div class="scroll" style="margin-top:8px"><table class="aicmp"><thead><tr><th>주</th><th>추천</th><th>학생 계획</th><th>실제 공부</th><th>계획만큼 했나</th><th>모습</th></tr></thead><tbody>${cs.map((c, i) => c ? `<tr><td>${wks[i].slice(5).replace('-', '/')} 주${c.upto ? ' (진행 중)' : ''}</td><td>${hm(c.T.r)}</td><td>${hm(c.T.p)}</td><td><b>${hm(c.T.a)}</b></td><td>${dot(tone(c.T.p, c.T.k, 'run'))}</td><td>${c.type ? E(TYPE_T[c.type]) : ''}</td></tr>` : '').join('')}</tbody></table></div>` + (streak(s) ? `<div class="aistreak">${STREAK_SAY[streak(s)]}</div>` : '') : '<div class="aism">추천 계획이 있는 주가 아직 없어요 · 주간 플래너에서 「자동 배치」를 누르면 그 주 추천이 남아요</div>'}</section>`; } catch (e) { console.warn('[AI 비교]', e); }
@@ -6916,8 +6919,8 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   }
 
   /* ---------- 6. 리포트 ---------- */
-  const RPCSS = `<style>.rp .aicmp{width:100%;border-collapse:collapse;font-size:10.5px}.rp .aicmp th,.rp .aicmp td{padding:3px 5px;border-bottom:1px solid #E6E9EF;text-align:left;color:#1A2233}.rp .aicmp th{font-size:10px;color:#4F5A6E}.rp .aicmp tr.tot td{background:#F2F4F8}.rp .aidot{font-size:10.5px}.rp .aidot i{width:7px;height:7px}
-    .rp .aitip{font-size:10.5px;line-height:1.5;margin:1px 0;color:#1A2233}.rp-page.aipg .rp-t td,.rp-page.aipg .rp-t th,.rp-page.aipg .aicmp td,.rp-page.aipg .aicmp th{padding-top:2px;padding-bottom:2px}.rp-page.aipg .rp-sec{margin:6px 0 2px}.rp-page.aipg .rp-t td{color:#1A2233;white-space:nowrap}
+  const RPCSS = `<style>.rp .aicmp{width:100%;border-collapse:collapse;font-size:12.5px}.rp .aicmp th,.rp .aicmp td{padding:3px 5px;border-bottom:1px solid #E6E9EF;text-align:left;color:#1A2233}.rp .aicmp th{font-size:12px;color:#4F5A6E}.rp .aicmp tr.tot td{background:#F2F4F8}.rp .aidot{font-size:12px}.rp .aidot i{width:7px;height:7px}
+    .rp .aisd{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px;vertical-align:middle}.rp .aitip{font-size:12.5px;line-height:1.5;margin:1px 0;color:#1A2233}.rp-page.aipg .rp-t td,.rp-page.aipg .rp-t th,.rp-page.aipg .aicmp td,.rp-page.aipg .aicmp th{padding-top:2px;padding-bottom:2px}.rp-page.aipg .rp-sec{margin:6px 0 2px}.rp-page.aipg .rp-t td{color:#1A2233;white-space:nowrap}
     .rp-sumpg{font-family:inherit;color:#1A2233}.rp-sumpg .s-t{font-size:20px;font-weight:800;color:#4F5A6E;margin:6px 0 4px}.rp-sumpg .s-h{font-size:34px;font-weight:900;line-height:1.3;color:#1B2440;margin:2px 0 16px;letter-spacing:-.5px}.rp-sumpg .s-h b{color:#2F5BEA}
     .rp-sumpg .s-n{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.rp-sumpg .s-n>div{border:2px solid #E2E6EE;border-radius:14px;padding:12px 14px}.rp-sumpg .s-n .l{font-size:19px;font-weight:800;color:#4F5A6E}.rp-sumpg .s-n .v{font-size:28px;font-weight:900;margin:4px 0;color:#1B2440;letter-spacing:-.5px}.rp-sumpg .s-n .d{font-size:14.5px;color:#4F5A6E;line-height:1.4}
     .rp-sumpg .s-box{border-radius:14px;padding:12px 16px;margin-bottom:12px}.rp-sumpg .s-box h3{margin:0 0 4px;font-size:21px;font-weight:900}.rp-sumpg .s-box div{font-size:19px;line-height:1.45;padding:3px 0;font-weight:600}.rp-sumpg .s-good{background:#EEF7F1;border:2px solid #BFE3CC}.rp-sumpg .s-next{background:#F4F7FF;border:2px solid #C9D6F7}.rp-sumpg .s-next .ar{font-weight:900;color:#1B2440}.rp-sumpg .s-foot{font-size:13px;color:#4F5A6E;margin-top:6px}</style>`;
@@ -6925,6 +6928,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   const rangeTxt = C => { const a = C.weeks[0].wk, b = ymd(addDays(wkDate(C.weeks[C.weeks.length - 1].wk), 6)); return `${a.slice(5).replace('-', '/')} – ${b.slice(5).replace('-', '/')}`; };
   // 학부모용 한 장 요약 · 폰에서 PDF를 그대로 봐도 읽히게 큰 글씨
   function sumPage(s, C) {
+    CS = s;
     const sf = C.self !== false; const rate = rateOfWeeks(s, C.weeks.map(w => w.wk)); const R0 = rate != null ? Math.round(rate * 100) : null;
     const F = finds(s, C), G = goods(s, C); const on = doneKeys(s);
     const endWk = C.weeks[C.weeks.length - 1].wk; const nx = recoRec(s, ymd(addDays(wkDate(endWk), 7))) || recoRec(s, endWk); const adj = nx && nx.adj || [];
@@ -6935,12 +6939,14 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const basis = C.dflt ? '학원 기본 공부 시간' : '학생이 알려 준 공부 가능 시간';
     return `${RPCSS}<div class="rp-sumpg"><div class="s-t">${rangeTxt(C)} · ${C.n}주 한눈에</div><div class="s-h">${head}</div>
       <div class="s-n" ${sf ? '' : 'style="grid-template-columns:repeat(2,1fr)"'}>${sf ? `<div><div class="l">학원 추천 · ${C.n}주 합</div><div class="v">${hm(C.T.r)}</div><div class="d">학년 · 성적 · 교재와 ${basis}으로 학원이 짠 양</div></div><div><div class="l">스스로 짠 계획 · ${C.n}주 합</div><div class="v" style="color:#2F5BEA">${hm(C.T.p)}</div><div class="d">주 평균 ${hm(C.T.p / C.n)} · 추천의 ${pc(C.T.r, C.T.p)} · 학생이 앱에서 직접</div></div>` : `<div><div class="l">학원 계획</div><div class="v" style="color:#2F5BEA">${hm(C.T.p)}</div><div class="d">학년 · 성적 · 교재와 ${basis}으로 학원이 짠 양</div></div>`}<div><div class="l">실제 공부 · ${C.n}주 합</div><div class="v">${hm(C.T.a)}</div><div class="d">주 평균 ${hm(C.T.a / C.n)} · 학생 앱 타이머로 잰 시간${C.untimed >= 10 ? ` · 타이머 없이 끝낸 할 일 ${hm(C.untimed)} 별도` : ''}</div></div></div>
+      ${(() => { const H = window.SCOREHIST; const t = H && (H.trend(s, '내신') || H.trend(s, '모의')); return t ? `<div class="s-box" style="border:2px solid #E2E6EE"><h3>성적 흐름</h3><div>${E(H.label(t.a))} 평균 ${H.f1(t.a.avg)}등급 → ${E(H.label(t.b))} 평균 ${H.f1(t.b.avg)}등급${t.b.avg < t.a.avg - 0.04 ? ' · 좋아졌어요' : t.b.avg > t.a.avg + 0.04 ? ' · 내려갔어요' : ''}</div></div>` : ''; })()}
       ${G.length ? `<div class="s-box s-good"><h3>잘한 점</h3>${G.slice(0, 2).map(x => `<div>· ${E(x)}</div>`).join('')}</div>` : ''}
       ${doNow.length ? `<div class="s-box s-next"><h3>학원이 바꾸는 것</h3>${doNow.map(x => `<div class="ar">→ ${E(x)}</div>`).join('')}</div>` : ''}
       ${talk.length ? `<div class="s-box" style="border:2px solid #E2E6EE"><h3>다음 상담에서 함께 볼 것</h3>${talk.map(x => `<div>· ${E(x)}</div>`).join('')}</div>` : ''}
       <div class="s-foot">%는 계획한 할 일 중 끝낸 비율(시간이 아니라 할 일 기준) · 시간은 학생 앱 타이머 · 다음 쪽부터 주별 · 요일별 · 과목별 · 교재별 표</div></div>`;
   }
   function rpPage(s, C) {
+    CS = s;
     const rate = rateOfWeeks(s, C.weeks.map(w => w.wk));
     const big = (l, v, sub, col) => `<div class="rp-stat"><div class="rp-l">${l}</div><div class="rp-v" style="color:${col}">${v}</div><div class="rp-s">${sub}</div></div>`;
     const wks = C.weeks; const mxW = Math.max(1, ...wks.map(w => Math.max(w.T.r, w.T.p, w.T.a)));
@@ -6979,14 +6985,18 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     try { extra(); if (typeof rpFit === 'function') rpFit(); } catch (e) { console.warn('[리포트 비교]', e); }
     if (called) window.print();
   }
-  if (typeof printStudy === 'function') { const f = printStudy; printStudy = function (s, n) { const a = arguments; withPrint(() => f.apply(this, a), () => {
+  if (typeof printStudy === 'function') { const f = printStudy; printStudy = function (s, n) { const a = arguments; CS = s;
+    // 학부모 리포트는 끝난 주까지만 · 진행 중인 이번 주를 빼서 모든 쪽의 기간을 맞춤 (끝난 주 기록이 하나도 없으면 원래대로)
+    const wb = weeksBack; const tw = weekKey(today()); let shift = false; try { const H0 = habitOf(s, (n || 4) + 1); shift = H0.weeks.some(w => w.wk < tw && (w.rec > 0 || w.pl > 0)); } catch (e) { }
+    if (shift) weeksBack = k => wb(k + 1).slice(0, k);
+    try { withPrint(() => f.apply(this, a), () => {
     const H = habitOf(s, n || 4); const C = sumCmp(H.weeks.map(w => cmpWeek(s, w.wk)).filter(c => c && !c.upto)); // 끝난 주만
     const P = document.getElementById('print'); P.querySelectorAll('.rp-stat').forEach(x => { const l = x.querySelector('.rp-l'), v = x.querySelector('.rp-v'); if (l && v && /주당 공부한 날/.test(l.textContent) && !/7일/.test(v.textContent)) v.textContent = v.textContent.replace('일', '일 / 7일'); });
-    if (C) { const a0 = C.weeks[0].wk, b0 = ymd(addDays(wkDate(C.weeks[C.weeks.length - 1].wk), 6)); const rng = `${a0.replace(/-/g, '.')} – ${b0.replace(/-/g, '.')} (${C.n}주)`; addPage(rpPage(s, C), 'after', 'aipg', rng); addPage(sumPage(s, C), 'before', 'aisum', rng); } }); }; }
-  if (typeof printWin === 'function') { const f = printWin; printWin = function (s, n) { const a = arguments; withPrint(() => f.apply(this, a), () => {
+    if (C) { const a0 = C.weeks[0].wk, b0 = ymd(addDays(wkDate(C.weeks[C.weeks.length - 1].wk), 6)); const rng = `${a0.replace(/-/g, '.')} – ${b0.replace(/-/g, '.')} (${C.n}주)`; addPage(rpPage(s, C), 'after', 'aipg', rng); addPage(sumPage(s, C), 'before', 'aisum', rng); } }); } finally { weeksBack = wb; } }; }
+  if (typeof printWin === 'function') { const f = printWin; printWin = function (s, n) { const a = arguments; CS = s; withPrint(() => f.apply(this, a), () => {
     const N = wkCnt(s); const nums = n === 'all' ? [...Array(N)].map((_, i) => i + 1) : [n]; const wks = [...new Set(nums.flatMap(i => wkDates(s, i)).map(d => weekKey(wkDate(d))))];
     const C = sumCmp(wks.map(w => cmpWeek(s, w))); if (!C) return;
-    injectBefore(`${RPCSS}<div class="rp-sec">학원 추천 → 스스로 짠 계획 → 실제 공부 (플래너 · 타이머 기준)</div>${cmpTable(C, { print: 1 })}${finds(s, C).length ? `<div class="aitip" style="margin-top:4px"><b>학원이 바꾸는 것</b> · ${finds(s, C).map(f => E(f.act)).join(' · ')}</div>` : ''}`); }); }; }
+    injectBefore(`${RPCSS}<div class="rp-sec">학원 추천 → 스스로 짠 계획 → 앱 타이머 기록 (선생님 확인 전 시간)</div>${cmpTable(C, { print: 1 })}${finds(s, C).length ? `<div class="aitip" style="margin-top:4px"><b>학원이 바꾸는 것</b> · ${finds(s, C).map(f => E(f.act)).join(' · ')}</div>` : ''}`); }); }; }
 
   /* ---------- 7. 학생 앱 · 선생님 추천 · 넣고 고치기 ---------- */
   { const f = R.app_after; R.app_after = function () {
@@ -7011,6 +7021,194 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     return r; }; }
 
   window.AICOACH = { guide, cmpWeek, sumCmp, recoOf, tone, finds, goods };
+})();
+
+/* =========================================================
+   성적 기록 · 시험마다 쌓기 (덮어쓰지 않음)
+   - 학생 앱 「내 정보」와 원장 화면(입시 상담 · 습관·리포트)에서 넣음
+   - s.scoreHist = [{ id, d(시험 날짜), kind '내신'|'모의', g 학년, sem 학기, ex 시험, scale 5|9, v{K,M,E,SO,SC}, avg, by 'student'|'teacher', at }]
+   - 시험 사이 공부 기록과 이어 봄: 앞 시험 다음 날 ~ 이번 시험 날 (최대 8주) 타이머 시간 · 끝낸 비율 · 과목별 시간
+   - 판정(입시 상담)에 쓰는 현재 성적은 선생님이 「판정에 반영」을 눌러야 바뀜 (학생 입력이 바로 판정을 바꾸지 않게)
+   ========================================================= */
+(function () {
+  if (typeof SUBJS === 'undefined') return;
+  const E = x => (typeof esc === 'function' ? esc(x) : String(x == null ? '' : x));
+  const isStu = () => !!window.__PLANT_STU || (typeof STU_LOCK !== 'undefined' && STU_LOCK);
+  const SB = [['K', '국어'], ['M', '수학'], ['E', '영어'], ['SO', '사회'], ['SC', '과학']];
+  const EXN = { 내신: ['1학기 중간', '1학기 기말', '2학기 중간', '2학기 기말'], 모의: ['3월', '4월', '5월', '6월', '7월', '9월', '10월', '11월'] };
+  const hm = m => { m = Math.round(m || 0); const h = Math.floor(m / 60), r = m % 60; return h ? `${h}시간${r ? ' ' + r + '분' : ''}` : `${r}분`; };
+  const f1 = x => x == null || x === '' || isNaN(x) ? '—' : (+x).toFixed(1).replace(/\.0$/, '');
+  const dOf = s => { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, m - 1, d); };
+  const histOf = s => { s.scoreHist = Array.isArray(s.scoreHist) ? s.scoreHist : []; return s.scoreHist; };
+  const sorted = s => histOf(s).slice().sort((a, b) => (a.d || '') < (b.d || '') ? -1 : (a.d || '') > (b.d || '') ? 1 : 0);
+  const label = e => `${e.g || ''} ${e.kind === '모의' ? e.ex + ' 모의' : e.ex}`.trim();
+  const avgOf = v => { const xs = SB.map(([k]) => v[k]).filter(x => x != null && x !== '' && !isNaN(x)).map(Number); return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null; };
+
+  // 시험 사이 공부 · 앞 시험 다음 날 ~ 이번 시험 날 (최대 56일)
+  function studyBetween(s, from, to) {
+    const t1 = dOf(to).getTime() + 864e5, f0 = from ? dOf(from).getTime() + 864e5 : 0, t0 = Math.max(f0, t1 - 56 * 864e5);
+    let a = 0, pl = 0, dn = 0; const by = {}; const days = new Set();
+    Object.entries(S.plans[s.id] || {}).forEach(([wk, p]) => { const mon = dOf(wk).getTime(); (p.blocks || []).forEach(b => {
+      if (b.by === 'academy') return; const bd = mon + b.day * 864e5;
+      if (bd >= t0 && bd < t1) { pl += b.min; dn += typeof doneMin === 'function' ? doneMin(b) : (b.done ? b.min : 0); }
+      (b.segs || []).forEach(g => { if (g.s >= t0 && g.s < t1) { const m = (g.e - g.s) / 6e4; a += m; const k = SUBJS.includes(b.subj) ? b.subj : '기타'; by[k] = (by[k] || 0) + m; days.add(new Date(g.s).toDateString()); } });
+    }); });
+    return { a, rate: pl ? dn / pl : null, by, days: days.size, weeks: Math.round((t1 - t0) / 6048e5 * 10) / 10 };
+  }
+  function trend(s, kind) { const xs = sorted(s).filter(e => e.kind === kind && e.avg != null); return xs.length >= 2 ? { a: xs[xs.length - 2], b: xs[xs.length - 1] } : null; }
+
+  // 작은 꺾은선 · 등급은 낮을수록 좋음 → 위로
+  function spark(list, w, h) {
+    const xs = list.filter(e => e.avg != null); if (xs.length < 3) return '';
+    const mx = Math.max(...xs.map(e => e.scale || 9)); const X = i => 60 + i * (w - 120) / (xs.length - 1), Y = v => 14 + (v - 1) / (mx - 1) * (h - 34);
+    const pts = xs.map((e, i) => `${X(i).toFixed(1)},${Y(e.avg).toFixed(1)}`).join(' ');
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px;display:block" role="img" aria-label="평균 등급 흐름"><line x1="10" x2="${w - 10}" y1="${Y(1)}" y2="${Y(1)}" stroke="#E2E6EE"/><text x="${w - 10}" y="${Y(1) - 3}" font-size="10" text-anchor="end" fill="#4F5A6E">1등급</text><polyline points="${pts}" fill="none" stroke="#2F5BEA" stroke-width="2.5"/>${xs.map((e, i) => `<circle cx="${X(i)}" cy="${Y(e.avg)}" r="4" fill="#2F5BEA"/><text x="${X(i)}" y="${Y(e.avg) - 8}" font-size="11" font-weight="700" text-anchor="middle" fill="#1B2440">${f1(e.avg)}</text><text x="${X(i)}" y="${h - 4}" font-size="10" text-anchor="middle" fill="#4F5A6E">${E(label(e))}</text>`).join('')}</svg>`;
+  }
+  const CSS = `<style id="sccss">.sc-t{width:100%;border-collapse:collapse;font-size:13.5px}.sc-t th{font-size:12.5px;color:#4F5A6E;text-align:left;padding:6px;border-bottom:1px solid #E2E6EE;white-space:nowrap}.sc-t td{padding:7px 6px;border-bottom:1px solid #EEF1F5;white-space:nowrap;color:#1A2233}.sc-up{color:#12805C;font-weight:800;font-size:12px}.sc-dn{color:#C62828;font-weight:800;font-size:12px}
+    .sc-link{background:#F4F7FF;border:1px solid #D9E2FB;border-radius:12px;padding:8px 12px;font-size:13.5px;line-height:1.55;margin-top:6px;color:#1A2233}.sc-sm{font-size:12.5px;color:#4F5A6E}
+    .sc-modal{position:fixed;inset:0;background:rgba(15,20,35,.45);z-index:9999;display:flex;align-items:flex-end;justify-content:center}.sc-box{background:#fff;width:100%;max-width:520px;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 18px 28px;box-sizing:border-box}
+    @media(min-width:761px){.sc-modal{align-items:center}.sc-box{border-radius:20px}}.sc-box h3{margin:0 0 10px;font-size:19px}.sc-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.sc-row label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:#4F5A6E;flex:1;min-width:64px}.sc-row input,.sc-row select{min-height:44px;font-size:16px;border:1px solid #D5DAE3;border-radius:10px;padding:0 10px}
+    .sc-seg{display:flex;gap:6px}.sc-seg button{flex:1;min-height:44px;border-radius:10px;border:1px solid #D5DAE3;background:#fff;font-size:15px;font-weight:700}.sc-seg button.on{background:#1B2440;color:#fff;border-color:#1B2440}.sc-go{width:100%;min-height:50px;border-radius:12px;border:0;background:#1B2440;color:#fff;font-size:16px;font-weight:800;margin-top:10px}.sc-x{float:right;border:0;background:none;font-size:22px;line-height:1;min-width:44px;min-height:44px}.sc-li{padding:9px 0;border-top:1px solid #EEF1F5;font-size:14.5px}.sc-li:first-child{border-top:0}.sc-narrow{display:none}@media(max-width:760px){.sc-wide{display:none}.sc-narrow{display:block}}</style>`;
+  const css = () => { if (!document.getElementById('sccss')) document.head.insertAdjacentHTML('beforeend', CSS); };
+
+  function tableHtml(s, teacher) {
+    const xs = sorted(s); if (!xs.length) return `<div class="sc-sm">아직 성적 기록이 없어요 · 시험이 끝날 때마다 하나씩 넣으면 흐름과 그 사이 공부 기록이 같이 보여요</div>`;
+    const prevOf = (e, i) => xs.slice(0, i).reverse().find(x => x.kind === e.kind);
+    const cell = (v, p) => { if (v == null || v === '') return '—'; if (p == null || p === '') return f1(v); const d = +v - +p; return `${f1(v)}${Math.abs(d) >= 0.05 ? ` <span class="${d < 0 ? 'sc-up' : 'sc-dn'}">${d < 0 ? '▲' : '▼'}${Math.abs(d).toFixed(1)}</span>` : ''}`; };
+    return `<div class="scroll"><table class="sc-t"><thead><tr><th>시험</th>${SB.map(([, n]) => `<th>${n}</th>`).join('')}<th>평균</th><th>넣은 사람</th>${teacher ? '<th></th>' : ''}</tr></thead><tbody>${xs.map((e, i) => { const p = prevOf(e, i); return `<tr><td><b>${E(label(e))}</b><div class="sc-sm">${E(e.d || '')} · ${e.scale || 9}등급제</div></td>${SB.map(([k]) => `<td>${cell(e.v[k], p && p.v[k])}</td>`).join('')}<td><b>${cell(e.avg, p && p.avg)}</b></td><td class="sc-sm">${e.by === 'teacher' ? '선생님' : '학생'}</td>${teacher ? `<td><button class="btn sm" data-scdel="${E(e.id)}">빼기</button></td>` : ''}</tr>`; }).join('')}</tbody></table></div><div class="sc-sm">▲ = 앞 같은 종류 시험보다 등급이 좋아짐 · ▼ = 내려감</div>`;
+  }
+  function listHtml(s) { // 폰 · 학생 앱용 한 줄씩
+    const xs = sorted(s); if (!xs.length) return '';
+    const prevOf = (e, i) => xs.slice(0, i).reverse().find(x => x.kind === e.kind);
+    return `<div class="sc-list">${xs.map((e, i) => { const p = prevOf(e, i); const d = p && p.avg != null && e.avg != null ? e.avg - p.avg : null;
+      return `<div class="sc-li"><div class="row between"><b>${E(label(e))}</b><span><b>평균 ${f1(e.avg)}</b>${d != null && Math.abs(d) >= 0.05 ? ` <span class="${d < 0 ? 'sc-up' : 'sc-dn'}">${d < 0 ? '▲' : '▼'}${Math.abs(d).toFixed(1)}</span>` : ''}</span></div><div class="sc-sm">${SB.filter(([k]) => e.v[k] != null).map(([k, n]) => `${n} ${f1(e.v[k])}`).join(' · ')} · ${e.scale || 9}등급제 · ${e.by === 'teacher' ? '선생님' : '학생'}</div></div>`; }).join('')}</div>`;
+  }
+  function flowLine(xs) { // 2개일 때는 그림 대신 한 줄
+    const n = xs.filter(e => e.avg != null); if (n.length !== 2) return ''; const [a, b] = n; const d = b.avg - a.avg;
+    return `<div style="font-size:14.5px;margin:2px 0 6px">${E(label(a))} <b>${f1(a.avg)}</b> → ${E(label(b))} <b>${f1(b.avg)}</b>${Math.abs(d) >= 0.05 ? ` <span class="${d < 0 ? 'sc-up' : 'sc-dn'}">${d < 0 ? '▲ 좋아짐' : '▼ 내려감'} ${Math.abs(d).toFixed(1)}</span>` : ''}</div>`;
+  }
+  function linkHtml(s) {
+    const xs = sorted(s); if (!xs.length) return '';
+    const last = xs[xs.length - 1]; const prev = xs.slice(0, -1).reverse().find(x => x.d && x.d < last.d);
+    const L = studyBetween(s, prev && prev.d, last.d); if (!L.a && L.rate == null) return `<div class="sc-link"><b>${E(label(last))} 전 공부 기록</b> · 이 기간 타이머 기록이 없어요</div>`;
+    const top = Object.entries(L.by).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, m]) => `${k.replace('통합', '')} ${hm(m)}`).join(' · ');
+    return `<div class="sc-link"><b>${E(label(last))} 전 ${L.weeks}주 공부</b> · 타이머 ${hm(L.a)} (주 평균 ${hm(L.a / Math.max(1, L.weeks))}) · 계획한 할 일 끝낸 비율 ${L.rate != null ? Math.round(L.rate * 100) + '%' : '—'} · 공부한 날 ${L.days}일${top ? `<div class="sc-sm">많이 한 과목 · ${top}</div>` : ''}<div class="sc-sm">공부 시간과 성적이 같이 움직였는지 보는 기록이에요 · 이것만으로 원인이라고 단정하지 않아요</div></div>`;
+  }
+  function card(s, teacher) {
+    css(); const xs = sorted(s); const nae = xs.filter(e => e.kind === '내신'), mo = xs.filter(e => e.kind === '모의');
+    const lastN = nae[nae.length - 1];
+    const pending = teacher && lastN && JSON.stringify(SB.map(([k]) => lastN.v[k] == null ? null : +lastN.v[k])) !== JSON.stringify(SB.map(([k]) => (L9(s, lastN) ? (s.nae9 || {})[k] : (s.nae || {})[k]) == null ? null : +((L9(s, lastN) ? s.nae9 : s.nae) || {})[k]));
+    return `<section class="card col" id="scCard"><div class="row between"><div class="row" style="gap:8px"><h2>성적 기록</h2><span class="sc-sm">시험마다 쌓아요 · 덮어쓰지 않아요</span></div><button class="btn dark" data-scadd="1">시험 성적 넣기</button></div>
+      ${nae.length >= 2 ? `<div class="sc-sm" style="font-weight:700">내신 평균 등급</div>${spark(nae, 620, 110) || flowLine(nae)}` : ''}${mo.length >= 2 ? `<div class="sc-sm" style="font-weight:700">모의고사 평균 등급</div>${spark(mo, 620, 110) || flowLine(mo)}` : ''}
+      <div class="sc-wide">${tableHtml(s, teacher)}</div><div class="sc-narrow">${listHtml(s)}</div>${linkHtml(s)}
+      <div class="sc-sm">입시 판정은 아래 「성적 입력」의 현재 성적으로 해요 · 새 시험을 넣으면 「판정에 반영」으로 바꿀 수 있어요</div>
+      ${pending ? `<div class="row between" style="background:#FFF6E8;border:1px solid #F2D3A6;border-radius:12px;padding:8px 12px;gap:8px;flex-wrap:wrap"><span style="font-size:13.5px"><b>${E(label(lastN))}</b> 성적이 입시 판정에 쓰는 현재 내신과 달라요</span><button class="btn sm dark" data-scapply="${E(lastN.id)}">판정에 반영</button></div>` : ''}</section>`;
+  }
+  const L9 = (s, e) => (e.scale || 9) === 9 && s.grade === '고3';
+  function applyToCurrent(s, e) {
+    const tgt = e.kind === '모의' ? (s.mock = s.mock || {}) : L9(s, e) ? (s.nae9 = s.nae9 || {}) : (s.nae = s.nae || {});
+    SB.forEach(([k]) => { if (e.v[k] != null && e.v[k] !== '') tgt[k] = +e.v[k]; }); if (e.kind !== '모의' && e.avg != null) tgt.avg = Math.round(e.avg * 100) / 100;
+  }
+
+  function openForm(s, teacher) {
+    css(); const g0 = s.grade || '고1'; const st = { kind: '내신', g: g0, ex: EXN.내신[0], scale: g0 === '고3' ? 9 : 5 };
+    const m = document.createElement('div'); m.className = 'sc-modal';
+    const draw = () => { m.innerHTML = `<div class="sc-box" role="dialog" aria-label="시험 성적 넣기"><button class="sc-x" data-scx aria-label="닫기">×</button><h3>시험 성적 넣기</h3>
+      <div class="sc-seg">${['내신', '모의'].map(k => `<button data-sck="${k}" class="${st.kind === k ? 'on' : ''}">${k === '모의' ? '모의고사' : '내신'}</button>`).join('')}</div>
+      <div class="sc-row"><label>학년<select data-scf="g">${['중3', '고1', '고2', '고3'].map(x => `<option ${x === st.g ? 'selected' : ''}>${x}</option>`).join('')}</select></label><label>시험<select data-scf="ex">${EXN[st.kind].map(x => `<option ${x === st.ex ? 'selected' : ''}>${x}</option>`).join('')}</select></label><label>등급제<select data-scf="scale"><option value="5" ${st.scale === 5 ? 'selected' : ''}>5등급</option><option value="9" ${st.scale === 9 ? 'selected' : ''}>9등급</option></select></label></div>
+      <div class="sc-row"><label style="flex:2">시험 날짜<input type="date" data-scf="d" value="${st.d || ymd(today())}"></label></div>
+      <div class="sc-sm">${st.kind === '내신' ? '과목별 등급 (성적표의 석차등급)' : '과목별 등급'} · 모르는 과목은 비워 두세요</div>
+      <div class="sc-row">${SB.map(([k, n]) => `<label>${n}<input type="number" inputmode="decimal" step="0.1" min="1" max="${st.scale}" data-scv="${k}" value="${st[k] ?? ''}"></label>`).join('')}</div>
+      <button class="sc-go" data-scsave>넣기</button></div>`;
+      m.querySelector('[data-scx]').onclick = () => m.remove(); m.onclick = ev => { if (ev.target === m) m.remove(); };
+      m.querySelectorAll('[data-sck]').forEach(b => b.onclick = () => { keep(); st.kind = b.dataset.sck; st.ex = EXN[st.kind][0]; if (st.kind === '모의') st.scale = 9; draw(); });
+      m.querySelectorAll('[data-scf]').forEach(i => i.onchange = () => { keep(); if (i.dataset.scf === 'scale') draw(); });
+      m.querySelector('[data-scsave]').onclick = () => { keep(); const v = {}; let bad = false; SB.forEach(([k]) => { const x = st[k]; if (x === '' || x == null) return; const n = +x; if (isNaN(n) || n < 1 || n > st.scale) bad = true; else v[k] = Math.round(n * 10) / 10; });
+        if (bad) return toast(`등급은 1~${st.scale} 사이로 넣어 주세요`); if (!Object.keys(v).length) return toast('과목 등급을 하나 이상 넣어 주세요');
+        const e = { id: (typeof uid === 'function' ? uid() : String(Date.now())), d: st.d || ymd(today()), kind: st.kind, g: st.g, ex: st.ex, scale: st.scale, v, avg: avgOf(v), by: teacher ? 'teacher' : 'student', at: Date.now() };
+        const dup = histOf(s).findIndex(x => x.kind === e.kind && x.g === e.g && x.ex === e.ex); if (dup >= 0) histOf(s).splice(dup, 1, Object.assign(e, { id: histOf(s)[dup].id })); else histOf(s).push(e);
+        save(); m.remove(); render(); toast(teacher ? '성적을 넣었어요' : '성적을 넣었어요 · 선생님이 확인해요'); };
+    };
+    const keep = () => { m.querySelectorAll('[data-scf]').forEach(i => st[i.dataset.scf] = i.dataset.scf === 'scale' ? +i.value : i.value); m.querySelectorAll('[data-scv]').forEach(i => st[i.dataset.scv] = i.value); };
+    draw(); document.body.appendChild(m);
+  }
+  function bind(root, s, teacher) {
+    root.querySelectorAll('[data-scadd]').forEach(b => b.onclick = () => openForm(s, teacher));
+    root.querySelectorAll('[data-scdel]').forEach(b => b.onclick = () => { const i = histOf(s).findIndex(x => x.id === b.dataset.scdel); if (i >= 0) { histOf(s).splice(i, 1); save(); render(); toast('뺐어요'); } });
+    root.querySelectorAll('[data-scapply]').forEach(b => b.onclick = () => { const e = histOf(s).find(x => x.id === b.dataset.scapply); if (!e) return; applyToCurrent(s, e); save(); render(); toast('입시 판정에 이 성적을 반영했어요'); });
+  }
+
+  if (!isStu()) {
+    ['consult', 'habit'].forEach(v => { const f = R[v]; if (typeof f !== 'function') return; R[v] = function () { const h = f.apply(this, arguments); const s = curStu(); if (!s || /scCard/.test(h)) return h; let c = ''; try { c = card(s, true); } catch (e) { console.warn('[성적 기록]', e); }
+      if (v === 'consult') { const i = h.indexOf('<section'); return i < 0 ? h + c : h.slice(0, i) + c + h.slice(i); } const i = h.lastIndexOf('</section>'); return i < 0 ? h + c : h.slice(0, i + 10) + c + h.slice(i + 10); };
+      const fa = R[v + '_after']; R[v + '_after'] = function () { const r = fa ? fa.apply(this, arguments) : undefined; const s = curStu(); const el = document.getElementById('scCard'); if (s && el) bind(el, s, true); return r; }; });
+  }
+  // 학생 앱 · 「내 정보」 탭에 성적 기록
+  { const f = R.app_after; R.app_after = function () { const r = f ? f.apply(this, arguments) : undefined;
+    try { const s = curStu(); if (!s || !isStu()) return r; const sheet = document.querySelector('#view .sheet'); if (!sheet || document.getElementById('scStu')) return r; css();
+      const xs = sorted(s); const t = trend(s, '내신') || trend(s, '모의');
+      const box = document.createElement('div'); box.id = 'scStu'; box.dataset.pg = 'me'; box.className = 'col'; box.style.gap = '8px';
+      box.innerHTML = `<div class="ph-h">내 성적 기록</div><button class="pcard" data-scadd="1"><b>시험 성적 넣기</b><span>시험이 끝날 때마다 · 중간 · 기말 · 모의고사</span></button>${xs.length ? `<div class="pcard pc-flat" style="display:block">${t ? `<div style="font-size:14px;margin-bottom:6px"><b>${E(label(t.a))} ${f1(t.a.avg)}</b> → <b>${E(label(t.b))} ${f1(t.b.avg)}</b> ${t.b.avg < t.a.avg ? '<span class="sc-up">좋아졌어요</span>' : ''}</div>` : ''}${listHtml(s)}</div>` : ''}`;
+      const me = [...sheet.querySelectorAll('[data-pg="me"]')]; const at = me[me.length - 1]; if (at) at.after(box); else sheet.appendChild(box); bind(box, s, false);
+    } catch (e) { console.warn('[학생 성적]', e); } return r; }; }
+
+  window.SCOREHIST = { sorted, studyBetween, trend, label, f1, card };
+})();
+
+/* =========================================================
+   UX 점검 반영 (PC · 폰 · 인쇄) · 2026-11-03
+   - 글자 바닥 13px(화면) · 12px(인쇄) · 회색은 진하게 한 단계
+   - 표 안 낱말이 한 글자씩 끊기지 않게 · 짧은 숫자 칸은 줄바꿈 금지
+   - 꺼진 버튼도 글자가 읽히게 · 말줄임표 대신 줄바꿈
+   - PC 연결 표시줄을 왼쪽 메뉴 아래로 (버튼을 가리지 않게)
+   - 설정 화면 카드가 제목 줄 안으로 들어가 폰에서 옆으로 넘치던 것 바로잡음
+   ========================================================= */
+(function () {
+  const CSS = `
+  :root{--mute:#535C6E}
+  .small,.note,.label{font-size:13px}
+  th{font-size:13px}
+  .pill,.gterm,.aisrc{font-size:12px!important}
+  #view [style*="font-size:11px"],#view [style*="font-size:11.5px"],#view [style*="font-size:10.5px"],#view [style*="font-size:10px"]{font-size:12px!important}
+  body.mstaff .kpis .kpi .s{font-size:12.5px!important}
+  .mdstrip span{font-size:12px!important}.blk .bx{font-size:12.5px!important}
+  td{word-break:keep-all}
+  .kpi .s,.kpi .k{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;word-break:keep-all;line-height:1.4}
+  .btn:disabled,.btn[disabled]{opacity:1!important;background:#EEF0F4!important;color:#5F6879!important;border-color:#E3E7EE!important}
+  [style*="font-size:24px"],[style*="font-size:22px"]{white-space:nowrap}
+  .aicmp td{padding:9px 8px}.aicmp th{font-size:13px}
+  .grid.g3[style*="gap:6px"] .btn{white-space:normal;line-height:1.2;padding:4px 8px;min-height:40px}
+  #side #cloudbar{position:static!important;margin:10px 12px 0;max-width:none;justify-content:space-between;flex-wrap:wrap;border-radius:12px;padding:8px 10px;background:rgba(255,255,255,.08)!important}
+  /* 인쇄 · 학부모 리포트 */
+  .rp-t{font-size:13px}.rp-t th{font-size:12.5px}.rp-s,.rp-l,.rp-who{font-size:12px}.rp-foot{font-size:11.5px}
+  .rp-small .rp-t,.rp-small2 .rp-t,.rp-small .rp-t th,.rp-small2 .rp-t th{font-size:12px!important}.rp-small .rp-s,.rp-small2 .rp-s{font-size:11.5px!important}
+  .rp-t td:first-child{word-break:keep-all}
+  .card .bat:not([style]){border:0!important;background:#E8EBF1!important;border-radius:6px}
+  /* 폰 · 원장 화면 */
+  body.mstaff .card{min-width:0;max-width:100%}
+  body.mstaff #view .scroll{max-width:100%;overflow-x:auto}
+  body.mstaff #view td{min-width:3.2em}
+  body.mstaff .btn.sm{min-height:40px}
+  body.mstaff input[type=checkbox]{width:20px;height:20px}
+  #mtab button{font-size:12.5px!important}
+  body.mstaff .kpi .s{font-size:12.5px}
+  body.mstaff.v-planner .row:has(> [data-a="auto"]){display:grid!important;grid-template-columns:1fr 1fr;overflow:visible!important}
+  body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{width:100%}
+  body.mstaff .mdstrip{display:grid!important;grid-template-columns:repeat(7,1fr);gap:4px;overflow:visible!important}
+  body.mstaff .mdstrip button{min-width:0!important;padding-left:0!important;padding-right:0!important}
+  `;
+  const st = document.createElement('style'); st.id = 'uxfix'; st.textContent = CSS; (document.head || document.documentElement).appendChild(st);
+
+  // 짧은 칸(숫자 · 시간 · 이름)은 한 줄로
+  function nowrapShort(root) { if (!root) return; root.querySelectorAll('td,th').forEach(td => { const t = (td.textContent || '').trim(); if (t && t.length <= 12 && !td.querySelector('input,select,textarea,button,table')) td.style.whiteSpace = 'nowrap'; }); }
+  // 설정 · 제목 줄(.row) 안으로 들어간 카드를 제목 줄 아래로
+  function fixSettings() { const h = [...document.querySelectorAll('#view h1')].find(x => x.textContent.trim() === '설정'); const row = h && h.parentElement; if (!row || !row.classList.contains('row')) return; let at = row; [...row.children].filter(c => c.tagName === 'SECTION').forEach(c => { at.after(c); at = c; }); }
+  // PC · 연결 표시줄을 왼쪽 메뉴 아래로
+  function moveCloudbar() { const cb = document.getElementById('cloudbar'), side = document.getElementById('side'); if (!cb || !side || innerWidth <= 760 || cb.parentElement === side) return; side.appendChild(cb); }
+  if (typeof renderCore === 'function') { const f = renderCore; renderCore = function () { const r = f.apply(this, arguments); try { if (typeof VIEW !== 'undefined' && VIEW === 'settings') fixSettings(); nowrapShort(document.getElementById('view')); moveCloudbar(); } catch (e) { } return r; }; }
+  if (typeof rpFit === 'function') { const f = rpFit; rpFit = function () { try { nowrapShort(document.getElementById('print')); } catch (e) { } return f.apply(this, arguments); }; }
+  const mo = () => { if (document.body) new MutationObserver(() => moveCloudbar()).observe(document.body, { childList: true }); else setTimeout(mo, 200); }; mo();
+  window.addEventListener('resize', () => { const cb = document.getElementById('cloudbar'); if (cb && innerWidth <= 760 && cb.parentElement && cb.parentElement.id === 'side') document.body.appendChild(cb); else moveCloudbar(); });
 })();
 
 </script>
@@ -7042,7 +7240,7 @@ const firebaseConfig = {
   messagingSenderId: "1039637490828",
   appId: "1:1039637490828:web:4e5b06004f7352a40a5fa9"
 };
-const DB_FILE = 'db.bin?v=6bce204916';
+const DB_FILE = 'db.bin?v=5900c28b46';
 const ENC_KEY = 'plant_v1_enc';
 const PART = 800000;
 const STAFF_DOMAIN = 'staff.yeongbal-plant.app'; // 원장·선생님 비밀번호 계정용 내부 주소 (실제 메일 아님)
