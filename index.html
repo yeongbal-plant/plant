@@ -1956,37 +1956,7 @@ R.habit = function () {
   <div class="note">숫자가 못 잡는 것 · 타이머를 켜 놓고 딴짓한 시간, 정말 이해했는지는 선생님 구두 확인·테스트로 봐요 · 기준값(${H.gap}분 끊김, 60·120분 구간, 표본 20문항)은 학원 기록이 쌓일 때까지 쓰는 〔설계값〕이에요</div>`;
 };
 /* ---------- A4 학습 리포트 (학부모·학생 전달용) ---------- */
-function printStudy(s, n) {
-  const H = habitOf(s, n); const f0 = H.weeks.findIndex(w => w.rec > 0 || w.pl > 0); const wks = f0 > 0 ? H.weeks.slice(f0) : H.weeks; n = wks.length; // 기록이 처음 생긴 주부터 · 등록 전 빈 주는 빼고
-  const tw0 = weekKey(today()); const keys = [...SUBJS, '기타'].filter(k => wks.some(w => w.by[k]));
-  const AW = habitAvgWeeks(H); const recAvg = avg(AW.map(w => w.rec)); const rateAvg = avg(AW.filter(w => w.rate != null).map(w => w.rate));
-  const tot = {}; keys.forEach(k => tot[k] = wks.reduce((a, w) => a + (w.by[k] || 0), 0)); const T = Object.values(tot).reduce((a, b) => a + b, 0);
-  const R0 = ratioOf(s); const maxW = Math.max(1, ...wks.map(w => w.rec));
-  const from = wks[0].wk.replace(/-/g, '.'), to = ymd(addDays(new Date(wks[wks.length - 1].wk), 6)).replace(/-/g, '.');
-  const hm2 = m => m == null ? '—' : String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.round(m % 60)).padStart(2, '0');
-  const COL = SUBCOL;
-  const books = []; SUBJS.forEach(k => ((s.design.subjects[k] || {}).books || []).forEach(b => { const h = H.books.find(x => x.title === b.title); books.push({ k, t: b.title, done: b.doneItems || 0, items: b.items, acc: h ? h.acc : null }); }));
-  const stat = (l, v, sub) => `<div class="rp-stat"><div class="rp-l">${l}</div><div class="rp-v">${v}</div><div class="rp-s">${sub}</div></div>`;
-  const body = `<div class="rp rp-page">
-  <div class="rp-head"><div><div class="rp-brand"><svg width="14" height="18" viewBox="40 106 52 66" aria-hidden="true"><defs><g/><clipPath id="c615cc6020"><path d="M 42.039062 108.710938 L 90.039062 108.710938 L 90.039062 169.460938 L 42.039062 169.460938 Z M 42.039062 108.710938 " clip-rule="nonzero"/></clipPath><clipPath id="660f0103e5"><rect x="0" width="274" y="0" height="64"/></clipPath></defs><g clip-path="url(#c615cc6020)"><path fill="#ffbd59" d="M 53.605469 108.710938 L 42.046875 149.566406 L 54.089844 149.617188 L 49.84375 169.464844 L 68.980469 140.800781 L 55.902344 140.828125 L 61.59375 122.28125 L 75.691406 122.234375 C 75.914062 122.234375 76.125 122.273438 76.328125 122.359375 C 76.535156 122.445312 76.714844 122.5625 76.871094 122.71875 C 77.027344 122.875 77.144531 123.054688 77.230469 123.261719 C 77.316406 123.464844 77.359375 123.675781 77.359375 123.898438 C 77.355469 124.121094 77.316406 124.332031 77.230469 124.539062 C 77.144531 124.742188 77.023438 124.921875 76.863281 125.078125 C 76.707031 125.234375 76.527344 125.355469 76.320312 125.4375 C 76.113281 125.523438 75.902344 125.5625 75.679688 125.5625 L 64.234375 125.570312 L 60.503906 137.667969 L 75.585938 137.667969 C 83.621094 137.667969 90.125 131.113281 90.0625 123.070312 C 89.992188 115.121094 83.527344 108.710938 75.578125 108.710938 Z M 53.605469 108.710938 " fill-opacity="1" fill-rule="nonzero"/></g></svg> ${esc(S.settings.academy)} · PLAN·T</div><div class="rp-title">학습 리포트</div></div>
-    <div class="rp-who"><b>${esc(s.name)}</b> ${esc(s.school)} ${esc(s.grade)}<br>${from} – ${to} (${n}주)${s.example ? '<br><span class="rp-ex">예시 학생 · 예시 기록</span>' : ''}</div></div>
-  <div class="rp-stats">${stat('주당 순공시간', fmtH(recAvg), '타이머로 잰 실제 공부 시간')}${stat('계획 실행률', pctTxt(rateAvg), '세운 계획 중 해낸 비율')}${stat('주당 공부한 날', (avg(AW.map(w => w.days)) ?? 0).toFixed(1) + '일', '타이머 기록이 있는 날')}${stat('한 번에 이어서', minTxt(avg(H.segLen)), '쉬지 않고 공부한 평균 (쉬는 시간 빼고)')}</div>
-  ${(() => { const full = wks.filter(w => w.wk !== tw0 && w.rec); if (!full.length) return ''; const a = full[0].rec, b = full[full.length - 1].rec; const wkH = availOf(s).reduce((x, y) => x + y, 0); const tr = full.length < 2 ? '' : b < a * 0.85 ? ` · 주별 순공이 ${fmtH(Math.round(a * 10) / 10)} → ${fmtH(Math.round(b * 10) / 10)}로 <b>줄었어요</b>` : b > a * 1.15 ? ` · 주별 순공이 ${fmtH(Math.round(a * 10) / 10)} → ${fmtH(Math.round(b * 10) / 10)}로 <b>늘었어요</b>` : ' · 주별 순공이 비슷하게 이어져요'; return `<div class="rp-goal" style="display:block;background:#F4F7FF;border-color:#D6DFF7"><b>한눈에</b> · 공부 가능 시간 주 ${fmtH(wkH)} 중 실제 순공은 평균 <b>${fmtH(recAvg)}</b>${tr} · 계획 실행률은 세운 계획 중 끝낸 비율이라 계획을 적게 세우면 높게 나와요</div>`; })()}
-  <div class="rp-sec">주별 순공시간 (시간)</div>
-  <table class="rp-t"><tr><th style="width:56px">주</th><th></th>${keys.map(k => `<th class="r">${subjName(s, k).replace('통합', '')}</th>`).join('')}<th class="r">합계</th></tr>
-  ${wks.map(w => `<tr><td>${w.wk.slice(5).replace('-', '/')}${w.wk === tw0 ? '<div class="rp-s">진행 중</div>' : ''}</td><td style="width:20%"><div class="rp-bar">${keys.map(k => w.by[k] ? `<i style="width:${w.by[k] / maxW * 100}%;background:${COL[k]}"></i>` : '').join('')}</div></td>${keys.map(k => `<td class="r">${w.by[k] ? fmtH(w.by[k]) : '—'}</td>`).join('')}<td class="r"><b>${w.rec ? fmtH(w.rec) : '—'}</b></td></tr>`).join('')}</table>
-  <div class="rp-cols">
-    <div><div class="rp-sec">과목별 비중</div><table class="rp-t"><tr><th>과목</th><th class="r">공부</th><th class="r">${isMid(s.grade) ? '중등 권장' : (typeof autoOn === 'function' && autoOn(s) ? '맞춤 비중' : '계열 권장')}</th></tr>${[...new Set([...Object.keys(R0), ...keys])].map(k => `<tr><td><i class="rp-dot" style="background:${COL[k]}"></i>${subjName(s, k)}</td><td class="r">${T ? Math.round((tot[k] || 0) / T * 100) + '%' : '—'}</td><td class="r">${R0[k] != null ? R0[k] + '%' : '—'}</td></tr>`).join('')}</table><div class="rp-s" style="margin-top:3px">공부 = 실제 순공 시간 비중 · 오른쪽 = 이 학생에게 정한 비중 · 차이가 큰 과목부터 시간을 옮겨요</div></div>
-    <div><div class="rp-sec">집중 패턴</div><table class="rp-t">
-      <tr><td>한 번 앉아 있는 시간 (쉬는 시간 포함)</td><td class="r">${minTxt(avg(H.sits.map(x => x.wall)))}</td></tr><tr><td>앉아서 쉬는 횟수</td><td class="r">${avg(H.sits.map(x => x.breaks))?.toFixed(1) ?? '—'}번</td></tr>
-      <tr><td>공부 시작 · 끝 시각</td><td class="r">${hm2(H.startMed)} – ${hm2(H.endMed == null ? null : H.endMed % 1440)}</td></tr>
-      ${H.buckets.filter(b => b.n).map(b => `<tr><td>정답률 · ${b.l}</td><td class="r">${pctTxt(b.acc)}${b.n < 20 ? ' *' : ''}</td></tr>`).join('')}</table></div></div>
-  ${books.length ? `<div class="rp-sec">교재 진도</div><table class="rp-t"><tr><th>과목</th><th>교재</th><th style="width:30%">진도</th><th class="r">정답률</th></tr>${books.map(b => `<tr><td>${b.k.replace('통합', '')}</td><td>${esc(b.t)}</td><td>${b.items ? `<div class="rp-bar"><i style="width:${Math.min(100, b.done / b.items * 100)}%;background:#FF8A00"></i></div><span class="rp-s">${b.done} / ${b.items}문항</span>` : '<span class="rp-s">쪽 단위 교재 · 진도는 상담 때 확인</span>'}</td><td class="r">${pctTxt(b.acc)}</td></tr>`).join('')}</table>` : ''}
-  <div class="rp-sec">선생님 코멘트</div><div class="rp-note">${s.reportNote ? esc(s.reportNote).replace(/\n/g, '<br>') : '&nbsp;'}</div>
-  <div class="rp-foot">순공시간은 학생 앱 타이머 기록 기준 · 비중은 계열 기본 비율(47개 대학 2028 권장 이수과목 951건)에 학생 성적 · 시기를 섞어 정함${H.buckets.some(b => b.n && b.n < 20) ? ' · * 표본 20문항 미만' : ''} · ${esc(S.settings.academy)} PLAN·T · ${ymd(today())} 발행</div></div>`;
-  $('#print').innerHTML = body; rpFit(); window.print();
-}
-
+// 공부 리포트(printStudy)는 patches/5_ai_coaching.js 「6-2. 공부 리포트」에 있음
 R.habit_after = function () { const s = curStu(); if (s) extraAfter(s); document.querySelectorAll('[data-hw]').forEach(b => b.onclick = () => { habitW = +b.dataset.hw; render(); }); if (!s) return; $('#rpNote').onchange = e => { s.reportNote = e.target.value; save(); }; $('#rpGo').onclick = () => { s.reportNote = $('#rpNote').value; save(); printStudy(s, habitW); }; };
 function seedHabits() {
   const ex = stuBy('EX1'); if (!ex || !ex.example) return;
@@ -6920,58 +6890,149 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
 
   /* ---------- 6. 리포트 ---------- */
   const RPCSS = `<style>.rp .aicmp{width:100%;border-collapse:collapse;font-size:12.5px}.rp .aicmp th,.rp .aicmp td{padding:3px 5px;border-bottom:1px solid #E6E9EF;text-align:left;color:#1A2233}.rp .aicmp th{font-size:12px;color:#4F5A6E}.rp .aicmp tr.tot td{background:#F2F4F8}.rp .aidot{font-size:12px}.rp .aidot i{width:7px;height:7px}
-    .rp .aisd{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px;vertical-align:middle}.rp .aitip{font-size:12.5px;line-height:1.5;margin:1px 0;color:#1A2233}.rp-page.aipg .rp-t td,.rp-page.aipg .rp-t th,.rp-page.aipg .aicmp td,.rp-page.aipg .aicmp th{padding-top:2px;padding-bottom:2px}.rp-page.aipg .rp-sec{margin:6px 0 2px}.rp-page.aipg .rp-t td{color:#1A2233;white-space:nowrap}
-    .rp-sumpg{font-family:inherit;color:#1A2233}.rp-sumpg .s-t{font-size:20px;font-weight:800;color:#4F5A6E;margin:6px 0 4px}.rp-sumpg .s-h{font-size:34px;font-weight:900;line-height:1.3;color:#1B2440;margin:2px 0 16px;letter-spacing:-.5px}.rp-sumpg .s-h b{color:#2F5BEA}
-    .rp-sumpg .s-n{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.rp-sumpg .s-n>div{border:2px solid #E2E6EE;border-radius:14px;padding:12px 14px}.rp-sumpg .s-n .l{font-size:19px;font-weight:800;color:#4F5A6E}.rp-sumpg .s-n .v{font-size:28px;font-weight:900;margin:4px 0;color:#1B2440;letter-spacing:-.5px}.rp-sumpg .s-n .d{font-size:14.5px;color:#4F5A6E;line-height:1.4}
-    .rp-sumpg .s-box{border-radius:14px;padding:12px 16px;margin-bottom:12px}.rp-sumpg .s-box h3{margin:0 0 4px;font-size:21px;font-weight:900}.rp-sumpg .s-box div{font-size:19px;line-height:1.45;padding:3px 0;font-weight:600}.rp-sumpg .s-good{background:#EEF7F1;border:2px solid #BFE3CC}.rp-sumpg .s-next{background:#F4F7FF;border:2px solid #C9D6F7}.rp-sumpg .s-next .ar{font-weight:900;color:#1B2440}.rp-sumpg .s-foot{font-size:13px;color:#4F5A6E;margin-top:6px}</style>`;
+    .rp .aisd{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px;vertical-align:middle}.rp .aitip{font-size:12.5px;line-height:1.5;margin:1px 0;color:#1A2233}</style>`;
   function rateOfWeeks(s, wks) { try { const H = habitOf(s, 9); const r = wks.map(w => (H.weeks.find(x => x.wk === w) || {}).rate).filter(x => x != null); return r.length ? r.reduce((a, b) => a + b, 0) / r.length : null; } catch (e) { return null; } }
-  const rangeTxt = C => { const a = C.weeks[0].wk, b = ymd(addDays(wkDate(C.weeks[C.weeks.length - 1].wk), 6)); return `${a.slice(5).replace('-', '/')} – ${b.slice(5).replace('-', '/')}`; };
-  // 학부모용 한 장 요약 · 폰에서 PDF를 그대로 봐도 읽히게 큰 글씨
-  function sumPage(s, C) {
-    CS = s;
-    const sf = C.self !== false; const rate = rateOfWeeks(s, C.weeks.map(w => w.wk)); const R0 = rate != null ? Math.round(rate * 100) : null;
-    const F = finds(s, C), G = goods(s, C); const on = doneKeys(s);
-    const endWk = C.weeks[C.weeks.length - 1].wk; const nx = recoRec(s, ymd(addDays(wkDate(endWk), 7))) || recoRec(s, endWk); const adj = nx && nx.adj || [];
+  /* ---------- 6-2. 공부 리포트 (학부모용 · A.PATH 리포트 모양 · 최대 3쪽) ----------
+     1쪽 한눈에 · 숫자 4개 · 계획대로 했나(도넛 + 막대) · 잘한 점 / 다음 주에는 · 추천 공부법 표 · 선생님 한마디
+     2쪽 공부 기록 · 주별 막대 · 과목별 도넛 + 표 · 요일별 · 집중
+     3쪽 과목 · 교재 (추천 비교 기록이 있을 때만) · 말 풀이 */
+  const SRC = { 국어: '#1D3FA6', 수학: '#2F6BE0', 영어: '#5B8DEF', 통합사회: '#93B4F5', 통합과학: '#C3D5FA', 기타: '#D3D8E2' };
+  const SRCSS = `<style>
+  .sr{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;color:#141B2D;font-size:13px;background:#fff}
+  #print .sr .sr-band{background:#E7EEFC;margin:0 0 9px;padding:14px 20px 13px;border-radius:14px;display:flex;justify-content:space-between;align-items:flex-end}
+  #print .sr .sr-band h1{margin:0;font-size:23px;font-weight:800;letter-spacing:-.4px;color:#141B2D}#print .sr .sr-band .sub{font-size:13.5px;color:#5B6478;margin-top:4px}
+  #print .sr .sr-band.slim{padding:12px 18px}#print .sr .sr-band.slim h1{font-size:17px}
+  #print .sr .chips{display:flex;gap:6px}#print .sr .schip{background:#141B2D;color:#fff;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}#print .sr .schip.lt{background:#fff;color:#141B2D;border:1px solid #C9D3EA}
+  #print .sr .sbox{border:1px solid #E3E7EF;border-radius:14px;padding:11px 16px;margin-bottom:8px;break-inside:avoid}
+  #print .sr .sbox h2{margin:0 0 8px;font-size:15.5px;font-weight:800;letter-spacing:-.2px;color:#141B2D}#print .sr .sbox h2 small{font-size:12px;font-weight:600;color:#6B7487;margin-left:6px}
+  #print .sr .lead{font-size:20px;font-weight:800;letter-spacing:-.4px;margin:0 0 9px;line-height:1.35}#print .sr .lead b{color:#2F6BE0}
+  #print .sr .snum{display:grid;grid-template-columns:repeat(4,1fr)}#print .sr .snum>div{padding:2px 14px;border-left:1px solid #E3E7EF}#print .sr .snum>div:first-child{border-left:0;padding-left:2px}
+  #print .sr .snum .l{font-size:12px;color:#6B7487}#print .sr .snum .v{font-size:18px;font-weight:800;margin-top:4px;letter-spacing:-.3px}#print .sr .snum .v small{font-size:12.5px;font-weight:600;color:#6B7487;margin-left:2px}
+  #print .sr .stip{background:#F1F3F7;border-radius:10px;padding:8px 12px;font-size:12.5px;color:#3A4357;display:flex;gap:8px;align-items:center;margin-top:8px}#print .sr .stip i{flex:0 0 16px;height:16px;border-radius:50%;background:#9AA3B5;color:#fff;font-style:normal;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  #print .sr .plan{display:grid;grid-template-columns:128px 1fr;gap:22px;align-items:center}
+  #print .sr .hb{display:grid;grid-template-columns:96px 1fr 92px;align-items:center;gap:10px;margin:5px 0}#print .sr .hb .t{font-size:13px;font-weight:700}#print .sr .hb .tr{height:12px;border-radius:6px;background:#EEF1F6;overflow:hidden}#print .sr .hb .tr i{display:block;height:100%;border-radius:6px}#print .sr .hb .n{font-size:13px;font-weight:800;text-align:right}
+  #print .sr .stwo{display:grid;grid-template-columns:1fr 1fr;gap:8px}#print .sr .stwo .sbox{margin-bottom:8px}
+  #print .sr ul.pt{list-style:none;margin:0;padding:0}#print .sr ul.pt li{position:relative;padding:3px 0 3px 16px;font-size:13px;line-height:1.5}#print .sr ul.pt li:before{content:'';position:absolute;left:2px;top:10px;width:7px;height:7px;border-radius:50%;background:#2F6BE0}#print .sr ul.pt.ok li:before{background:#1F9D6B}
+  #print .sr ul.pt li small{display:block;font-size:12px;color:#6B7487}
+  #print .sr table.st{width:100%;border-collapse:collapse;font-size:13px}#print .sr table.st th{font-size:12px;font-weight:700;color:#4A5366;text-align:left;padding:4px 8px;border-bottom:1.5px solid #D5DBE6}#print .sr table.st td{padding:5px 8px;border-bottom:1px solid #ECEFF4;vertical-align:middle;line-height:1.4}
+  #print .sr table.st tr:last-child td{border-bottom:0}#print .sr table.st .r{text-align:right}#print .sr table.st tr.tot td{font-weight:800;background:#F6F8FB}#print .sr table.st td small{display:block;font-size:12px;color:#6B7487}
+  #print .sr .dt{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:0}
+  #print .sr .spill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;white-space:nowrap}#print .sr .p-g{background:#E3F4EC;color:#13734D}#print .sr .p-b{background:#E7EEFC;color:#1D3FA6}#print .sr .p-o{background:#FDF0DC;color:#94570A}
+  #print .sr .mb{height:8px;border-radius:4px;background:#EEF1F6;overflow:hidden;min-width:60px}#print .sr .mb i{display:block;height:100%;background:#2F6BE0;border-radius:4px}
+  #print .sr .lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:#3A4357;margin-top:6px}
+  #print .sr .donut2{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center}
+  #print .sr .memo{min-height:38px;font-size:13px;line-height:1.6;white-space:pre-wrap}
+  #print .sr .sr-foot{display:flex;justify-content:space-between;border-top:1px solid #E3E7EF;padding-top:6px;margin-top:6px;font-size:12px;color:#5B6478}
+  #print .sr .gl{font-size:12px;color:#4A5366;line-height:1.6}#print .sr .gl b{color:#141B2D}
+  body.rpview #print .sr{padding:18px}
+  @media screen and (max-width:640px){body.rpview #print .sr{padding:10px}#print .sr .sr-band{flex-direction:column;align-items:flex-start;gap:8px;padding:14px 16px}#print .sr .sr-band h1{font-size:19px}#print .sr .chips{flex-wrap:wrap}
+  #print .sr .snum{grid-template-columns:1fr 1fr;row-gap:10px}#print .sr .snum>div:nth-child(3){border-left:0;padding-left:2px}#print .sr .lead{font-size:18px}
+  #print .sr .plan,#print .sr .donut2,#print .sr .stwo{grid-template-columns:1fr;gap:10px}#print .sr .plan>div:first-child,#print .sr .donut2>div:first-child{display:flex;justify-content:center}
+  #print .sr .hb{grid-template-columns:86px 1fr 86px}#print .sr .sbox{padding:12px 12px}#print .sr table.st th,#print .sr table.st td{padding-left:5px;padding-right:5px}#print .sr .cb{display:none}}
+  #print .sr.sr-tight .sbox{padding:9px 16px;margin-bottom:6px}#print .sr.sr-tight .sr-band{margin-bottom:8px}
+  </style>`;
+  const fmtW = h => (typeof fmtH === 'function' ? fmtH(h) : hm(h * 60));
+  function donutSvg(parts, size, w, center, sub) {
+    const r = (size - w) / 2, L = 2 * Math.PI * r, tot = parts.reduce((a, p) => a + p.v, 0) || 1; let off = 0;
+    const segs = parts.filter(p => p.v > 0).map(p => { const len = p.v / tot * L, gap = parts.filter(q => q.v > 0).length > 1 ? Math.min(2, len / 3) : 0; const c = `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${p.c}" stroke-width="${w}" stroke-dasharray="${Math.max(0, len - gap)} ${L}" stroke-dashoffset="${-off}" transform="rotate(-90 ${size / 2} ${size / 2})"/>`; off += len; return c; }).join('');
+    return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="#EEF1F6" stroke-width="${w}"/>${segs}${center ? `<text x="50%" y="${sub ? '47%' : '53%'}" text-anchor="middle" font-size="${String(center).length > 5 ? size / 10 : size / 6.2}" font-weight="800" fill="#141B2D">${center}</text>` : ''}${sub ? `<text x="50%" y="62%" text-anchor="middle" font-size="12" fill="#6B7487">${sub}</text>` : ''}</svg>`;
+  }
+  function weekBars(wks, keys) {
+    const W = 640, Hh = 165, top = 22, bot = 22, left = 44; const n = wks.length; const mx0 = Math.max(1, ...wks.map(w => w.rec));
+    const step = mx0 > 20 ? 10 : 5; const mx = Math.ceil(mx0 / step) * step; const ph = Hh - top - bot; const cw = (W - left) / n; const bw = Math.min(54, cw * 0.46);
+    let g = ''; [0, mx / 2, mx].forEach(v => { const y = top + ph - v / mx * ph; g += `<line x1="${left}" x2="${W}" y1="${y}" y2="${y}" stroke="#E6E9F0" stroke-dasharray="${v ? '3 3' : ''}"/><text x="${left - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#6B7487">${v}시간</text>`; });
+    wks.forEach((w, i) => { const x = left + cw * i + (cw - bw) / 2; let y = top + ph;
+      keys.forEach(k => { const v = w.by[k] || 0; if (!v) return; const h = v / mx * ph; y -= h; g += `<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(0, h - 1)}" rx="3" fill="${SRC[k] || SRC.기타}"/>`; });
+      g += `<text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" font-size="12" font-weight="700" fill="#141B2D">${w.rec ? fmtW(w.rec) : ''}</text><text x="${x + bw / 2}" y="${Hh - 6}" text-anchor="middle" font-size="12" fill="#4A5366">${w.wk.slice(5).replace('-', '/')} 주</text>`; });
+    return `<svg width="100%" viewBox="0 0 ${W} ${Hh}" aria-hidden="true">${g}</svg>`;
+  }
+  function dayBars(days, weak) {
+    const W = 640, Hh = 118, top = 20, bot = 22; const cw = W / 7, bw = 40, ph = Hh - top - bot; let g = `<line x1="0" x2="${W}" y1="${top + ph}" y2="${top + ph}" stroke="#E6E9F0"/>`;
+    days.forEach((d, i) => { const x = cw * i + (cw - bw) / 2; const r = d.p >= 30 ? Math.min(1.2, d.k / d.p) : null; const h = r == null ? 0 : Math.max(2, r / 1.2 * ph); const y = top + ph - h; const c = weak === i ? '#E39B2E' : '#2F6BE0';
+      if (r != null) g += `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="${c}"/><text x="${x + bw / 2}" y="${y - 6}" text-anchor="middle" font-size="12" font-weight="700" fill="${weak === i ? '#94570A' : '#141B2D'}">${Math.round(d.k / d.p * 100)}%</text>`;
+      else g += `<text x="${x + bw / 2}" y="${top + ph - 6}" text-anchor="middle" font-size="12" fill="#9AA3B5">계획 적음</text>`;
+      g += `<text x="${x + bw / 2}" y="${Hh - 6}" text-anchor="middle" font-size="12.5" fill="#4A5366" font-weight="${weak === i ? 800 : 500}">${DAYS[i]}</text>`; });
+    return `<svg width="100%" viewBox="0 0 ${W} ${Hh}" aria-hidden="true">${g}</svg>`;
+  }
+  const tipShort = t => { const p = String(t || '').split(' · ').map(x => x.trim()).filter(Boolean); if (!p.length) return ''; return p[0].length < 14 && p[1] ? p[0] + ' · ' + p[1] : p[0]; };
+  const toneP = (p, k) => { if (!p) return ''; const r = k / p; return `<span class="spill ${r >= 0.8 ? 'p-g' : r >= 0.5 ? 'p-b' : 'p-o'}">${Math.round(r * 100)}%</span>`; };
+
+  function studyData(s, n) {
+    const tw = weekKey(today()); const wb = weeksBack; let shift = false;
+    try { const H0 = habitOf(s, n + 1); shift = H0.weeks.some(w => w.wk < tw && (w.rec > 0 || w.pl > 0)); } catch (e) { }
+    if (shift) weeksBack = k => wb(k + 1).slice(0, k); // 학부모 리포트는 끝난 주까지만
+    let H; try { H = habitOf(s, n); } finally { weeksBack = wb; }
+    const f0 = H.weeks.findIndex(w => w.rec > 0 || w.pl > 0); const wks = f0 > 0 ? H.weeks.slice(f0) : H.weeks;
+    let C = null; try { C = sumCmp(wks.map(w => cmpWeek(s, w.wk)).filter(c => c && !c.upto)); } catch (e) { }
+    return { H, wks, C };
+  }
+  function srBand(s, rng, slim, title) {
+    return `<div class="sr-band${slim ? ' slim' : ''}"><div><h1>${E(s.name)} · ${E(s.school || '')} ${E(s.grade || '')}${slim ? ` <span style="font-weight:600;color:#5B6478">· ${title}</span>` : ''}</h1>${slim ? '' : `<div class="sub">${title}</div>`}</div><div class="chips">${s.example ? '<span class="schip lt">예시 학생</span>' : ''}<span class="schip">${rng}</span>${slim ? '' : `<span class="schip">${ymd(today()).replace(/-/g, '.')}</span>`}</div></div>`;
+  }
+  function buildStudy(s, n) {
+    CS = s; const D = studyData(s, n); const { H, wks, C } = D; const N = wks.length;
+    const AW = habitAvgWeeks(H); const recAvg = avg(AW.map(w => w.rec)); const rateH = avg(AW.filter(w => w.rate != null).map(w => w.rate));
+    const rate = C ? rateOfWeeks(s, C.weeks.map(w => w.wk)) : rateH; const dayAvg = avg(AW.map(w => w.days));
+    const keys = [...SUBJS, '기타'].filter(k => wks.some(w => w.by[k]));
+    const a0 = wks[0].wk, b0 = ymd(addDays(wkDate(wks[N - 1].wk), 6)); const rng = `${a0.slice(5).replace('-', '.')} – ${b0.slice(5).replace('-', '.')} · ${N}주`;
     const name = String(s.name || '').length >= 3 ? String(s.name).slice(1) : String(s.name || '');
-    const head = R0 == null ? `${E(name)} 학생의 ${C.n}주 공부 기록이에요` : `${E(name)} 학생은 ${sf ? '스스로 짠' : '학원과 정한'} 계획의 <b>${R0}%</b>를 끝냈어요`;
-    const doNow = adj.map(a => `${DAYS[a.day]}요일 추천 공부 시간을 ${hh(a.from)}에서 ${hh(a.to)}으로 줄였어요 (지난 2주 실제로 한 만큼 + 30분)`).concat(F.filter(f => on.includes(f.key)).map(f => f.act)).slice(0, 3);
-    const talk = F.filter(f => !on.includes(f.key)).map(f => f.t).slice(0, Math.max(0, 4 - doNow.length));
-    const basis = C.dflt ? '학원 기본 공부 시간' : '학생이 알려 준 공부 가능 시간';
-    return `${RPCSS}<div class="rp-sumpg"><div class="s-t">${rangeTxt(C)} · ${C.n}주 한눈에</div><div class="s-h">${head}</div>
-      <div class="s-n" ${sf ? '' : 'style="grid-template-columns:repeat(2,1fr)"'}>${sf ? `<div><div class="l">학원 추천 · ${C.n}주 합</div><div class="v">${hm(C.T.r)}</div><div class="d">학년 · 성적 · 교재와 ${basis}으로 학원이 짠 양</div></div><div><div class="l">스스로 짠 계획 · ${C.n}주 합</div><div class="v" style="color:#2F5BEA">${hm(C.T.p)}</div><div class="d">주 평균 ${hm(C.T.p / C.n)} · 추천의 ${pc(C.T.r, C.T.p)} · 학생이 앱에서 직접</div></div>` : `<div><div class="l">학원 계획</div><div class="v" style="color:#2F5BEA">${hm(C.T.p)}</div><div class="d">학년 · 성적 · 교재와 ${basis}으로 학원이 짠 양</div></div>`}<div><div class="l">실제 공부 · ${C.n}주 합</div><div class="v">${hm(C.T.a)}</div><div class="d">주 평균 ${hm(C.T.a / C.n)} · 학생 앱 타이머로 잰 시간${C.untimed >= 10 ? ` · 타이머 없이 끝낸 할 일 ${hm(C.untimed)} 별도` : ''}</div></div></div>
-      ${(() => { const H = window.SCOREHIST; const t = H && (H.trend(s, '내신') || H.trend(s, '모의')); return t ? `<div class="s-box" style="border:2px solid #E2E6EE"><h3>성적 흐름</h3><div>${E(H.label(t.a))} 평균 ${H.f1(t.a.avg)}등급 → ${E(H.label(t.b))} 평균 ${H.f1(t.b.avg)}등급${t.b.avg < t.a.avg - 0.04 ? ' · 좋아졌어요' : t.b.avg > t.a.avg + 0.04 ? ' · 내려갔어요' : ''}</div></div>` : ''; })()}
-      ${G.length ? `<div class="s-box s-good"><h3>잘한 점</h3>${G.slice(0, 2).map(x => `<div>· ${E(x)}</div>`).join('')}</div>` : ''}
-      ${doNow.length ? `<div class="s-box s-next"><h3>학원이 바꾸는 것</h3>${doNow.map(x => `<div class="ar">→ ${E(x)}</div>`).join('')}</div>` : ''}
-      ${talk.length ? `<div class="s-box" style="border:2px solid #E2E6EE"><h3>다음 상담에서 함께 볼 것</h3>${talk.map(x => `<div>· ${E(x)}</div>`).join('')}</div>` : ''}
-      <div class="s-foot">%는 계획한 할 일 중 끝낸 비율(시간이 아니라 할 일 기준) · 시간은 학생 앱 타이머 · 다음 쪽부터 주별 · 요일별 · 과목별 · 교재별 표</div></div>`;
+    const sf = C && C.self !== false; const R0 = rate != null ? Math.round(rate * 100) : null;
+    const academy = (S.settings && S.settings.academy) || '영어발전소';
+    const foot = (i, T) => `<div class="sr-foot"><span><b style="color:#141B2D">${E(academy)}</b> · PLAN·T 공부 리포트</span><span>${i} / ${T}</span></div>`;
+    // 1쪽
+    const SH = window.SCOREHIST; const tr = SH && (SH.trend(s, '내신') || SH.trend(s, '모의'));
+    const lead = R0 == null ? `${E(name)} 학생의 ${N}주 공부 기록이에요` : `${E(name)} 학생은 ${sf ? '스스로 짠' : '학원과 정한'} 계획의 <b>${R0}%</b>를 끝냈어요`;
+    const kpi = `<div class="snum"><div><div class="l">실제 공부 · 주 평균</div><div class="v">${recAvg ? fmtW(recAvg) : '—'}</div></div><div><div class="l">계획한 할 일 끝낸 비율</div><div class="v">${R0 != null ? R0 + '%' : '—'}</div></div><div><div class="l">공부한 날 · 주 평균</div><div class="v">${dayAvg != null ? Math.round(dayAvg * 10) / 10 : '—'}일<small>/ 7일</small></div></div>${tr ? `<div><div class="l">성적 흐름 · ${E(tr.a.kind || '')} 평균</div><div class="v">${SH.f1(tr.a.avg)} → ${SH.f1(tr.b.avg)}<small>등급</small></div></div>` : `<div><div class="l">한 번에 이어서 공부</div><div class="v">${avg(H.segLen) != null ? Math.round(avg(H.segLen)) + '분' : '—'}</div></div>`}</div>`;
+    let planCard = '';
+    if (C) { const mx = Math.max(1, C.T.r, C.T.p, C.T.a);
+      const bar = (t, v, c) => `<div class="hb"><span class="t">${t}</span><span class="tr"><i style="width:${Math.max(1, v / mx * 100)}%;background:${c}"></i></span><span class="n">${hm(v)}</span></div>`;
+      planCard = `<div class="sbox"><h2>계획대로 했나요<small>${N}주 합계</small></h2><div class="plan"><div>${donutSvg([{ v: R0 || 0, c: '#2F6BE0' }, { v: 100 - Math.min(100, R0 || 0), c: '#EEF1F6' }], 128, 18, R0 != null ? R0 + '%' : '—', '할 일 끝냄')}</div><div>
+        ${sf ? bar('학원 추천', C.T.r, '#C3D5FA') : ''}${bar(sf ? '스스로 짠 계획' : '학원 계획', C.T.p, '#5B8DEF')}${bar('실제 공부', C.T.a, '#1D3FA6')}
+        <div class="stip"><i>?</i>${sf ? `추천의 ${pc(C.T.r, C.T.p)}만큼 계획을 짰고, 계획한 할 일의 ${R0 != null ? R0 + '%' : '—'}를 끝냈어요` : `학원이 정한 계획 중 ${R0 != null ? R0 + '%' : '—'}를 끝냈어요`}</div></div></div></div>`; }
+    const G = C ? goods(s, C).slice(0, 2) : [];
+    let next = []; if (C) { const F = finds(s, C), on = doneKeys(s); const endWk = C.weeks[C.weeks.length - 1].wk; const nx = recoRec(s, ymd(addDays(wkDate(endWk), 7))) || recoRec(s, endWk);
+      next = (nx && nx.adj || []).map(a => `<li>${DAYS[a.day]}요일 공부 ${hh(a.from)} → ${hh(a.to)}<small>지난 2주 실제로 한 만큼에 맞춤</small></li>`).concat(F.filter(f => on.includes(f.key)).map(f => `<li>${E(f.act)}</li>`)).slice(0, 2); }
+    const gn = (G.length || next.length) ? `<div class="stwo">${G.length ? `<div class="sbox"><h2>잘한 점</h2><ul class="pt ok">${G.map(x => `<li>${E(x)}</li>`).join('')}</ul></div>` : ''}${next.length ? `<div class="sbox"><h2>다음 주에는</h2><ul class="pt">${next.join('')}</ul></div>` : ''}</div>` : '';
+    let tipCard = ''; try { const Gd = guide(s); const tips = Gd.subj.filter(x => x.tip || x.k === '영어');
+      if (tips.length) tipCard = `<div class="sbox"><h2>추천 공부법${Gd.when ? `<small>${E(Gd.when.h)}</small>` : ''}</h2><table class="st"><tr><th style="width:17%">과목</th><th style="width:21%">지금 단계</th><th>이렇게 공부해요</th><th class="r" style="width:13%">끝낸 비율</th></tr>${tips.map(x => { const v = C && C.by[x.k]; return `<tr><td><b><i class="dt" style="background:${SRC[x.k] || SRC.기타}"></i>${E(SHORT(x.k))}</b></td><td>${x.k === '영어' ? E(x.eng || '수업 단계') : `${E(x.lv || '—')}${x.st ? `<small>${E(x.st)} 단계</small>` : ''}`}</td><td>${E(x.k === '영어' ? '영어발전소 수업 단계로 관리' : tipShort(x.tip))}</td><td class="r">${v && v.p ? toneP(v.p, v.k) : '—'}</td></tr>`; }).join('')}</table></div>`; } catch (e) { }
+    const memo = `<div class="sbox"><h2>선생님 한마디</h2><div class="memo">${s.reportNote ? E(s.reportNote) : ''}</div></div>`;
+    const empty = wks.some(w => w.rec > 0) ? '' : `<div class="sbox"><div class="stip" style="margin:0"><i>?</i>아직 학생 앱 타이머 기록이 없어요 · 학생 앱에서 공부를 시작하면 다음 리포트부터 그래프가 나와요</div></div>`;
+    const P1 = `${srBand(s, rng, false, `${N}주 공부 리포트`)}<div class="sbox"><div class="lead">${lead}</div>${kpi}</div>${empty}${planCard}${gn}${tipCard}${memo}`;
+    // 2쪽
+    const tot = {}; keys.forEach(k => tot[k] = wks.reduce((a, w) => a + (w.by[k] || 0), 0)); const T = Object.values(tot).reduce((a, b) => a + b, 0); const R1 = ratioOf(s);
+    const subj = [...new Set([...Object.keys(R1), ...keys])].filter(k => (tot[k] || 0) > 0 || R1[k]);
+    const pie = donutSvg(subj.map(k => ({ v: tot[k] || 0, c: SRC[k] || SRC.기타 })), 140, 22, T ? fmtW(T / N) : '—', '주 평균');
+    const ratioLab = isMid(s.grade) ? '중등 권장' : (typeof autoOn === 'function' && autoOn(s) ? '맞춤 비중' : '계열 권장');
+    const subjCard = `<div class="sbox"><h2>과목별 공부 비중</h2><div class="donut2"><div>${pie}</div><table class="st"><tr><th>과목</th><th class="r">실제 비중</th><th class="r">${ratioLab}</th><th class="r">주 평균</th></tr>${subj.map(k => `<tr><td><i class="dt" style="background:${SRC[k] || SRC.기타}"></i>${E(SHORT(k))}</td><td class="r"><b>${T ? Math.round((tot[k] || 0) / T * 100) + '%' : '—'}</b></td><td class="r">${R1[k] != null ? Math.round(R1[k] * 10) / 10 + '%' : '—'}</td><td class="r">${tot[k] ? fmtW(tot[k] / N) : '—'}</td></tr>`).join('')}</table></div></div>`;
+    const wkCard = `<div class="sbox"><h2>주별 공부 시간<small>앱 타이머 기록</small></h2>${weekBars(wks, keys)}<div class="lg">${keys.map(k => `<span><i class="dt" style="background:${SRC[k] || SRC.기타}"></i>${E(SHORT(k))}</span>`).join('')}</div></div>`;
+    let dayCard = ''; if (C) { const ds = DAYS.map((d, i) => C.day[i] || z()); const cand = ds.map((d, i) => ({ i, d })).filter(x => x.d.p >= 30).sort((a, b) => a.d.k / a.d.p - b.d.k / b.d.p)[0]; const weak = cand && cand.d.k / cand.d.p < 0.8 ? cand.i : -1;
+      dayCard = `<div class="sbox"><h2>요일별 · 계획한 할 일 끝낸 비율${weak >= 0 ? `<small>${DAYS[weak]}요일이 가장 낮아요</small>` : ''}</h2>${dayBars(ds, weak)}</div>`; }
+    const sitW = avg(H.sits.map(x => x.wall)), brk = avg(H.sits.map(x => x.breaks)); const hm2 = m => m == null ? '—' : String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(Math.round(m % 60)).padStart(2, '0');
+    const accB = H.buckets.filter(b => b.n); const accAll = accB.length ? 1 - accB.reduce((a, b) => a + b.n * (1 - b.acc), 0) / accB.reduce((a, b) => a + b.n, 0) : null;
+    const focus = `<div class="sbox"><h2>집중</h2><div class="snum"><div><div class="l">한 번에 이어서</div><div class="v">${avg(H.segLen) != null ? Math.round(avg(H.segLen)) + '분' : '—'}</div></div><div><div class="l">한 번 앉으면 (쉬는 시간 포함)</div><div class="v">${sitW != null ? Math.round(sitW) + '분' : '—'}</div></div><div><div class="l">보통 공부 시간대</div><div class="v" style="font-size:17px">${hm2(H.startMed)} – ${hm2(H.endMed == null ? null : H.endMed % 1440)}</div></div><div><div class="l">문제 정답률</div><div class="v">${accAll != null ? Math.round(accAll * 100) + '%' : '—'}</div></div></div>${brk != null ? `<div class="stip"><i>?</i>한 번 앉으면 평균 ${brk.toFixed(1)}번 쉬어요${accB.length > 1 && accB[accB.length - 1].acc != null && accB[0].acc != null && accB[accB.length - 1].acc < accB[0].acc - 0.05 ? ` · 오래 앉을수록 정답률이 ${Math.round(accB[0].acc * 100)}% → ${Math.round(accB[accB.length - 1].acc * 100)}%로 내려가요` : ''}</div>` : ''}</div>`;
+    const hasRec = wks.some(w => w.rec > 0);
+    const P2 = hasRec ? `${srBand(s, rng, true, '공부 기록')}${wkCard}${subjCard}${dayCard}${focus}` : '';
+    // 3쪽 · 추천 비교 기록이 있을 때
+    let P3 = '';
+    if (C) { const rows = Object.entries(C.by).filter(([k, v]) => v.p || v.r || v.a).sort((a, b) => SUBJS.indexOf(a[0]) - SUBJS.indexOf(b[0])); const mxA = Math.max(1, ...rows.map(([, v]) => Math.max(v.p, v.a)));
+      const sc = `<div class="sbox"><h2>과목별 · 계획과 실제</h2><table class="st"><tr><th>과목</th>${sf ? '<th class="r">학원 추천</th>' : ''}<th class="r">${sf ? '스스로 짠 계획' : '학원 계획'}</th><th class="r">실제 공부</th><th class="cb" style="width:22%">계획 대비 실제</th><th class="r">끝낸 비율</th></tr>${rows.map(([k, v]) => `<tr><td><b><i class="dt" style="background:${SRC[k] || SRC.기타}"></i>${E(SHORT(k))}</b></td>${sf ? `<td class="r">${hm(v.r)}</td>` : ''}<td class="r">${hm(v.p)}</td><td class="r"><b>${hm(v.a)}</b></td><td class="cb"><div class="mb"><i style="width:${v.p ? Math.min(100, v.a / v.p * 100) : 0}%"></i></div></td><td class="r">${toneP(v.p, v.k)}</td></tr>`).join('')}<tr class="tot"><td>합계</td>${sf ? `<td class="r">${hm(C.T.r)}</td>` : ''}<td class="r">${hm(C.T.p)}</td><td class="r">${hm(C.T.a)}</td><td class="cb"><div class="mb"><i style="width:${C.T.p ? Math.min(100, C.T.a / C.T.p * 100) : 0}%"></i></div></td><td class="r">${toneP(C.T.p, C.T.k)}</td></tr></table></div>`;
+      const bk = Object.values(C.book).filter(b => b.p || b.r).sort((a, b) => b.p + b.r - (a.p + a.r)); const top = bk.slice(0, 6), rest = bk.slice(6);
+      const prog = t => { for (const k of SUBJS) { const b = ((s.design && s.design.subjects[k] || {}).books || []).find(x => x.title === t); if (b && b.items) return Math.min(100, Math.round((b.doneItems || 0) / b.items * 100)); } return null; };
+      const pr = top.map(b => prog(b.t)); const hasP = pr.some(x => x != null);
+      const bc = top.length ? `<div class="sbox"><h2>교재별${rest.length ? `<small>많이 한 6개 · 그 밖 ${rest.length}개</small>` : ''}</h2><table class="st"><tr><th style="width:12%">과목</th><th>교재 · 할 일</th><th class="r">계획</th><th class="r">실제</th>${hasP ? '<th class="r" style="width:16%">진도</th>' : ''}</tr>${top.map((b, bi) => { const p = pr[bi]; return `<tr><td>${E(SHORT(b.k0))}</td><td>${E(b.t)}${!b.r && sf ? '<small>학생이 더함</small>' : ''}</td><td class="r">${hm(b.p)}</td><td class="r"><b>${hm(b.a)}</b></td>${hasP ? `<td class="r">${p != null ? `<div class="mb" style="margin-left:auto;width:70px"><i style="width:${p}%"></i></div><small>${p}%</small>` : '—'}</td>` : ''}</tr>`; }).join('')}</table></div>` : '';
+      const gl = `<div class="sbox gl"><h2>말 풀이</h2><div><b>끝낸 비율</b> · 계획한 할 일 중 끝낸 할 일의 비율 (시간이 아니라 할 일 기준) · 초록 80% 이상 · 파랑 50~79% · 주황 50% 아래</div>${sf ? `<div><b>학원 추천</b> · 학년 · 성적 · 교재와 ${C.dflt ? '학원 기본 공부 시간' : '학생이 알려 준 공부 가능 시간'}으로 학원이 짠 양 · 스스로 짠 계획 중 추천 그대로 ${hm(C.copy)} · 고쳐 넣음 ${hm(C.edit)} · 학생이 더함 ${hm(C.own)}</div>` : ''}<div><b>실제 공부</b> · 학생 앱 타이머 기록${C.untimed >= 10 ? ` · 타이머 없이 끝낸 할 일 ${hm(C.untimed)}은 시간에서 빠짐` : ''}</div><div><b>${ratioLab}</b> · 계열 기본 비율(47개 대학 2028 권장 이수과목 951건)에 학생 성적 · 시기를 섞어 정함</div></div>`;
+      P3 = `${srBand(s, rng, true, '과목 · 교재')}${sc}${bc}${gl}`; }
+    const pages = [P1, P2, P3].filter(Boolean);
+    return pages.map((h, i) => `<div class="rp rp-page sr">${i ? '' : SRCSS}${h}${foot(i + 1, pages.length)}</div>`).join('');
   }
-  function rpPage(s, C) {
-    CS = s;
-    const rate = rateOfWeeks(s, C.weeks.map(w => w.wk));
-    const big = (l, v, sub, col) => `<div class="rp-stat"><div class="rp-l">${l}</div><div class="rp-v" style="color:${col}">${v}</div><div class="rp-s">${sub}</div></div>`;
-    const wks = C.weeks; const mxW = Math.max(1, ...wks.map(w => Math.max(w.T.r, w.T.p, w.T.a)));
-    const bar3 = (v, mx) => `<div style="display:flex;flex-direction:column;gap:1px">${[['r', '#B9C1D1'], ['p', '#5F7FD8'], ['a', '#1B2440']].map(([f, c]) => `<div style="height:4px;border-radius:2px;background:${c};width:${Math.max(1, v[f] / mx * 100)}%"></div>`).join('')}</div>`;
-    const days = DAYS.map((d, i) => ({ d, v: C.day[i] || z() })); const mxD = Math.max(1, ...days.map(x => Math.max(x.v.r, x.v.p, x.v.a)));
-    const weak = days.filter(x => x.v.p >= 30).sort((a, b) => a.v.k / a.v.p - b.v.k / b.v.p)[0];
-    const books = Object.values(C.book).filter(b => b.r || b.p).sort((a, b) => b.r + b.p - (a.r + a.p)); const top = books.slice(0, books.length > 7 ? 6 : 7), rest = books.length > 7 ? books.slice(6) : [];
-    const restT = rest.reduce((o, b) => ({ r: o.r + b.r, p: o.p + b.p, a: o.a + b.a }), { r: 0, p: 0, a: 0 });
-    const G = guide(s); const tips = G.subj.filter(x => x.tip || x.k === '영어');
-    const HM2 = m => m ? hm(m) : '—';
-    return `${RPCSS}<div class="rp-sec">계획대로 했나요 · ${C.self !== false ? '학원 추천 → 스스로 짠 계획 → 실제 공부' : '학원 계획 → 실제 공부'} (${rangeTxt(C)} · ${C.n}주)</div>
-    <div class="rp-stats" style="grid-template-columns:repeat(${C.self !== false ? 4 : 3},1fr)">${C.self !== false ? big('학원 추천', hm(C.T.r), '공부 가능 시간 · 수준 · 교재로', '#4F5A6E') + big('스스로 짠 계획', hm(C.T.p), `추천의 ${pc(C.T.r, C.T.p)}`, '#2F5BEA') : big('학원 계획', hm(C.T.p), '공부 가능 시간 · 수준 · 교재로', '#2F5BEA')}${big('실제 공부', hm(C.T.a), '타이머 기록', '#1B2440')}${big('계획한 할 일 끝낸 비율', rate != null ? Math.round(rate * 100) + '%' : '—', '시간이 아니라 끝낸 할 일 기준', '#1B2440')}</div>
-    <div class="rp-cols"><div><div class="rp-sec">주별</div><table class="rp-t"><tr><th>주</th><th style="width:30%"></th><th class="r">추천</th><th class="r">계획</th><th class="r">실제</th></tr>${wks.map(w => `<tr><td>${w.wk.slice(5).replace('-', '/')}</td><td>${bar3(w.T, mxW)}</td><td class="r">${HM2(w.T.r)}</td><td class="r">${HM2(w.T.p)}</td><td class="r"><b>${HM2(w.T.a)}</b></td></tr>`).join('')}</table>
-      <div class="rp-s" style="margin-top:3px"><i class="rp-dot" style="background:#B9C1D1"></i>추천 <i class="rp-dot" style="background:#5F7FD8;margin-left:6px"></i>스스로 짠 계획 <i class="rp-dot" style="background:#1B2440;margin-left:6px"></i>실제</div></div>
-    <div><div class="rp-sec">요일별 (${C.n}주 합)</div><table class="rp-t"><tr><th>요일</th><th style="width:30%"></th><th class="r">계획</th><th class="r">실제</th><th class="r">끝낸 비율</th></tr>${days.map(x => `<tr${weak && x.d === weak.d ? ' style="background:#FFF1DE"' : ''}><td>${x.d}${weak && x.d === weak.d ? ' <b style="color:#B26B00">약함</b>' : ''}</td><td>${bar3(x.v, mxD)}</td><td class="r">${HM2(x.v.p)}</td><td class="r">${HM2(x.v.a)}</td><td class="r">${pc(x.v.p, x.v.k)}</td></tr>`).join('')}</table></div></div>
-    <div class="rp-sec">과목별</div>${cmpTable(C, { print: 1 })}
-    ${top.length ? `<div class="rp-sec">교재별 · 추천한 교재를 얼마나 했나</div><table class="rp-t"><tr><th>과목</th><th>교재 · 할 일</th><th class="r">추천</th><th class="r">계획</th><th class="r">실제</th></tr>${top.map(b => `<tr><td>${E(SHORT(b.k0))}</td><td>${E(b.t)}${!b.r ? ' <span class="rp-s">· 학생이 더함</span>' : ''}</td><td class="r">${HM2(b.r)}</td><td class="r">${HM2(b.p)}</td><td class="r"><b>${HM2(b.a)}</b></td></tr>`).join('')}${rest.length ? `<tr><td></td><td>그 밖 ${rest.length}개</td><td class="r">${HM2(restT.r)}</td><td class="r">${HM2(restT.p)}</td><td class="r"><b>${HM2(restT.a)}</b></td></tr>` : ''}<tr style="background:#F2F4F8"><td></td><td><b>합계</b></td><td class="r"><b>${HM2(C.T.r)}</b></td><td class="r"><b>${HM2(C.T.p)}</b></td><td class="r"><b>${HM2(C.T.a)}</b></td></tr></table>` : ''}
-    ${tips.length ? `<div class="rp-sec">이 학생에게 추천한 공부법${G.when ? ` · ${E(G.when.h)}` : ''}</div>${tips.map(x => { const v = C.by[x.k]; return `<div class="aitip"><b>${E(SHORT(x.k))}</b>${x.lv ? ` (${E(x.lv)}${x.stW ? ' · ' + E(x.stW) : ''})` : ''}${v && v.p ? ` · 끝낸 비율 ${pc(v.p, v.k)}` : ''} · ${E(x.tip || '영어발전소 수업 단계로 관리')}</div>`; }).join('')}` : ''}
-    <div class="rp-s" style="margin-top:4px">${C.self !== false ? `스스로 짠 계획 중 추천 그대로 ${hm(C.copy)} · 추천을 고쳐 넣음 ${hm(C.edit)} · 학생이 더함 ${hm(C.own)} · ` : ''}${C.untimed >= 10 ? `타이머 없이 끝낸 할 일 ${hm(C.untimed)} · ` : ''}판정 80~120%면 맞음 · 요일별 실제는 실제로 공부한 날짜 기준</div>`;
-  }
-  function addPage(html, where, cls, rng) {
-    const P = document.getElementById('print'); const first = P && P.querySelector('.rp-page'); if (!first || !html) return;
-    const pg = document.createElement('div'); pg.className = 'rp rp-page ' + (cls || 'aipg'); const head = first.querySelector('.rp-head'), foot = first.querySelector('.rp-foot');
-    let hh = head ? head.outerHTML : ''; if (rng) hh = hh.replace(/\d{4}\.\d{2}\.\d{2} – \d{4}\.\d{2}\.\d{2} \(\d+주\)/, rng);
-    pg.innerHTML = hh + html + (foot ? foot.outerHTML : ''); if (where === 'before') first.before(pg); else first.after(pg);
+  {
+    printStudy = function (s, n) {
+      const P = document.getElementById('print'); P.innerHTML = buildStudy(s, n || 4);
+      // 한 쪽이 넘치면 카드 사이 여백만 줄임 (글자는 그대로)
+      const keep = P.style.cssText; P.style.cssText = 'display:block;position:absolute;left:-10000px;top:0;width:703px';
+      try { P.querySelectorAll('.sr').forEach(pg => { if (pg.offsetHeight > 1020) pg.classList.add('sr-tight'); }); } finally { P.style.cssText = keep; }
+      window.print();
+    };
   }
   function injectBefore(html) {
     const P = document.getElementById('print'); if (!P || !html) return;
@@ -6985,14 +7046,6 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     try { extra(); if (typeof rpFit === 'function') rpFit(); } catch (e) { console.warn('[리포트 비교]', e); }
     if (called) window.print();
   }
-  if (typeof printStudy === 'function') { const f = printStudy; printStudy = function (s, n) { const a = arguments; CS = s;
-    // 학부모 리포트는 끝난 주까지만 · 진행 중인 이번 주를 빼서 모든 쪽의 기간을 맞춤 (끝난 주 기록이 하나도 없으면 원래대로)
-    const wb = weeksBack; const tw = weekKey(today()); let shift = false; try { const H0 = habitOf(s, (n || 4) + 1); shift = H0.weeks.some(w => w.wk < tw && (w.rec > 0 || w.pl > 0)); } catch (e) { }
-    if (shift) weeksBack = k => wb(k + 1).slice(0, k);
-    try { withPrint(() => f.apply(this, a), () => {
-    const H = habitOf(s, n || 4); const C = sumCmp(H.weeks.map(w => cmpWeek(s, w.wk)).filter(c => c && !c.upto)); // 끝난 주만
-    const P = document.getElementById('print'); P.querySelectorAll('.rp-stat').forEach(x => { const l = x.querySelector('.rp-l'), v = x.querySelector('.rp-v'); if (l && v && /주당 공부한 날/.test(l.textContent) && !/7일/.test(v.textContent)) v.textContent = v.textContent.replace('일', '일 / 7일'); });
-    if (C) { const a0 = C.weeks[0].wk, b0 = ymd(addDays(wkDate(C.weeks[C.weeks.length - 1].wk), 6)); const rng = `${a0.replace(/-/g, '.')} – ${b0.replace(/-/g, '.')} (${C.n}주)`; addPage(rpPage(s, C), 'after', 'aipg', rng); addPage(sumPage(s, C), 'before', 'aisum', rng); } }); } finally { weeksBack = wb; } }; }
   if (typeof printWin === 'function') { const f = printWin; printWin = function (s, n) { const a = arguments; CS = s; withPrint(() => f.apply(this, a), () => {
     const N = wkCnt(s); const nums = n === 'all' ? [...Array(N)].map((_, i) => i + 1) : [n]; const wks = [...new Set(nums.flatMap(i => wkDates(s, i)).map(d => weekKey(wkDate(d))))];
     const C = sumCmp(wks.map(w => cmpWeek(s, w))); if (!C) return;
@@ -7372,14 +7425,6 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
         if (a.offsetHeight <= LIM) { b.remove(); pages.splice(i + 1, 1); i--; }
         else body.forEach(n => { n.style.fontSize = ''; n.style.lineHeight = ''; b.insertBefore(n, bf); });
       }
-      // 공부 리포트 · 추천 공부법이 마지막 쪽으로 넘치면 묶음째 여유 있는 쪽(1쪽 한눈에 포함)으로 옮김
-      { const ps = [...P.querySelectorAll('.rp-page')]; const last = ps[ps.length - 1]; const tips = [...P.querySelectorAll('.rp-page .aitip')];
-        if (ps.length > 2 && last.offsetHeight < 400 && last.querySelector('.aitip')) { const sec = tips[0].previousElementSibling; const grp = (sec && sec.classList.contains('rp-sec') ? [sec] : []).concat(tips);
-          const org = grp.map(n => [n.parentElement, n.nextSibling]);
-          for (const t of ps.slice(0, -1)) { if (grp.some(n => n.parentElement === t)) continue; const f = t.lastElementChild; if (!f || !f.classList.contains('rp-foot')) continue;
-            grp.forEach(n => t.insertBefore(n, f)); if (t.offsetHeight <= LIM) break;
-            for (let k = grp.length - 1; k >= 0; k--) org[k][0].insertBefore(grp[k], org[k][1]); }
-          ps.forEach(pg => { if (pg.children.length <= 2 && pg !== ps[0]) pg.remove(); }); } }
       // 마지막 쪽이 짧게 남으면 · 글자는 그대로 두고 앞 쪽 위아래 여백만 줄여서 합쳐 봄
       { const ps = [...P.querySelectorAll('.rp-page')]; const b = ps[ps.length - 1], a = ps[ps.length - 2];
         if (ps.length > 2 && a.parentElement === b.parentElement && b.offsetHeight < 400) { const af = a.lastElementChild, bf = b.lastElementChild;
