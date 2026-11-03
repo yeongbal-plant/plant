@@ -6220,7 +6220,7 @@ const STUX = (function () {
     try { down = d.down ? await P.dec(d.down) : null; } catch (e) { }
     let loc = null; try { const c = localStorage.getItem(CK2); if (c) loc = await P.dec(JSON.parse(c)); } catch (e) { loc = null; }
     if (!down && !loc) { document.getElementById('view').innerHTML = '<div class="card">아직 준비 중이에요 · 원장님께 알려 주세요</div>'; return; }
-    if (loc && down && loc.dver !== d.dver) S = merge(loc.base || {}, loc.s, down); else if (loc) S = loc.s; else S = down;
+    if (loc && down && loc.dver !== d.dver) S = merge(loc.base || {}, loc.s, down); else if (loc) S = loc.s; else S = clone(down); // 처음 로그인한 폰 · S와 BASE가 같은 객체면 학생이 고친 값이 BASE도 바꿔 「안 고침」으로 보이고 다음 내려받기에 덮어써짐
     BASE = down || loc.base; DVER = d.dver || 0;
     CK = await newDK(); KEYS = [];
     const me = S.students[0]; STU_LOCK = me.id; ROLE = { id: 'stu', role: '학생', name: me.name };
