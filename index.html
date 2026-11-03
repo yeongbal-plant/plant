@@ -2886,7 +2886,7 @@ function uiAfter() {
     if (n.closest('details.src') || n.closest('.ins') || n.dataset.keep != null || n.getAttribute('style')) return;
     const t = n.textContent.trim(); if (t.length < 70) return;
     const d = document.createElement('details'); d.className = 'src';
-    d.innerHTML = `<summary><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.6v.2"/></svg>${/^근거|출처|입결|기준/.test(t) ? '근거와 기준' : '자세한 설명'}</summary>`;
+    d.innerHTML = `<summary><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.6v.2"/></svg>${/^근거|출처|입결|기준/.test(t) ? '근거' : '설명'}</summary>`;
     n.replaceWith(d); d.appendChild(n);
   });
   document.querySelectorAll('[data-go2]').forEach(b => b.onclick = () => go(b.dataset.go2));
@@ -3361,7 +3361,7 @@ function printSheet(s) {
   $('#print').innerHTML = `<div class="rp rp-page"><div class="rp-head"><div><div class="rp-brand"><svg width="14" height="18" viewBox="40 106 52 66" aria-hidden="true"><defs><g/><clipPath id="c615cc6020"><path d="M 42.039062 108.710938 L 90.039062 108.710938 L 90.039062 169.460938 L 42.039062 169.460938 Z M 42.039062 108.710938 " clip-rule="nonzero"/></clipPath><clipPath id="660f0103e5"><rect x="0" width="274" y="0" height="64"/></clipPath></defs><g clip-path="url(#c615cc6020)"><path fill="#ffbd59" d="M 53.605469 108.710938 L 42.046875 149.566406 L 54.089844 149.617188 L 49.84375 169.464844 L 68.980469 140.800781 L 55.902344 140.828125 L 61.59375 122.28125 L 75.691406 122.234375 C 75.914062 122.234375 76.125 122.273438 76.328125 122.359375 C 76.535156 122.445312 76.714844 122.5625 76.871094 122.71875 C 77.027344 122.875 77.144531 123.054688 77.230469 123.261719 C 77.316406 123.464844 77.359375 123.675781 77.359375 123.898438 C 77.355469 124.121094 77.316406 124.332031 77.230469 124.539062 C 77.144531 124.742188 77.023438 124.921875 76.863281 125.078125 C 76.707031 125.234375 76.527344 125.355469 76.320312 125.4375 C 76.113281 125.523438 75.902344 125.5625 75.679688 125.5625 L 64.234375 125.570312 L 60.503906 137.667969 L 75.585938 137.667969 C 83.621094 137.667969 90.125 131.113281 90.0625 123.070312 C 89.992188 115.121094 83.527344 108.710938 75.578125 108.710938 Z M 53.605469 108.710938 " fill-opacity="1" fill-rule="nonzero"/></g></svg> ${esc(S.settings.academy)} · PLAN·T</div><div class="rp-title">이번 주 점검표</div></div><div class="rp-who"><b>${esc(s.name)}</b> ${esc(s.school)} ${esc(s.grade)}<br>${wk.replace(/-/g, '.')} 주 · ${ymd(today()).replace(/-/g, '.')}${s.example ? '<br><span class="rp-ex">예시 학생</span>' : ''}</div></div>
     <div class="rp-stats"><div class="rp-stat"><div class="rp-l">이번 주 과제</div><div class="rp-v">${bl.filter(b => b.done).length}<small> / ${bl.length}</small></div><div class="rp-s">끝낸 블록</div></div>
       <div class="rp-stat"><div class="rp-l">이번 주 순공</div><div class="rp-v">${Math.round(now / 6) / 10}<small>시간</small></div><div class="rp-s">${last ? '지난주 ' + Math.round(last / 6) / 10 + '시간' : '타이머 기록'}</div></div>
-      <div class="rp-stat"><div class="rp-l">혼자 풀기 · 인강</div><div class="rp-v">${Math.round(M.self * 10) / 10}<small> · ${Math.round(M.lec * 10) / 10}h</small></div><div class="rp-s">구분해서 잰 시간</div></div>
+      <div class="rp-stat"><div class="rp-l">혼자 풀기 · 인강</div><div class="rp-v" style="font-size:16px">${fmtH(M.self)}<small> · 인강 ${fmtH(M.lec)}</small></div><div class="rp-s">구분해서 잰 시간</div></div>
       <div class="rp-stat"><div class="rp-l">이번 주 목표</div><div class="rp-v">${w.g.filter(x => x.ox === 'O').length}<small> / ${w.g.filter(x => x.t).length || 3}</small></div><div class="rp-s">학생이 OX로 체크</div></div></div>
     <div class="rp-sec">기본 정보</div><table class="rp-t"><tr><td style="width:90px">학년·계열</td><td>${esc(s.grade)} · ${esc(s.track || '계열 미정')}</td><td style="width:90px">모의 등급</td><td>${['K', 'M', 'E', 'SO', 'SC'].filter(k => s.mock && s.mock[k] != null).map(k => ({ K: '국', M: '수', E: '영', SO: '사', SC: '과' })[k] + ' ' + s.mock[k]).join(' · ') || '—'}</td></tr><tr><td>다니는 학원</td><td colspan="3">${Object.entries(g.ac).map(([l, x]) => esc(l) + (x.prog ? ' · ' + esc(x.prog) : '') + (x.sat ? ' · 만족 ' + x.sat : '')).join(' / ') || '—'}</td></tr><tr><td>강사</td><td colspan="3">${Object.entries(g.tch).filter(([, v]) => v).map(([k, v]) => k + ' ' + esc(v)).join(' / ') || '—'}</td></tr><tr><td>다음에 물어볼 것</td><td colspan="3">${esc(g.memo.ask || '—')}</td></tr></table>
     <div class="rp-sec">이번 주 목표 · 학생이 쓴 점검</div><table class="rp-t">${w.g.map(x => `<tr><td style="width:60px">${x.tag}</td><td>${esc(x.t || '—')}</td><td class="r" style="width:40px"><b>${x.ox || '—'}</b></td></tr>`).join('')}<tr><td>잘한 점</td><td colspan="2">${esc(w.good || '—')}</td></tr><tr><td>보완할 점</td><td colspan="2">${esc(w.fix || '—')}</td></tr></table>
@@ -5691,7 +5691,7 @@ function autoCard(s) {
       <td>${x.st ? `<span class="pill ${stCls[x.st] || 'b-gray'}">${x.st}</span>${x.t.wk != null ? `<div class="small">필요 주 ${fmtH(x.t.wk)}</div>` : ''}` : '<span class="small">—</span>'}</td></tr>`).join('')}</tbody></table></div>
     ${rows.some(x => x.st === '부족') ? `<div class="ins warn" style="display:block"><b class="lead">마감까지 못 끝내는 과목</b>${rows.filter(x => x.st === '부족').map(x => esc(subjName(s, x.k))).join(' · ')} · 비중을 바꾸지 않고 교재 단계를 줄여요 (예: 지금 단계 교재 한 권만 · 다음 단계는 마감 뒤로) · 아니면 마감을 뒤로 잡거나 주당 공부 가능 시간을 늘려요 <span class="small">〔기준서 5-4 · 시간이 모자라면 비율이 아니라 교재 단계로 조정〕</span></div>` : ''}
     <div class="row" style="gap:6px"><button class="btn sm" data-dgo3="sp">교재 · 인강 바꾸기</button><button class="btn sm" data-dgo3="sd">수준 진단 하기</button><button class="btn sm" data-dgo3="sb">분량 · 속도 보기</button><button class="btn sm dark" data-auplan>이 비중으로 이번 주 계획 만들기</button></div>
-    <details class="src"><summary>${typeof INFO_SVG !== 'undefined' ? INFO_SVG : ''}어떻게 정했나</summary><div class="small" style="line-height:1.8">
+    <details class="src"><summary>${typeof INFO_SVG !== 'undefined' ? INFO_SVG : ''}근거</summary><div class="small" style="line-height:1.8">
       <div><b>비중</b> · 계열 기본 비율(47개 대학 2028 권장 이수과목 951건) 45% + 이 학생 성적 55% · 성적 = 과목 내신이 기준보다 0.3 넘게 낮으면 ×1.25 · 0.3 넘게 여유면 ×0.85 · 모의 등급이 낮을수록 ×1.10~1.20 · 목표 대학 교과에 수능 최저가 있으면 그 대학 기준의 영역 수만큼 최저에 쓰는 과목 ×1.8 · 나머지 ×0.7 · 목표 대학이 없으면 올렸을 때 최저 충족 전형이 많이 늘어나는 과목 ×1.0~1.8 · 목표 대학이 안 보는 교과는 내신 쪽 0 · 시험 6주 전부터 내신 쪽 · 방학은 수능 쪽 〔기준서 2장〕</div>
       <div><b>교재</b> · 지금 수준부터 목표 수준까지 단계마다 한 권 · 고1은 ${sem}학기 범위(${sem}권) 먼저 · 하고 있는 교재는 그대로 · 끝낸 교재는 빼요</div>
       <div><b>인강</b> · 고른 교재와 연계된 강좌 → 같은 권 범위 → EBSi 무료 순 · 여러 강좌 묶음 안내 페이지와 같은 이름 강좌가 없는 것은 고르지 않아요</div>
@@ -5750,7 +5750,7 @@ function signalCard(s, opt) {
   return `<section class="card col" id="sigCard"><div class="row between"><div class="row" style="gap:8px"><h2>${opt && opt.title || '이번 주 볼 것 4개'}</h2>${wk ? `<span class="small">${wk} 기준 · 끝난 주</span>` : ''}</div>${opt && opt.link ? '<button class="btn sm dark" onclick="go(\'sheet\')">이번 주 점검에서 점검하기</button>' : ''}</div>
     <div class="grid g4">${tiles}</div>
     <div class="dark col" style="gap:4px"><span class="small">그래서 이번 주 할 말 하나</span><b style="font-size:16px">${esc(say)}</b>${W.worst ? `<span class="small">가장 먼저 볼 신호 · ${W.worst.n}</span>` : ''}</div>
-    <details class="src"><summary>${typeof INFO_SVG !== 'undefined' ? INFO_SVG : ''}신호 기준과 근거</summary><div class="small" style="line-height:1.8">
+    <details class="src"><summary>${typeof INFO_SVG !== 'undefined' ? INFO_SVG : ''}근거</summary><div class="small" style="line-height:1.8">
       <div>초록 · 노랑 · 빨강 기준 〔기준서 6-2 · 영발 기록이 쌓이면 다시 정함〕 · 계획 지킨 정도 80% · 60% · 순공 시간 정한 시간의 90% · 70% · 공부한 날 5일 · 3일 · 끝난 시각 자정 · 새벽 1시</div>
       <div>왜 매주 보나 · 목표까지 진행을 점검하게 하면 목표 달성이 늘고, 점검을 기록하거나 남에게 알릴 때 효과가 더 컸어요 (138개 연구 · 1만 9,951명 메타분석 · Harkin 외 2016)</div>
       <div>왜 할 말은 하나 · 「언제 · 어디서 · 무엇을」 정한 약속 하나가 막연한 다짐보다 실행을 크게 늘렸어요 (94개 연구 · 효과 크기 d = 0.65 · Gollwitzer · Sheeran 2006) · 그래서 이번 주 점검에서 다음 주 약속을 한 줄로 받아요</div>
@@ -5783,7 +5783,7 @@ function weekCheckCard(s) {
   const step = (n, t, inner) => `<div class="col" style="gap:6px;padding:12px 0;border-top:1px solid var(--line)"><div class="row" style="gap:8px"><span class="pill b-blk" style="border-radius:50%;width:24px;height:24px;padding:0;display:grid;place-items:center">${n}</span><b style="font-size:15px">${t}</b></div>${inner}</div>`;
   return `<section class="card col" id="wkCheck" style="border:2px solid var(--or)"><div class="row between"><div class="row" style="gap:8px"><h2>이번 주 점검 · 5분</h2><span class="small">위에서 아래로 한 번만</span></div><button class="btn dark" id="wkSave">점검 저장</button></div>
     ${step(1, '지난주 약속 지켰나', last.when || last.what ? `<div>「${esc(last.when || '')} ${esc(last.what || '')}」</div><div class="seg" style="padding:3px;align-self:flex-start">${['지켰어요', '일부', '못 지켰어요'].map(v => `<button data-prok="${v}" class="${last.ok === v ? 'on' : ''}" style="min-height:30px;padding:4px 12px;font-size:13px">${v}</button>`).join('')}</div>` : '<span class="small">지난주에 적은 약속이 없어요 · 오늘 4번에서 처음 적어요</span>')}
-    ${(() => { const W = weekSignals(s); return step(2, `숫자 신호 4개 · 빨강 · 노랑만 보면 돼요${W.w ? ` <span class="small">${W.w.wk.slice(5).replace('-', '/')} 주</span>` : ''}`, signalTiles(W) + `<div class="dark col" style="gap:2px"><span class="small">그래서 할 말 하나</span><b>${esc(signalSay(W))}</b></div><details class="src"><summary>${typeof INFO_SVG !== 'undefined' ? INFO_SVG : ''}신호 기준과 근거</summary><div class="small">학습 습관 화면 「이번 주 볼 것 4개」 아래에 기준과 연구 근거가 있어요 · 기준값은 〔설계값〕</div></details>`); })()}
+    ${(() => { const W = weekSignals(s); return step(2, `숫자 신호 4개 · 빨강 · 노랑만 보면 돼요${W.w ? ` <span class="small">${W.w.wk.slice(5).replace('-', '/')} 주</span>` : ''}`, signalTiles(W) + `<div class="dark col" style="gap:2px"><span class="small">그래서 할 말 하나</span><b>${esc(signalSay(W))}</b></div><details class="src"><summary>${typeof INFO_SVG !== 'undefined' ? INFO_SVG : ''}근거</summary><div class="small">학습 습관 화면 「이번 주 볼 것 4개」 아래에 기준과 연구 근거가 있어요 · 기준값은 〔설계값〕</div></details>`); })()}
     ${step(3, '못 한 과제 이유 고르기', miss.length ? `<div class="col" style="gap:6px">${miss.map(({ b, wk: w2 }) => `<div class="row" style="gap:6px;flex-wrap:wrap"><span style="min-width:220px"><b>${DAYS[b.day]}</b> ${esc(subjName(s, b.subj))} · ${esc(b.title)} <span class="small">${b.min}분${w2 !== wk ? ' · 지난주' : ''}</span></span>${AU_WHY.map(r => `<button class="chip${b.why === r ? ' on' : ''}" data-why2="${w2}|${b.id}|${r}">${r}</button>`).join('')}</div>`).join('')}</div>` : '<span class="small">못 한 과제가 없어요 · 잘했다고 말해 줘요</span>')}
     ${step(4, '다음 주 약속 한 줄', `<div class="row" style="gap:6px;flex-wrap:wrap"><input type="text" id="prWhen" value="${esc(pr.when || '')}" placeholder="언제 · 예: 학원 끝나고 집에 오면" style="min-width:220px;flex:1"><input type="text" id="prWhat" value="${esc(pr.what || '')}" placeholder="무엇을 · 예: 국어 지문 3개부터 푼다" style="min-width:220px;flex:1"></div><div class="small">「~하면 ~한다」 한 줄로 · 학생이 직접 말한 걸 적어요</div>`)}
     ${step(5, '학부모님께 보낼 한 줄', `<textarea id="prMsg" style="min-height:64px">${esc(pr.msg || parentLine(s))}</textarea><div class="row" style="gap:6px"><button class="btn sm" id="prCopy">복사</button><button class="btn sm" id="prRe">다시 만들기</button><button class="btn sm" id="prLog">보냈어요 · 연락 기록에 남기기</button></div>`)}
@@ -7183,6 +7183,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   .rp-t{font-size:13px}.rp-t th{font-size:12.5px}.rp-s,.rp-l,.rp-who{font-size:12px}.rp-foot{font-size:11.5px}
   .rp-small .rp-t,.rp-small2 .rp-t,.rp-small .rp-t th,.rp-small2 .rp-t th{font-size:12px!important}.rp-small .rp-s,.rp-small2 .rp-s{font-size:11.5px!important}
   .rp-t td:first-child{word-break:keep-all}
+  #view .scroll input[type=time]{font-size:13px;padding:0 4px;max-width:112px}
   .card .bat:not([style]){border:0!important;background:#E8EBF1!important;border-radius:6px}
   /* 폰 · 원장 화면 */
   body.mstaff .card{min-width:0;max-width:100%}
@@ -7209,6 +7210,78 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   if (typeof rpFit === 'function') { const f = rpFit; rpFit = function () { try { nowrapShort(document.getElementById('print')); } catch (e) { } return f.apply(this, arguments); }; }
   const mo = () => { if (document.body) new MutationObserver(() => moveCloudbar()).observe(document.body, { childList: true }); else setTimeout(mo, 200); }; mo();
   window.addEventListener('resize', () => { const cb = document.getElementById('cloudbar'); if (cb && innerWidth <= 760 && cb.parentElement && cb.parentElement.id === 'side') document.body.appendChild(cb); else moveCloudbar(); });
+})();
+
+/* ---------- 윈터 오늘 출결 · 학생 카드 한 장에 큰 버튼 하나 ----------
+   지금 할 일 하나만 크게 (입실 → 외출 복귀 → 퇴실 → 확인) · 시각 고치기 · 외출 · 감점 · 출결 바꾸기는 「고치기」 안으로
+   data-* 이름은 원래 카드와 같아서 원래 버튼 동작을 그대로 씀 */
+(function () {
+  if (typeof wCard !== 'function') return;
+  const OPEN = new Set();
+  const css = `.wc2 .wc-big{width:100%;min-height:52px;font-size:17px;font-weight:800;border-radius:14px}.wc2 .wc-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.wc2 .wc-sum div{background:var(--soft,#F7F8FB);border-radius:10px;padding:8px 10px}.wc2 .wc-sum b{font-size:16px;white-space:nowrap}.wc2 details>summary{cursor:pointer;font-weight:700;font-size:14px;color:#2F5BEA;padding:6px 0;list-style:none}.wc2 details>summary::-webkit-details-marker{display:none}.wc2 .wc-ed{display:flex;flex-direction:column;gap:8px;padding-top:6px}.wc2 .wc-ed .row{gap:6px;flex-wrap:wrap;align-items:center}.wc2 .wc-t{font-size:14px;color:#1A2233}`;
+  const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+  wCard = function (s, d) {
+    const x = winOf(s), sc = schedOf(s, d), a = x.att[d] || {}, stt = attSt(s, d), c = chkOf(s, d), r = recOf(s, d), dm = dedMin(s, d), lock = !!(c && c.ok);
+    const net = Math.max(0, Math.round(r.self - dm)); const goal = x.goal; const openOut = (a.outs || []).find(o => !o.r); const today = d === wTod(), future = d > wTod();
+    const absent = stt.k === '결석' || stt.k === '사유 결석';
+    let big = '';
+    if (lock) big = '';
+    else if (future) big = '<div class="small">아직 오지 않은 날</div>';
+    else if (absent && !r.n) big = `<span class="pill b-gray">${stt.k} 처리됨</span>`;
+    else if (!a.in && !a.st) big = `<button class="btn dark wc-big" data-wn="in|${s.id}">${today ? '지금 입실' : '입실 시각 넣기'}</button>`;
+    else if (openOut) big = `<button class="btn dark wc-big" data-wr="${s.id}">지금 복귀 · ${esc(openOut.o)} 외출</button>`;
+    else if (a.in && !a.out && today && r.live) big = `<button class="btn wc-big" data-wn="out|${s.id}">지금 퇴실</button><div class="small">타이머가 켜져 있어요 · 공부가 끝나면 확인해요</div>`;
+    else if (a.in && !a.out) big = `<div class="grid g2" style="gap:6px"><button class="btn dark wc-big" data-wn="out|${s.id}">${today ? '지금 퇴실' : '퇴실 시각 넣기'}</button><button class="btn or wc-big" data-wok="${s.id}" ${r.live ? 'disabled' : ''}>확인 · 인정 ${hmTxt(net)}</button></div>`;
+    else big = `<button class="btn or wc-big" data-wok="${s.id}" ${r.live ? 'disabled' : ''}>확인 · 인정 순공 ${hmTxt(net)}</button>`;
+    const times = `${a.in ? `입실 ${a.in}` : ''}${a.out ? ` · 퇴실 ${a.out}` : ''}${(a.outs || []).length ? ` · 외출 ${(a.outs || []).length}번` : ''}${dm ? ` · 감점 ${dm}분` : ''}`;
+    return `<section class="card col wc2" style="gap:10px;${lock ? 'border-color:#BFE3D2' : ''}">
+      <div class="row between"><div class="row" style="gap:6px;align-items:baseline"><b style="font-size:17px">${esc(s.name)}</b><span class="small">${esc(s.grade)} · ${wkNo(s, d)}주차</span></div><span class="pill ${stt.cls}">${stt.k}</span></div>
+      <div class="wc-t">${sc ? `예정 ${sc.in} ~ ${sc.out || '—'}` : '쉬는 날'}${times ? ` · <b>${times.replace(/^ · /, '')}</b>` : ''}</div>
+      ${x.vow[d] ? `<div class="small" style="background:var(--soft);border-radius:8px;padding:6px 10px">다짐 · ${esc(x.vow[d])}</div>` : ''}
+      <div class="wc-sum"><div><div class="label">공부 기록</div><b>${hmTxt(Math.round(r.self))}</b></div><div><div class="label">인강</div><b>${hmTxt(Math.round(r.lec))}</b></div><div><div class="label">${lock ? '인정 순공' : '인정될 시간'}</div><b>${hmTxt(net)}</b>${goal ? `<div class="small">목표 ${hmTxt(goal)}</div>` : ''}</div></div>
+      ${big}
+      ${lock ? `<div class="row between"><span class="small">${esc(c.by || '')} 확인 · ${new Date(c.at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span><button class="btn sm" data-wun="${s.id}">확인 취소</button></div>` : ''}
+      ${lock || future ? '' : `<details data-wcd="${s.id}" ${OPEN.has(s.id) ? 'open' : ''}><summary>고치기 · 외출 · 감점 · 출결 ▾</summary><div class="wc-ed">
+        <div class="row"><span class="label">입실</span>${a.in ? `<input type="time" data-wa="in|${s.id}" value="${a.in}">` : `<button class="btn sm" data-wn="in|${s.id}" ${a.st ? 'disabled' : ''}>${today ? '지금 입실' : '입실 시각 넣기'}</button>`}<span class="label">퇴실</span>${a.out ? `<input type="time" data-wa="out|${s.id}" value="${a.out}">` : `<button class="btn sm" data-wn="out|${s.id}" ${!a.in ? 'disabled' : ''}>${today ? '지금 퇴실' : '퇴실 시각 넣기'}</button>`}</div>
+        <div class="row"><span class="label">출결</span><select data-wabs="${s.id}"><option value="">정상</option>${WABS.map(v => `<option ${a.st === v ? 'selected' : ''}>${v}</option>`).join('')}</select></div>
+        <div class="row"><span class="label">외출</span>${(a.outs || []).map((o, i) => `<span class="pill b-gray">${o.o}~${o.r || '복귀 전'}${o.why ? ' ' + esc(o.why) : ''} <a href="#" data-wod="${s.id}|${i}" style="color:var(--red)">×</a></span>`).join('')}${openOut ? `<button class="btn sm" data-wr="${s.id}">지금 복귀</button>` : `<input type="text" data-wow="${s.id}" placeholder="외출 사유" style="width:120px"><button class="btn sm" data-wo="${s.id}" ${a.in ? '' : 'disabled'}>지금 외출</button>`}</div>
+        <div class="row"><span class="label">감점</span>${(c && c.ded || []).map((z, i) => `<span class="pill b-over">${esc(z.why)} ${z.min}분 <a href="#" data-wdd="${s.id}|${i}" style="color:var(--red)">×</a></span>`).join('')}<select data-wdw="${s.id}">${WDED.map(v => `<option>${v}</option>`).join('')}</select><input type="number" data-wdm="${s.id}" min="1" max="600" placeholder="분" style="width:64px"><button class="btn sm" data-wda="${s.id}">빼기</button></div>
+      </div></details>`}</section>`;
+  };
+  if (R.winter_after) { const f = R.winter_after; R.winter_after = function () { const r = f.apply(this, arguments); document.querySelectorAll('details[data-wcd]').forEach(d => d.ontoggle = () => { if (d.open) OPEN.add(d.dataset.wcd); else OPEN.delete(d.dataset.wcd); }); return r; }; }
+})();
+
+/* ---------- 입시 상담 리포트 · 면책 문구는 1쪽에만 · 빈 값 대신 말 · 「부족」 빨강 낮추기 ---------- */
+(function () {
+  if (typeof printReport !== 'function') return;
+  const st = document.createElement('style'); st.textContent = `#print b[style*="#B42318"],#print .gap-bad{color:#3F4A5E!important}#print .gap-bad{font-weight:700}`; document.head.appendChild(st);
+  const f = printReport;
+  printReport = function () {
+    const wp = window.print; let called = false; window.print = () => { called = true; };
+    try { f.apply(this, arguments); } finally { window.print = wp; }
+    try {
+      const P = document.getElementById('print'); const pages = [...P.querySelectorAll('.rp-page')]; const N = pages.length; const ac = (S.settings && S.settings.academy) || '';
+      pages.forEach((pg, i) => { const ft = pg.querySelector('.rp-foot'); if (ft && i > 0) ft.textContent = `${ac} PLAN·T · ${i + 1} / ${N} · 기준과 출처는 1쪽 아래`; });
+      const walk = document.createTreeWalker(P, NodeFilter.SHOW_TEXT); const fix = []; while (walk.nextNode()) { const n = walk.currentNode; if (/목표 대학 -(\s|·|$)/.test(n.nodeValue)) fix.push(n); }
+      fix.forEach(n => n.nodeValue = n.nodeValue.replace(/목표 대학 -(?=\s|·|$)/, '목표 대학 상담 후 결정'));
+    } catch (e) { console.warn('[상담 리포트 정리]', e); }
+    if (called) window.print();
+  };
+})();
+
+/* ---------- 인쇄물 빈 칸 정리 · 홈 처음 설정 카드 ---------- */
+(function () {
+  const isDash = t => /^(—|-|0|0분|·|\s)*$/.test(t);
+  function tidy(P) {
+    P.querySelectorAll('table.rp-t').forEach(t => { const rows = [...t.querySelectorAll('tr')].filter(r => r.querySelector('td'));
+      if (!rows.length) { // 머리줄만 있는 표 · 손으로 쓸 빈 줄 3개
+        const cols = (t.querySelector('tr') || {}).children ? t.querySelector('tr').children.length : 1; for (let i = 0; i < 3; i++) { const tr = document.createElement('tr'); tr.innerHTML = Array(cols).fill('<td style="height:30px;border-bottom:1px solid #C9CFDB">&nbsp;</td>').join(''); t.appendChild(tr); } return; }
+      if (rows.every(r => [...r.querySelectorAll('td')].slice(1).every(td => isDash((td.textContent || '').trim())))) { t.style.display = 'none'; const sec = t.previousElementSibling; if (sec && sec.classList.contains('rp-sec')) sec.insertAdjacentHTML('beforeend', ' <span class="rp-s">· 아직 기록 없음</span>'); }
+    });
+  }
+  ['printSheet', 'printGoal'].forEach(fn => { try { const f = eval(fn); if (typeof f !== 'function') return; const g = function () { const wp = window.print; let called = false; window.print = () => { called = true; }; try { f.apply(this, arguments); } finally { window.print = wp; } try { tidy(document.getElementById('print')); if (typeof rpFit === 'function') rpFit(); } catch (e) { } if (called) window.print(); }; if (fn === 'printSheet') printSheet = g; else printGoal = g; } catch (e) { } });
+  // 홈 · 실제 학생이 한 명이라도 있으면 처음 설정 안내 카드는 숨김
+  if (typeof renderCore === 'function') { const f = renderCore; renderCore = function () { const r = f.apply(this, arguments); try { if (VIEW === 'home' && S && S.students && S.students.some(s => !s.example)) document.querySelectorAll('#view section.card').forEach(c => { const h = c.querySelector('h2'); if (h && /^처음/.test(h.textContent.trim())) c.style.display = 'none'; }); } catch (e) { } return r; }; }
 })();
 
 </script>
@@ -7240,7 +7313,7 @@ const firebaseConfig = {
   messagingSenderId: "1039637490828",
   appId: "1:1039637490828:web:4e5b06004f7352a40a5fa9"
 };
-const DB_FILE = 'db.bin?v=5900c28b46';
+const DB_FILE = 'db.bin?v=6e08520db8';
 const ENC_KEY = 'plant_v1_enc';
 const PART = 800000;
 const STAFF_DOMAIN = 'staff.yeongbal-plant.app'; // 원장·선생님 비밀번호 계정용 내부 주소 (실제 메일 아님)
