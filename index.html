@@ -6666,6 +6666,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
 (function () {
   if (typeof SUBJS === 'undefined') return;
   const E = x => (typeof esc === 'function' ? esc(x) : String(x == null ? '' : x));
+  const HM = m => { m = Math.round(m || 0); return hm(m); };
   const hm = m => { m = Math.round(m || 0); const h = Math.floor(m / 60), r = m % 60; return h ? `${h}시간${r ? ' ' + r + '분' : ''}` : `${r}분`; };
   const SK = k => SUBJS.includes(k) ? k : '기타';
   const isStuMode = () => !!window.__PLANT_STU || (typeof STU_LOCK !== 'undefined' && STU_LOCK);
@@ -6710,14 +6711,18 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     reco.forEach(b => add(b.subj, 'r', b.min));
     plan.forEach(b => { add(b.subj, 'p', b.min); add(b.subj, 'a', blockElapsed(b) / 60); if (reco.some(x => SK(x.subj) === SK(b.subj) && ((x.bid && x.bid === b.bid) || (x.title && x.title === b.title)))) by[SK(b.subj)].same += b.min; });
     const T = Object.values(by).reduce((o, v) => ({ r: o.r + v.r, p: o.p + v.p, a: o.a + v.a, same: o.same + v.same }), { r: 0, p: 0, a: 0, same: 0 });
+    const day = {}, book = {}; let own = 0; const dz = i => day[i] = day[i] || { r: 0, p: 0, a: 0 }; const bz = (k, t) => { const key = SK(k) + '|' + t; return book[key] = book[key] || { k: SK(k), t, r: 0, p: 0, a: 0 }; };
+    reco.forEach(b => { dz(b.day).r += b.min; bz(b.subj, b.title).r += b.min; });
+    plan.forEach(b => { const a = blockElapsed(b) / 60; dz(b.day).p += b.min; dz(b.day).a += a; bz(b.subj, b.title).p += b.min; bz(b.subj, b.title).a += a; if (b.by === 'student' && b.from !== 'reco' && !reco.some(x => SK(x.subj) === SK(b.subj) && x.title === b.title)) own += b.min; });
     const rDays = new Set(reco.map(b => b.day)).size; const aDays = new Set(plan.filter(b => b.sec > 0 || (b.segs || []).length).map(b => b.day)).size;
-    return { wk, by, T, rDays, aDays, type: typeOf(T), upto };
+    return { wk, by, T, rDays, aDays, type: typeOf(T), upto, day, book, own };
   }
   function sumCmp(list) {
     const L = list.filter(Boolean); if (!L.length) return null; const by = {};
     L.forEach(c => Object.entries(c.by).forEach(([k, v]) => { by[k] = by[k] || { r: 0, p: 0, a: 0, same: 0 }; ['r', 'p', 'a', 'same'].forEach(f => by[k][f] += v[f]); }));
     const T = Object.values(by).reduce((o, v) => ({ r: o.r + v.r, p: o.p + v.p, a: o.a + v.a, same: o.same + v.same }), { r: 0, p: 0, a: 0, same: 0 });
-    return { by, T, n: L.length, rDays: L.reduce((a, c) => a + c.rDays, 0), aDays: L.reduce((a, c) => a + c.aDays, 0), type: typeOf(T), weeks: L };
+    const day = {}, book = {}; L.forEach(c => { Object.entries(c.day || {}).forEach(([i, v]) => { day[i] = day[i] || { r: 0, p: 0, a: 0 }; ['r', 'p', 'a'].forEach(f => day[i][f] += v[f]); }); Object.entries(c.book || {}).forEach(([k, v]) => { book[k] = book[k] || { k: v.k, t: v.t, r: 0, p: 0, a: 0 }; ['r', 'p', 'a'].forEach(f => book[k][f] += v[f]); }); });
+    return { by, T, n: L.length, rDays: L.reduce((a, c) => a + c.rDays, 0), aDays: L.reduce((a, c) => a + c.aDays, 0), type: typeOf(T), weeks: L, day, book, own: L.reduce((a, c) => a + (c.own || 0), 0) };
   }
   // 어디서 줄었나 · 문장은 앱의 학습관리 가이드(계획 짜기 · 공부 시간) 원문에서 고름
   const ADV = {
@@ -6779,7 +6784,8 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
 
   /* ---------- 4. 화면 조각 ---------- */
   const dot = t => t ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:${TC[t.c]}"><i style="width:8px;height:8px;border-radius:50%;background:${TC[t.c]};display:inline-block"></i>${t.t}</span>` : '';
-  function cmpTable(C, compact) {
+  function cmpTable(C, compact, dec) {
+    const hm = dec ? (m => m ? (Math.round(m / 6) / 10).toFixed(1) + 'h' : '—') : HM;
     if (!C) return '';
     const rows = Object.entries(C.by).sort((a, b) => SUBJS.indexOf(a[0]) - SUBJS.indexOf(b[0]));
     const bar = (v, mx, col) => `<div style="height:7px;border-radius:4px;background:${col};width:${mx ? Math.max(2, Math.round(v / mx * 100)) : 0}%"></div>`;
@@ -6838,12 +6844,42 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   }
 
   /* ---------- 5. 리포트 ---------- */
-  const RPCSS = `<style>.rp .aicmp{width:100%;border-collapse:collapse;font-size:10.5px}.rp .aicmp th,.rp .aicmp td{padding:3px 5px;border-bottom:1px solid #E6E9EF;text-align:left}.rp .aicmp tr.tot td{background:#F5F6F9}.rp .aisay{border:1px solid #D9E2FB;background:#F6F8FE;border-radius:6px;padding:6px 8px;font-size:10.5px;line-height:1.5;margin-top:5px}.rp .aisay b{font-size:11px}.rp .aiact{margin-top:3px;font-weight:700}.rp .aiact span{display:none}.rp .aitip{font-size:10.5px;line-height:1.55;margin:2px 0}</style>`;
+  const RPCSS = `<style>.rp .aicmp{width:100%;border-collapse:collapse;font-size:10.5px}.rp .aicmp th,.rp .aicmp td{padding:3px 5px;border-bottom:1px solid #E6E9EF;text-align:left}.rp .aicmp tr.tot td{background:#F5F6F9}.rp .aisay{border:1px solid #D9E2FB;background:#F6F8FE;border-radius:6px;padding:6px 8px;font-size:10.5px;line-height:1.5;margin-top:5px}.rp .aisay b{font-size:11px}.rp .aiact{margin-top:3px;font-weight:700}.rp .aiact span{display:none}.rp .aitip{font-size:10.5px;line-height:1.5;margin:1px 0}.rp-page.aipg .rp-t td,.rp-page.aipg .rp-t th,.rp-page.aipg .aicmp td,.rp-page.aipg .aicmp th{padding-top:2px;padding-bottom:2px}.rp-page.aipg .rp-sec{margin:6px 0 2px}</style>`;
   function rpSection(s, C, title) {
     if (!C) return '';
     const G = guide(s); const tips = G.subj.filter(x => x.tip).slice(0, 3);
     return `${RPCSS}<div class="rp-sec">${title}</div>${cmpTable(C, true)}${cmpSay(C)}
       ${tips.length || G.when ? `<div class="rp-sec">이 학생 추천 공부법</div>${G.when ? `<div class="aitip"><b>${E(G.when.h)}</b> · ${E(G.when.t)}</div>` : ''}${tips.map(x => `<div class="aitip"><b>${E(x.k)}</b> (${E(x.lv)}) · ${E(x.tip)}</div>`).join('')}` : ''}`;
+  }
+  // 학부모 리포트 한 쪽 · 추천 → 학생 계획 → 실제
+  const PAR = { ok: '학원이 추천한 양만큼 스스로 계획하고, 계획한 것을 대부분 해냈어요', plan: '스스로 짠 계획이 학원 추천보다 적었어요 · 짠 계획은 대부분 해냈어요', run: '계획은 추천만큼 짰는데, 실제로 한 시간이 계획보다 모자랐어요', both: '계획도 실제 공부도 학원 추천보다 줄었어요', over: '추천보다 많이 계획했는데, 실제가 따라가지 못했어요' };
+  const NEXT = { ok: '지금 양을 유지하면서 다음 주 추천을 조금씩 늘려요', plan: '학생이 고른 양에서 출발해 매주 조금씩 올려요', run: '못 한 계획은 이유를 함께 확인하고, 시간이 오래 걸리는 과목은 블록을 길게 잡아요', both: '공부할 수 있는 시간부터 다시 확인하고 요일마다 30분씩 늘려요', over: '다음 주는 추천한 양까지만 넣도록 함께 짜요' };
+  function rpPage(s, C, opt) {
+    const pc = (a, b) => a ? Math.round(b / a * 100) + '%' : '—'; const h1 = m => m ? (Math.round(m / 6) / 10).toFixed(1) : '—';
+    const big = (l, v, sub, col) => `<div class="rp-stat"><div class="rp-l">${l}</div><div class="rp-v" style="color:${col}">${v}</div><div class="rp-s">${sub}</div></div>`;
+    const wks = C.weeks.slice().sort((a, b) => a.wk < b.wk ? -1 : 1); const mxW = Math.max(1, ...wks.map(w => Math.max(w.T.r, w.T.p, w.T.a)));
+    const bar3 = (v, mx) => `<div style="display:flex;flex-direction:column;gap:1px">${[['r', '#C9CFDB'], ['p', '#7C95DA'], ['a', '#1B2440']].map(([f, c]) => `<div style="height:4px;border-radius:2px;background:${c};width:${Math.max(1, v[f] / mx * 100)}%"></div>`).join('')}</div>`;
+    const days = DAYS.map((d, i) => ({ d, v: C.day[i] || { r: 0, p: 0, a: 0 } })); const mxD = Math.max(1, ...days.map(x => Math.max(x.v.r, x.v.p, x.v.a)));
+    const weak = days.filter(x => x.v.p >= 30).sort((a, b) => a.v.a / a.v.p - b.v.a / b.v.p)[0]; const skip = days.filter(x => x.v.r >= 30 && x.v.p < x.v.r * 0.5).map(x => x.d);
+    const books = Object.values(C.book).filter(b => b.r || b.p).sort((a, b) => b.r + b.p - (a.r + a.p)).slice(0, 5);
+    const st = streak(s); const G = guide(s); const tips = G.subj.filter(x => x.tip).slice(0, 3);
+    const lossP = Math.max(0, C.T.r - C.T.p), lossA = Math.max(0, C.T.p - C.T.a);
+    const first = wks[0], last = wks[wks.length - 1]; const trend = wks.length >= 2 && first.T.p ? (last.T.a / Math.max(1, last.T.p) - first.T.a / Math.max(1, first.T.p)) : null;
+    return `${RPCSS}<div class="rp-sec">계획대로 했나요 · 학원 추천 → 학생이 짠 계획 → 실제 공부 (${C.n}주)</div>
+    <div class="rp-stats" style="grid-template-columns:repeat(3,1fr)">${big('학원 추천', hm(C.T.r), '학생 수준 · 시기 · 교재로 짠 추천 계획', '#8A93A6')}${big('학생이 짠 계획', hm(C.T.p), `추천의 ${pc(C.T.r, C.T.p)} · 학생 앱에서 직접`, '#2F5BEA')}${big('실제 공부', hm(C.T.a), `계획의 ${pc(C.T.p, C.T.a)} · 타이머 기록`, '#1B2440')}</div>
+    <div class="rp-goal" style="display:block;background:#F4F7FF;border-color:#D6DFF7;font-size:12px;line-height:1.6"><b>이 기간 모습</b> · ${PAR[C.type] || ''}${lossP || lossA ? ` · 계획 단계에서 ${hm(lossP)}, 실행 단계에서 ${hm(lossA)} 줄었어요` : ''}${trend != null ? ` · 계획을 지킨 정도가 첫 주 ${pc(first.T.p, first.T.a)} → 마지막 주 ${pc(last.T.p, last.T.a)}` : ''}${weak ? ` · 가장 약한 요일 <b>${weak.d}요일</b> (계획의 ${pc(weak.v.p, weak.v.a)})` : ''}${skip.length ? ` · 추천이 있었는데 계획을 거의 안 짠 요일 ${skip.map(d => d + '요일').join('·')}` : ''}<br><b>학원이 다음 주에 하는 것</b> · ${st ? STREAK_SAY[st] : (NEXT[C.type] || '')}</div>
+    <div class="rp-cols"><div><div class="rp-sec">주별 흐름 (시간)</div><table class="rp-t"><tr><th>주</th><th style="width:38%"></th><th class="r">추천</th><th class="r">계획</th><th class="r">실제</th></tr>${wks.map(w => `<tr><td>${w.wk.slice(5).replace('-', '/')}</td><td>${bar3(w.T, mxW)}</td><td class="r">${h1(w.T.r)}</td><td class="r">${h1(w.T.p)}</td><td class="r"><b>${h1(w.T.a)}</b></td></tr>`).join('')}</table>
+      <div class="rp-s" style="margin-top:3px"><i class="rp-dot" style="background:#C9CFDB"></i>추천 <i class="rp-dot" style="background:#7C95DA;margin-left:6px"></i>학생 계획 <i class="rp-dot" style="background:#1B2440;margin-left:6px"></i>실제</div></div>
+    <div><div class="rp-sec">요일별 (${C.n}주 합 · 시간)</div><table class="rp-t"><tr><th>요일</th><th style="width:44%"></th><th class="r">계획</th><th class="r">실제</th><th class="r">지킨 정도</th></tr>${days.map(x => `<tr${weak && x.d === weak.d ? ' style="background:#FFF4E5"' : ''}><td>${x.d}</td><td>${bar3(x.v, mxD)}</td><td class="r">${h1(x.v.p)}</td><td class="r">${h1(x.v.a)}</td><td class="r">${pc(x.v.p, x.v.a)}</td></tr>`).join('')}</table></div></div>
+    <div class="rp-sec">과목별</div>${cmpTable(C, true, true)}
+    ${books.length ? `<div class="rp-sec">교재별 · 추천한 교재를 얼마나 했나 (시간)</div><table class="rp-t"><tr><th>과목</th><th>교재 · 할 일</th><th class="r">추천</th><th class="r">계획</th><th class="r">실제</th></tr>${books.map(b => `<tr><td>${E(b.k.replace('통합', ''))}</td><td>${E(b.t)}${!b.r ? ' <span class="rp-s">· 학생이 더함</span>' : ''}</td><td class="r">${h1(b.r)}</td><td class="r">${h1(b.p)}</td><td class="r"><b>${h1(b.a)}</b></td></tr>`).join('')}</table>` : ''}
+    ${tips.length ? `<div class="rp-sec">이 학생에게 추천한 공부법${G.when ? ` · ${E(G.when.h)}` : ''}</div>${tips.map(x => `<div class="aitip"><b>${E(x.k)}</b> (${E(x.lv)}${x.book ? ' · ' + E(x.book) : ''}) · ${E(x.tip)}</div>`).join('')}` : ''}
+    <div class="rp-s" style="margin-top:4px">추천 = 학원 자동 배치 · 계획 = 학생이 앱에서 직접 · 실제 = 타이머 기록 · 색 기준 ±20% 맞음 〔설계값 · TrainingPeaks 기준〕</div>`;
+  }
+  function addPage(html) {
+    const P = document.getElementById('print'); const first = P && P.querySelector('.rp-page'); if (!first || !html) return;
+    const pg = document.createElement('div'); pg.className = 'rp rp-page aipg'; const head = first.querySelector('.rp-head'), foot = first.querySelector('.rp-foot');
+    pg.innerHTML = (head ? head.outerHTML : '') + html + (foot ? foot.outerHTML : ''); const pages = P.querySelectorAll('.rp-page'); pages[0].after(pg);
   }
   function injectBefore(html) {
     const P = document.getElementById('print'); if (!P || !html) return;
@@ -6857,7 +6893,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     try { extra(); if (typeof rpFit === 'function') rpFit(); } catch (e) { console.warn('[리포트 비교]', e); }
     if (called) window.print();
   }
-  if (typeof printStudy === 'function') { const f = printStudy; printStudy = function (s, n) { const a = arguments; withPrint(() => f.apply(this, a), () => { const H = habitOf(s, n || 4); const C = sumCmp(H.weeks.map(w => cmpWeek(s, w.wk))); injectBefore(rpSection(s, C, `추천 → 학생 계획 → 실제 (추천이 있던 ${C ? C.n : 0}주)`)); }); }; }
+  if (typeof printStudy === 'function') { const f = printStudy; printStudy = function (s, n) { const a = arguments; withPrint(() => f.apply(this, a), () => { const H = habitOf(s, n || 4); const C = sumCmp(H.weeks.map(w => cmpWeek(s, w.wk))); if (C) addPage(rpPage(s, C)); }); }; }
   if (typeof printWin === 'function') { const f = printWin; printWin = function (s, n) { const a = arguments; withPrint(() => f.apply(this, a), () => {
     const N = wkCnt(s); const nums = n === 'all' ? [...Array(N)].map((_, i) => i + 1) : [n]; const wks = [...new Set(nums.flatMap(i => wkDates(s, i)).map(d => weekKey(new Date(d))))];
     const C = sumCmp(wks.map(w => cmpWeek(s, w))); injectBefore(rpSection(s, C, '추천 → 학생 계획 → 실제 (플래너 · 타이머 기준)')); }); }; }
@@ -6913,7 +6949,7 @@ const firebaseConfig = {
   messagingSenderId: "1039637490828",
   appId: "1:1039637490828:web:4e5b06004f7352a40a5fa9"
 };
-const DB_FILE = 'db.bin?v=76bc7d28b5';
+const DB_FILE = 'db.bin?v=f46cc4acbf';
 const ENC_KEY = 'plant_v1_enc';
 const PART = 800000;
 const STAFF_DOMAIN = 'staff.yeongbal-plant.app'; // 원장·선생님 비밀번호 계정용 내부 주소 (실제 메일 아님)
