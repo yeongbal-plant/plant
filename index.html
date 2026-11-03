@@ -6730,7 +6730,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     if (!a && !b) return null; const r = a ? b / a : null;
     if (!a) return { c: 'gray', t: stage === 'plan' ? '추천에 없던 것' : '계획 밖', r };
     if (!b) return { c: 'red', t: stage === 'plan' ? '안 짬' : '안 함', r: 0 };
-    const W = stage === 'plan' ? ['추천만큼', '조금 적게 짬', '많이 적게 짬', '추천보다 조금 많이', '추천보다 많이'] : ['계획대로', '조금 못 함', '많이 못 함', '계획보다 조금 더', '계획보다 많이 더'];
+    const W = stage === 'plan' ? ['추천만큼', '조금 적게 짬', '많이 적게 짬', '추천보다 조금 많이', '추천보다 많이'] : ['계획대로', '조금 못 끝냄', '많이 못 끝냄', '계획대로', '계획대로'];
     if (r >= 0.8 && r <= 1.2) return { c: 'green', t: W[0], r };
     if (r >= 0.5 && r < 0.8) return { c: 'yellow', t: W[1], r }; if (r < 0.5) return { c: 'orange', t: W[2], r };
     if (r <= 1.5) return { c: 'yellow', t: W[3], r }; return { c: 'orange', t: W[4], r };
@@ -6748,10 +6748,11 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const B = (o, k) => o[k] = o[k] || z(); const bk = (k, t) => { const key = SK(k) + '|' + t; const o = book[key] = book[key] || z(); o.k0 = SK(k); o.t = t; return o; };
     reco.forEach(b => { B(by, SK(b.subj)).r += b.min; B(day, b.day).r += b.min; bk(b.subj, b.title).r += b.min; });
     plan.forEach(b => {
-      const a = blockElapsed(b) / 60, k = doneMin(b); const m = matchReco(reco, b); const t = m ? m.title : b.title;
+      const sg0 = b.segs || []; const segM = sg0.map(g => Math.round((g.e - g.s) / 6e4)); const live = (S.run && S.run.bid === b.id) ? Math.round((Date.now() - S.run.start) / 6e4) : 0;
+      const a = sg0.length ? segM.reduce((x, y) => x + y, 0) + live : Math.round(blockElapsed(b) / 60); const k = b.done ? b.min : Math.min(b.min, a); /* 분 단위로 한 번만 반올림 → 모든 표 합계가 맞음 */ const m = matchReco(reco, b); const t = m ? m.title : b.title;
       [B(by, SK(b.subj)), bk(b.subj, t)].forEach(o => { o.p += b.min; o.a += a; o.k += k; }); const d0 = B(day, b.day); d0.p += b.min; d0.k += k;
       // 요일별 실제는 실제로 공부한 날짜로 (수요일 할 일을 목요일에 했으면 목요일)
-      const sg = b.segs || []; if (sg.length) sg.forEach(g => { const di = Math.round((new Date(new Date(g.s).toDateString()) - mon) / 864e5); B(day, di >= 0 && di < 7 ? di : b.day).a += (g.e - g.s) / 6e4; days.add(dkey(new Date(g.s))); }); else { d0.a += a; if (b.sec > 0) days.add(wk + '|' + b.day); }
+      const sg = b.segs || []; if (sg.length) { sg.forEach((g, gi) => { const di = Math.round((new Date(new Date(g.s).toDateString()) - mon) / 864e5); B(day, di >= 0 && di < 7 ? di : b.day).a += segM[gi]; days.add(dkey(new Date(g.s))); }); if (live) d0.a += live; } else { d0.a += a; if (b.sec > 0) days.add(wk + '|' + b.day); }
       if (b.done && a < b.min) untimed += b.min - a;
       if (!m) own += b.min; else if (b.by === 'student' && (b.edited || b.min !== m.min)) edit += b.min; else copy += b.min;
     });
@@ -6783,16 +6784,18 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   /* ---------- 3. 발견 → 조치 (이 학생 숫자에서) ---------- */
   // 조치 문장 출처 · 학습관리 가이드 「과목 배치」 · 「양을 정하는 법」 · 요일 조정은 〔설계값〕
   const RUN_ACT = { 국어: '몰아서 하지 말고 매일 아침 짧게 나눠 넣어요', 수학: '3시간 넘게 비는 날(학원 없는 날)로 옮겨 한 번에 몰아서 넣어요', 영어: '점심 뒤처럼 졸려도 할 수 있는 시간으로 옮겨요', 통합사회: '공부하기 싫은 시간에 인강 2~3강으로 넣어요', 통합과학: '공부하기 싫은 시간에 인강 2~3강으로 넣어요' };
+  // 시간을 「시간 · 분」으로 (2.5시간 → 2시간 30분)
+  const hh = h => hm(h * 60);
   function finds(s, C) {
-    const F = [], n = C.n || 1;
+    const F = [], L = C.weeks[C.weeks.length - 1]; // 마지막 주에도 같은 모습일 때만 (최근에 나아졌으면 안 꺼냄)
     Object.entries(C.by).forEach(([k, v]) => {
-      if (k === '기타') return;
-      if (C.self !== false && v.r >= 60 && v.p / v.r < 0.8) F.push({ key: 'p|' + k, w: v.r - v.p, k, t: `${SHORT(k)} · 추천 ${hm(v.r)} 중 ${hm(v.p)}만 계획 (${pc(v.r, v.p)})`, act: `${SHORT(k)} 추천을 학생이 짠 주 ${hm(v.p / n)}에서 시작해 매주 조금씩 늘려요` });
-      if (v.p >= 60 && v.k / v.p < 0.8) F.push({ key: 'k|' + k, w: v.p - v.k, k, t: `${SHORT(k)} · 계획 ${hm(v.p)} 중 ${hm(v.k)} 해냄 (${pc(v.p, v.k)})`, act: `${SHORT(k)}는 ${RUN_ACT[k] || '블록을 짧게 나눠요'}` });
+      if (k === '기타') return; const lv = (L && L.by[k]) || z();
+      if (C.self !== false && v.r >= 60 && v.p / v.r < 0.8 && lv.r && lv.p / lv.r < 0.8) F.push({ key: 'p|' + k, w: v.r - v.p, k, t: `${SHORT(k)} · ${C.n}주 동안 추천 ${hm(v.r)} 중 ${hm(v.p)}만 계획 (${pc(v.r, v.p)}) · 지난주도 ${pc(lv.r, lv.p)}`, act: `${SHORT(k)} 추천을 지난주 스스로 짠 ${hm(lv.p)}에서 시작해 매주 30분씩 늘려요` });
+      if (v.p >= 60 && v.k / v.p < 0.8 && lv.p && lv.k / lv.p < 0.8) F.push({ key: 'k|' + k, w: v.p - v.k, k, t: `${SHORT(k)} · 계획한 할 일 중 ${pc(v.p, v.k)}만 끝냄 · 지난주도 ${pc(lv.p, lv.k)}`, act: `${SHORT(k)}는 ${RUN_ACT[k] || '블록을 짧게 나눠요'}` });
     });
-    const days = DAYS.map((d, i) => ({ d, i, v: C.day[i] || z() })).filter(x => x.v.p >= 60);
+    const days = DAYS.map((d, i) => ({ d, i, v: C.day[i] || z(), l: (L && L.day[i]) || z() })).filter(x => x.v.p >= 60);
     const best = days.slice().sort((a, b) => b.v.k / b.v.p - a.v.k / a.v.p)[0];
-    days.filter(x => x.v.k / x.v.p < 0.7).forEach(x => F.push({ key: 'd|' + x.i, w: x.v.p - x.v.k, day: x.i, t: `${x.d}요일 · 계획 ${hm(x.v.p)} 중 ${hm(x.v.k)} 해냄 (${pc(x.v.p, x.v.k)})`, act: `${x.d}요일 추천을 실제로 한 만큼(주 ${hm(x.v.k / n)})으로 줄이고${best && best.i !== x.i ? `, 남는 양은 잘 지키는 ${best.d}요일로 옮겨요` : ''}` }));
+    days.filter(x => x.v.k / x.v.p < 0.7 && (!x.l.p || x.l.k / x.l.p < 0.7)).forEach(x => F.push({ key: 'd|' + x.i, w: x.v.p - x.v.k, day: x.i, t: `${x.d}요일 · 계획한 할 일 중 ${pc(x.v.p, x.v.k)}만 끝냄`, act: `${x.d}요일 추천을 줄이고${best && best.i !== x.i ? `, 남는 양은 잘 지키는 ${best.d}요일로 옮겨요` : ''}` }));
     return F.sort((a, b) => b.w - a.w).slice(0, 3);
   }
   // 선생님이 「이렇게 하기」로 고른 조치만 학부모 리포트에 「학원이 바꾸는 것」으로 나감 (21일 지나면 다시 고름)
@@ -6800,8 +6803,8 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
   function goods(s, C) {
     const G = [];
     const subs = Object.entries(C.by).filter(([k, v]) => k !== '기타' && v.p >= 60).sort((a, b) => b[1].k / b[1].p - a[1].k / a[1].p);
-    if (subs[0] && subs[0][1].k / subs[0][1].p >= 0.85) G.push(`${SHORT(subs[0][0])} · 계획한 ${hm(subs[0][1].p)} 중 ${pc(subs[0][1].p, subs[0][1].k)}를 해냈어요`);
-    if (C.own >= 30) { const ownDone = Object.values(C.book).filter(b => !b.r).reduce((a, b) => a + b.k, 0); G.push(`추천에 없던 할 일 ${hm(C.own)}을 스스로 계획에 넣었어요${ownDone ? ` (그중 ${hm(ownDone)} 해냄)` : ''}`); }
+    if (subs[0] && subs[0][1].k / subs[0][1].p >= 0.85) G.push(`${SHORT(subs[0][0])} · 계획한 할 일의 ${pc(subs[0][1].p, subs[0][1].k)}를 끝냈어요`);
+    if (C.own >= 30) { G.push(`추천에 없던 할 일 ${hm(C.own)}을 스스로 계획에 넣었어요`); }
     const w = C.weeks; if (w.length >= 2) { const a = w[0].T, b = w[w.length - 1].T; const ra = a.p ? a.k / a.p : 0, rb = b.p ? b.k / b.p : 0; if (rb - ra >= 0.05) G.push(`계획을 지킨 정도가 첫 주 ${Math.round(ra * 100)}% → 마지막 주 ${Math.round(rb * 100)}%로 올랐어요`); if (b.p - a.p >= 60) G.push(`스스로 짠 계획이 첫 주 ${hm(a.p)} → 마지막 주 ${hm(b.p)}로 늘었어요`); }
     return G.slice(0, 3);
   }
@@ -6845,7 +6848,7 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const rows = Object.entries(C.by).sort((a, b) => SUBJS.indexOf(a[0]) - SUBJS.indexOf(b[0]));
     const sf = C.self !== false;
     const tr = (k, v, tot) => `<tr${tot ? ' class="tot"' : ''}><td><b ${tot ? '' : `style="color:${SUBCOL[k] || '#333'}"`}>${tot ? '합계' : E(SHORT(k))}</b></td>${sf ? `<td>${H(v.r)}</td>` : ''}<td>${H(v.p)}</td><td><b>${H(v.a)}</b></td>${sf ? `<td>${dot(tone(v.r, v.p, 'plan'))}</td>` : ''}<td>${dot(tone(v.p, v.k, 'run'))}</td></tr>`;
-    const table = `<div class="scroll aitbl"><table class="aicmp"><thead><tr><th>과목</th>${sf ? '<th>추천</th><th>학생 계획</th>' : '<th>학원 계획</th>'}<th>실제 공부</th>${sf ? '<th>추천만큼 짰나</th>' : ''}<th>계획만큼 했나</th></tr></thead><tbody>${rows.map(([k, v]) => tr(k, v)).join('')}${tr('', C.T, true)}</tbody></table></div>`;
+    const table = `<div class="scroll aitbl"><table class="aicmp"><thead><tr><th>과목</th>${sf ? '<th>추천</th><th>학생 계획</th>' : '<th>학원 계획</th>'}<th>실제 공부</th>${sf ? '<th>추천만큼 짰나</th>' : ''}<th>계획한 할 일 끝낸 비율</th></tr></thead><tbody>${rows.map(([k, v]) => tr(k, v)).join('')}${tr('', C.T, true)}</tbody></table></div>`;
     if (opt.print) return table;
     const cards = `<div class="aicards">${rows.concat([['합계', C.T]]).map(([k, v]) => `<div class="aicd"><div class="row between"><b style="color:${SUBCOL[k] || '#1B2440'}">${E(SHORT(k))}</b><span class="aism">${sf ? `추천 ${hm(v.r)} → 계획 ${hm(v.p)}` : `학원 계획 ${hm(v.p)}`} → 실제 ${hm(v.a)}</span></div><div class="row" style="gap:10px;flex-wrap:wrap">${sf ? dot(tone(v.r, v.p, 'plan')) : ''}${dot(tone(v.p, v.k, 'run'))}</div></div>`).join('')}</div>`;
     return table + cards;
@@ -6886,8 +6889,8 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const recoDays = reco && reco.length ? DAYS.map((d, i) => { const bl = reco.filter(b => b.day === i); return bl.length ? `<div class="aisub"><b>${d}</b> ${bl.map(b => `<span class="aism">${E(SHORT(b.subj))} · ${E(b.title)} ${b.min}분</span>`).join(' · ')}</div>` : ''; }).join('') : '';
     return `${css()}<section class="card col" id="aiCard"><div class="row between"><div class="row" style="gap:8px"><h2>AI 코칭</h2><span class="aism">이 학생 숫자로 추천 → 학생이 짬 → 실제와 비교 → 다음 추천에 반영</span></div>
       <div class="row" style="gap:12px;flex-wrap:wrap"><label class="row" style="gap:6px;font-size:13.5px;font-weight:700"><input type="checkbox" id="aiSelf" ${s.selfPlan ? 'checked' : ''}> 계획은 학생이 직접 짜기</label><label class="row" style="gap:6px;font-size:13.5px;font-weight:700"><input type="checkbox" id="aiAdapt" ${s.aiAdapt === false ? '' : 'checked'}> 지난 기록 반영해 추천</label></div></div>
-      ${show ? findHtml(s, show, true) : ''}
-      ${rr && rr.adj && rr.adj.length ? `<div class="aiadj"><b>이번 주 추천에 반영한 것</b> · ${rr.adj.map(a => `${DAYS[a.day]}요일 공부 시간 ${a.from}시간 → ${a.to}시간`).join(' · ')} <span class="aism">(지난 2주 그 요일 계획을 70% 미만 지켜서 실제로 한 만큼 + 30분으로 줄임 · 원래의 절반 아래로는 안 내림 〔설계값〕)</span></div>` : ''}
+      ${(() => { const tw2 = weekKey(today()); const C4 = sumCmp(weeksBack(5).filter(w => w < tw2).map(w => cmpWeek(s, w))); return C4 ? `<div class="aism" style="font-weight:700">지난 ${C4.n}주 기준 (학부모 리포트와 같은 기간)</div>` + findHtml(s, C4, true) : ''; })()}
+      ${rr && rr.adj && rr.adj.length ? `<div class="aiadj"><b>이번 주 추천에 반영한 것</b> · ${rr.adj.map(a => `${DAYS[a.day]}요일 공부 시간 ${hh(a.from)} → ${hh(a.to)}`).join(' · ')} <span class="aism">(지난 2주 그 요일 계획을 70% 미만 지켜서 실제로 한 만큼 + 30분으로 줄임 · 원래의 절반 아래로는 안 내림 〔설계값〕)</span></div>` : ''}
       ${st && (C || prev || {}).self !== false ? `<div class="aistreak">${STREAK_SAY[st]}</div>` : ''}
       ${C ? `<div style="font-weight:800;margin-top:4px">이번 주 비교${C.upto ? ` · ${DAYS[C.upto - 1]}요일까지` : ''}</div>${cmpTable(C)}${cmpSay(C)}` : prev ? `<div style="font-weight:800;margin-top:4px">지난주 비교 (${prevWk.slice(5).replace('-', '/')} 주)</div>${cmpTable(prev)}${cmpSay(prev)}` : ''}
       <details ${wk === tw && innerWidth > 760 && !show ? 'open' : ''}><summary style="cursor:pointer;font-weight:800">이 학생 추천 공부법</summary><div style="margin-top:6px">${guideHtml(s)}</div></details>
@@ -6926,16 +6929,16 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const F = finds(s, C), G = goods(s, C); const on = doneKeys(s);
     const endWk = C.weeks[C.weeks.length - 1].wk; const nx = recoRec(s, ymd(addDays(wkDate(endWk), 7))) || recoRec(s, endWk); const adj = nx && nx.adj || [];
     const name = String(s.name || '').length >= 3 ? String(s.name).slice(1) : String(s.name || '');
-    const head = R0 == null ? `${E(name)} 학생의 ${C.n}주 공부 기록이에요` : `${E(name)} 학생은 ${sf ? '스스로 짠' : '학원과 정한'} 계획의 <b>${R0}%</b>를 ${R0 >= 80 ? '해냈어요' : '했어요'}`;
-    const doNow = adj.map(a => `${DAYS[a.day]}요일 추천 공부 시간을 ${a.from}시간에서 ${a.to}시간으로 줄였어요 (지난 2주 실제로 한 만큼 + 30분)`).concat(F.filter(f => on.includes(f.key)).map(f => f.act)).slice(0, 3);
+    const head = R0 == null ? `${E(name)} 학생의 ${C.n}주 공부 기록이에요` : `${E(name)} 학생은 ${sf ? '스스로 짠' : '학원과 정한'} 계획의 <b>${R0}%</b>를 끝냈어요`;
+    const doNow = adj.map(a => `${DAYS[a.day]}요일 추천 공부 시간을 ${hh(a.from)}에서 ${hh(a.to)}으로 줄였어요 (지난 2주 실제로 한 만큼 + 30분)`).concat(F.filter(f => on.includes(f.key)).map(f => f.act)).slice(0, 3);
     const talk = F.filter(f => !on.includes(f.key)).map(f => f.t).slice(0, Math.max(0, 4 - doNow.length));
     const basis = C.dflt ? '학원 기본 공부 시간' : '학생이 알려 준 공부 가능 시간';
     return `${RPCSS}<div class="rp-sumpg"><div class="s-t">${rangeTxt(C)} · ${C.n}주 한눈에</div><div class="s-h">${head}</div>
-      <div class="s-n" ${sf ? '' : 'style="grid-template-columns:repeat(2,1fr)"'}>${sf ? `<div><div class="l">학원 추천</div><div class="v">${hm(C.T.r)}</div><div class="d">학년 · 성적 · 교재와 ${basis}으로 학원이 짠 양</div></div><div><div class="l">스스로 짠 계획</div><div class="v" style="color:#2F5BEA">${hm(C.T.p)}</div><div class="d">추천을 보고 학생이 앱에서 직접 짠 양 (추천의 ${pc(C.T.r, C.T.p)})</div></div>` : `<div><div class="l">학원 계획</div><div class="v" style="color:#2F5BEA">${hm(C.T.p)}</div><div class="d">학년 · 성적 · 교재와 ${basis}으로 학원이 짠 양</div></div>`}<div><div class="l">실제 공부</div><div class="v">${hm(C.T.a)}</div><div class="d">학생 앱 타이머로 잰 시간${C.untimed >= 10 ? ` · 타이머 없이 끝낸 할 일 ${hm(C.untimed)} 별도` : ''}</div></div></div>
+      <div class="s-n" ${sf ? '' : 'style="grid-template-columns:repeat(2,1fr)"'}>${sf ? `<div><div class="l">학원 추천 · ${C.n}주 합</div><div class="v">${hm(C.T.r)}</div><div class="d">학년 · 성적 · 교재와 ${basis}으로 학원이 짠 양</div></div><div><div class="l">스스로 짠 계획 · ${C.n}주 합</div><div class="v" style="color:#2F5BEA">${hm(C.T.p)}</div><div class="d">주 평균 ${hm(C.T.p / C.n)} · 추천의 ${pc(C.T.r, C.T.p)} · 학생이 앱에서 직접</div></div>` : `<div><div class="l">학원 계획</div><div class="v" style="color:#2F5BEA">${hm(C.T.p)}</div><div class="d">학년 · 성적 · 교재와 ${basis}으로 학원이 짠 양</div></div>`}<div><div class="l">실제 공부 · ${C.n}주 합</div><div class="v">${hm(C.T.a)}</div><div class="d">주 평균 ${hm(C.T.a / C.n)} · 학생 앱 타이머로 잰 시간${C.untimed >= 10 ? ` · 타이머 없이 끝낸 할 일 ${hm(C.untimed)} 별도` : ''}</div></div></div>
       ${G.length ? `<div class="s-box s-good"><h3>잘한 점</h3>${G.slice(0, 2).map(x => `<div>· ${E(x)}</div>`).join('')}</div>` : ''}
       ${doNow.length ? `<div class="s-box s-next"><h3>학원이 바꾸는 것</h3>${doNow.map(x => `<div class="ar">→ ${E(x)}</div>`).join('')}</div>` : ''}
       ${talk.length ? `<div class="s-box" style="border:2px solid #E2E6EE"><h3>다음 상담에서 함께 볼 것</h3>${talk.map(x => `<div>· ${E(x)}</div>`).join('')}</div>` : ''}
-      <div class="s-foot">계획을 지킨 정도 = 계획한 할 일 중 끝낸 것 · 다음 쪽부터 주별 · 요일별 · 과목별 · 교재별 표</div></div>`;
+      <div class="s-foot">%는 계획한 할 일 중 끝낸 비율(시간이 아니라 할 일 기준) · 시간은 학생 앱 타이머 · 다음 쪽부터 주별 · 요일별 · 과목별 · 교재별 표</div></div>`;
   }
   function rpPage(s, C) {
     const rate = rateOfWeeks(s, C.weeks.map(w => w.wk));
@@ -6946,16 +6949,16 @@ body.mstaff.v-planner .row:has(> [data-a="auto"]) .btn{flex:none;min-height:42px
     const weak = days.filter(x => x.v.p >= 30).sort((a, b) => a.v.k / a.v.p - b.v.k / b.v.p)[0];
     const books = Object.values(C.book).filter(b => b.r || b.p).sort((a, b) => b.r + b.p - (a.r + a.p)); const top = books.slice(0, books.length > 7 ? 6 : 7), rest = books.length > 7 ? books.slice(6) : [];
     const restT = rest.reduce((o, b) => ({ r: o.r + b.r, p: o.p + b.p, a: o.a + b.a }), { r: 0, p: 0, a: 0 });
-    const G = guide(s); const tips = G.subj.filter(x => x.tip).slice(0, 3);
+    const G = guide(s); const tips = G.subj.filter(x => x.tip || x.k === '영어');
     const HM2 = m => m ? hm(m) : '—';
     return `${RPCSS}<div class="rp-sec">계획대로 했나요 · ${C.self !== false ? '학원 추천 → 스스로 짠 계획 → 실제 공부' : '학원 계획 → 실제 공부'} (${rangeTxt(C)} · ${C.n}주)</div>
-    <div class="rp-stats" style="grid-template-columns:repeat(${C.self !== false ? 4 : 3},1fr)">${C.self !== false ? big('학원 추천', hm(C.T.r), '공부 가능 시간 · 수준 · 교재로', '#4F5A6E') + big('스스로 짠 계획', hm(C.T.p), `추천의 ${pc(C.T.r, C.T.p)}`, '#2F5BEA') : big('학원 계획', hm(C.T.p), '공부 가능 시간 · 수준 · 교재로', '#2F5BEA')}${big('실제 공부', hm(C.T.a), '타이머 기록', '#1B2440')}${big('계획을 지킨 정도', rate != null ? Math.round(rate * 100) + '%' : '—', '끝낸 할 일 기준 (1쪽과 같음)', '#1B2440')}</div>
+    <div class="rp-stats" style="grid-template-columns:repeat(${C.self !== false ? 4 : 3},1fr)">${C.self !== false ? big('학원 추천', hm(C.T.r), '공부 가능 시간 · 수준 · 교재로', '#4F5A6E') + big('스스로 짠 계획', hm(C.T.p), `추천의 ${pc(C.T.r, C.T.p)}`, '#2F5BEA') : big('학원 계획', hm(C.T.p), '공부 가능 시간 · 수준 · 교재로', '#2F5BEA')}${big('실제 공부', hm(C.T.a), '타이머 기록', '#1B2440')}${big('계획한 할 일 끝낸 비율', rate != null ? Math.round(rate * 100) + '%' : '—', '시간이 아니라 끝낸 할 일 기준', '#1B2440')}</div>
     <div class="rp-cols"><div><div class="rp-sec">주별</div><table class="rp-t"><tr><th>주</th><th style="width:30%"></th><th class="r">추천</th><th class="r">계획</th><th class="r">실제</th></tr>${wks.map(w => `<tr><td>${w.wk.slice(5).replace('-', '/')}</td><td>${bar3(w.T, mxW)}</td><td class="r">${HM2(w.T.r)}</td><td class="r">${HM2(w.T.p)}</td><td class="r"><b>${HM2(w.T.a)}</b></td></tr>`).join('')}</table>
       <div class="rp-s" style="margin-top:3px"><i class="rp-dot" style="background:#B9C1D1"></i>추천 <i class="rp-dot" style="background:#5F7FD8;margin-left:6px"></i>스스로 짠 계획 <i class="rp-dot" style="background:#1B2440;margin-left:6px"></i>실제</div></div>
-    <div><div class="rp-sec">요일별 (${C.n}주 합)</div><table class="rp-t"><tr><th>요일</th><th style="width:30%"></th><th class="r">계획</th><th class="r">실제</th><th class="r">지킨 정도</th></tr>${days.map(x => `<tr${weak && x.d === weak.d ? ' style="background:#FFF1DE"' : ''}><td>${x.d}${weak && x.d === weak.d ? ' <b style="color:#B26B00">약함</b>' : ''}</td><td>${bar3(x.v, mxD)}</td><td class="r">${HM2(x.v.p)}</td><td class="r">${HM2(x.v.a)}</td><td class="r">${pc(x.v.p, x.v.k)}</td></tr>`).join('')}</table></div></div>
+    <div><div class="rp-sec">요일별 (${C.n}주 합)</div><table class="rp-t"><tr><th>요일</th><th style="width:30%"></th><th class="r">계획</th><th class="r">실제</th><th class="r">끝낸 비율</th></tr>${days.map(x => `<tr${weak && x.d === weak.d ? ' style="background:#FFF1DE"' : ''}><td>${x.d}${weak && x.d === weak.d ? ' <b style="color:#B26B00">약함</b>' : ''}</td><td>${bar3(x.v, mxD)}</td><td class="r">${HM2(x.v.p)}</td><td class="r">${HM2(x.v.a)}</td><td class="r">${pc(x.v.p, x.v.k)}</td></tr>`).join('')}</table></div></div>
     <div class="rp-sec">과목별</div>${cmpTable(C, { print: 1 })}
     ${top.length ? `<div class="rp-sec">교재별 · 추천한 교재를 얼마나 했나</div><table class="rp-t"><tr><th>과목</th><th>교재 · 할 일</th><th class="r">추천</th><th class="r">계획</th><th class="r">실제</th></tr>${top.map(b => `<tr><td>${E(SHORT(b.k0))}</td><td>${E(b.t)}${!b.r ? ' <span class="rp-s">· 학생이 더함</span>' : ''}</td><td class="r">${HM2(b.r)}</td><td class="r">${HM2(b.p)}</td><td class="r"><b>${HM2(b.a)}</b></td></tr>`).join('')}${rest.length ? `<tr><td></td><td>그 밖 ${rest.length}개</td><td class="r">${HM2(restT.r)}</td><td class="r">${HM2(restT.p)}</td><td class="r"><b>${HM2(restT.a)}</b></td></tr>` : ''}<tr style="background:#F2F4F8"><td></td><td><b>합계</b></td><td class="r"><b>${HM2(C.T.r)}</b></td><td class="r"><b>${HM2(C.T.p)}</b></td><td class="r"><b>${HM2(C.T.a)}</b></td></tr></table>` : ''}
-    ${tips.length ? `<div class="rp-sec">이 학생에게 추천한 공부법${G.when ? ` · ${E(G.when.h)}` : ''}</div>${tips.map(x => `<div class="aitip"><b>${E(SHORT(x.k))}</b> (${E(x.lv)}${x.stW ? ' · ' + E(x.stW) : ''}) · ${E(x.tip)}</div>`).join('')}` : ''}
+    ${tips.length ? `<div class="rp-sec">이 학생에게 추천한 공부법${G.when ? ` · ${E(G.when.h)}` : ''}</div>${tips.map(x => { const v = C.by[x.k]; return `<div class="aitip"><b>${E(SHORT(x.k))}</b>${x.lv ? ` (${E(x.lv)}${x.stW ? ' · ' + E(x.stW) : ''})` : ''}${v && v.p ? ` · 끝낸 비율 ${pc(v.p, v.k)}` : ''} · ${E(x.tip || '영어발전소 수업 단계로 관리')}</div>`; }).join('')}` : ''}
     <div class="rp-s" style="margin-top:4px">${C.self !== false ? `스스로 짠 계획 중 추천 그대로 ${hm(C.copy)} · 추천을 고쳐 넣음 ${hm(C.edit)} · 학생이 더함 ${hm(C.own)} · ` : ''}${C.untimed >= 10 ? `타이머 없이 끝낸 할 일 ${hm(C.untimed)} · ` : ''}판정 80~120%면 맞음 · 요일별 실제는 실제로 공부한 날짜 기준</div>`;
   }
   function addPage(html, where, cls, rng) {
@@ -7039,7 +7042,7 @@ const firebaseConfig = {
   messagingSenderId: "1039637490828",
   appId: "1:1039637490828:web:4e5b06004f7352a40a5fa9"
 };
-const DB_FILE = 'db.bin?v=5a254ff4d1';
+const DB_FILE = 'db.bin?v=6bce204916';
 const ENC_KEY = 'plant_v1_enc';
 const PART = 800000;
 const STAFF_DOMAIN = 'staff.yeongbal-plant.app'; // 원장·선생님 비밀번호 계정용 내부 주소 (실제 메일 아님)
